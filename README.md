@@ -1,4 +1,3 @@
-# griddle
 # Griddle
 
 > A lightweight desktop overlay engine for presentations, annotations, and productivity.
