@@ -43,12 +43,11 @@ final class OverlayWindow: NSWindow {
     }
 
     private func configureContentView() {
-        let overlayView = NSView(frame: frame)
+        let overlayView = NSView()
         overlayView.wantsLayer = true
+        overlayView.autoresizingMask = [.width, .height]
 
         #if DEBUG
-        // Temporary visual tint so we can confirm that the
-        // transparent overlay exists during development.
         overlayView.layer?.backgroundColor =
             NSColor.systemOrange.withAlphaComponent(0.08).cgColor
         #else
