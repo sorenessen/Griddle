@@ -17,7 +17,19 @@ public sealed class DrawingCanvas : Control
     private readonly Stack<Stroke> _redoStack = new();
 
     private Stroke? _activeStroke;
-    private readonly PenTool _pen = new(new PenSettings());
+    private readonly PenTool _pen;
+
+    public PenTool Pen => _pen;
+
+    public DrawingCanvas()
+        : this(new PenTool(new PenSettings()))
+    {
+    }
+
+    public DrawingCanvas(PenTool pen)
+    {
+        _pen = pen;
+    }
 
     public void SetColor(StrokeColor color)
     {

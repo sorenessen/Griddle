@@ -1,0 +1,34 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Griddle.App.Views.ToolbarWindow"
+    Width="280"
+    Height="60"
+    CanResize="False"
+    WindowDecorations="None"
+    Topmost="True">
+
+    <Border
+        CornerRadius="10"
+        Background="#DD2B2B2B"
+        Padding="10">
+
+        <StackPanel
+            Orientation="Horizontal"
+            Spacing="8">
+
+            <Button 
+                Content="🔴"
+                Click="RedButton_Click"/>
+
+            <Button Content="🔵"/>
+
+            <Button Content="─"/>
+
+            <Button Content="═"/>
+
+        </StackPanel>
+
+    </Border>
+
+</Window>

@@ -1,8 +1,12 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Griddle.Platform.MacOS;
 using Griddle.Core.Models;
+using Griddle.Core.Tools;
+using Griddle.App.Views;
+using Griddle.App.ViewModels;
 
 namespace Griddle.App;
 
@@ -23,6 +27,22 @@ public partial class MainWindow : Window
         MacOSWindowInterop.SetIgnoresMouseEvents(
             this,
             ignoresMouseEvents: false);
+
+        var toolbarViewModel = new ToolbarViewModel(DrawingSurface.Pen);
+        var toolbar = new ToolbarWindow(toolbarViewModel);
+
+        var overlayScreen = Screens.ScreenFromTopLevel(this);
+
+        if (overlayScreen is not null)
+        {
+            var workingArea = overlayScreen.WorkingArea;
+
+            toolbar.Position = new PixelPoint(
+                workingArea.X + 40,
+                workingArea.Y + 40);
+        }
+
+        toolbar.Show(this);
     }
 
     private void Overlay_PointerPressed(
