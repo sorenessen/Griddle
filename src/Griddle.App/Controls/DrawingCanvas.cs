@@ -5,6 +5,8 @@ using Avalonia.Media;
 using Griddle.Core.Geometry;
 using Griddle.Core.Models;
 using Griddle.Core.Services;
+using Griddle.Core.Tools;
+
 
 namespace Griddle.App.Controls;
 
@@ -15,25 +17,24 @@ public sealed class DrawingCanvas : Control
     private readonly Stack<Stroke> _redoStack = new();
 
     private Stroke? _activeStroke;
-    private StrokeColor _activeColor = StrokeColor.Red;
-    private double _activeThickness = 4;
+    private readonly PenTool _pen = new(new PenSettings());
 
     public void SetColor(StrokeColor color)
     {
-        _activeColor = color;
+        _pen.Settings.Color = color;
     }
 
     public void SetThickness(double thickness)
     {
-        _activeThickness = thickness;
+        _pen.Settings.Thickness = thickness;
     }
 
     public void BeginStroke(Point point)
     {
         _activeStroke = _strokeBuilder.Begin(
             ToPoint2D(point),
-            _activeColor,
-            _activeThickness);
+            _pen.Settings.Color,
+            _pen.Settings.Thickness);
         InvalidateVisual();
     }
 
