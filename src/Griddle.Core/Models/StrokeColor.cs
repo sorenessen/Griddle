@@ -3,5 +3,6 @@ namespace Griddle.Core.Models;
 public enum StrokeColor
 {
     Red,
-    Blue
+    Blue,
+    Yellow
 }

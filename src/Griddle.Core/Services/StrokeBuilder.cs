@@ -10,9 +10,14 @@ public sealed class StrokeBuilder
     public Stroke Begin(
         Point2D point,
         StrokeColor color,
-        double thickness)
+        double thickness,
+        double opacity)
     {
-        _current = new Stroke(color, thickness);
+        _current = new Stroke(
+            color,
+            thickness,
+            opacity);
+
         _current.Points.Add(point);
         return _current;
     }

@@ -23,7 +23,9 @@
 
             <Button Content="🔵"/>
 
-            <Button Content="─"/>
+            <Button
+                Content="🟨"
+                Click="HighlighterButton_Click"/>
 
             <Button Content="═"/>
 

@@ -46,7 +46,8 @@ public sealed class DrawingCanvas : Control
         _activeStroke = _strokeBuilder.Begin(
             ToPoint2D(point),
             _pen.Settings.Color,
-            _pen.Settings.Thickness);
+            _pen.Settings.Thickness,
+            _pen.Settings.Opacity);
         InvalidateVisual();
     }
 
@@ -101,11 +102,16 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
-        var brush = stroke.Color switch
+        var baseColor = stroke.Color switch
         {
-            StrokeColor.Blue => Brushes.DodgerBlue,
-            _ => Brushes.Red
+            StrokeColor.Blue => Colors.DodgerBlue,
+            StrokeColor.Yellow => Colors.Yellow,
+            _ => Colors.Red
         };
+
+        var brush = new SolidColorBrush(
+            baseColor,
+            stroke.Opacity);
 
         var pen = new Pen
         {
