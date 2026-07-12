@@ -1,8 +1,8 @@
 using System;
 using Avalonia.Controls;
-using Griddle.Avalonia.Platform;
+using Griddle.Platform.MacOS;
 
-namespace Griddle.Avalonia;
+namespace Griddle.App;
 
 public partial class MainWindow : Window
 {

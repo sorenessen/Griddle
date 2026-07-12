@@ -16,4 +16,9 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Griddle.Core\Griddle.Core.csproj" />
+    <ProjectReference Include="..\Griddle.Platform\Griddle.Platform.csproj" />
+  </ItemGroup>
 </Project>

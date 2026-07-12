@@ -2,9 +2,9 @@ using System;
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
 
-namespace Griddle.Avalonia.Platform;
+namespace Griddle.Platform.MacOS;
 
-internal static class MacOSWindowInterop
+public static class MacOSWindowInterop
 {
     private const string ObjectiveCLibrary = "/usr/lib/libobjc.A.dylib";
 

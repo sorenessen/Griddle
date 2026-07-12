@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 
-namespace Griddle.Avalonia;
+namespace Griddle.App;
 
 public partial class App : Application
 {

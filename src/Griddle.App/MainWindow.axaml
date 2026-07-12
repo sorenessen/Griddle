@@ -1,8 +1,8 @@
 <Window
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    x:Class="Griddle.Avalonia.MainWindow"
-    SystemDecorations="None"
+    x:Class="Griddle.App.MainWindow"
+    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     Background="#14FF8C00"
     Topmost="True"

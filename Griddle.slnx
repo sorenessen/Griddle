@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Griddle.App/Griddle.App.csproj" />
+    <Project Path="src/Griddle.Core/Griddle.Core.csproj" />
+    <Project Path="src/Griddle.Platform/Griddle.Platform.csproj" />
+  </Folder>
+</Solution>
