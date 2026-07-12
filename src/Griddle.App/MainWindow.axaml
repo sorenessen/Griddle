@@ -10,8 +10,11 @@
     CanResize="False"
     ShowInTaskbar="False"
     WindowState="Maximized"
-    Title="Griddle Overlay">
+    Title="Griddle Overlay"
+    PointerPressed="Overlay_PointerPressed"
+    PointerMoved="Overlay_PointerMoved"
+    PointerReleased="Overlay_PointerReleased">
 
-    <controls:DrawingCanvas />
+    <controls:DrawingCanvas x:Name="DrawingSurface" />
 
 </Window>
