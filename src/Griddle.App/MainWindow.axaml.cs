@@ -2,6 +2,7 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Griddle.Platform.MacOS;
+using Griddle.Core.Models;
 
 namespace Griddle.App;
 
@@ -95,13 +96,25 @@ public partial class MainWindow : Window
 
             case Key.D1:
             case Key.NumPad1:
-                DrawingSurface.SetColor("red");
+                DrawingSurface.SetColor(StrokeColor.Red);
                 e.Handled = true;
                 break;
 
             case Key.D2:
             case Key.NumPad2:
-                DrawingSurface.SetColor("blue");
+                DrawingSurface.SetColor(StrokeColor.Blue);
+                e.Handled = true;
+                break;
+
+            case Key.D3:
+            case Key.NumPad3:
+                DrawingSurface.SetThickness(2);
+                e.Handled = true;
+                break;
+
+            case Key.D4:
+            case Key.NumPad4:
+                DrawingSurface.SetThickness(6);
                 e.Handled = true;
                 break;
         }

@@ -7,9 +7,12 @@ public sealed class StrokeBuilder
 {
     private Stroke? _current;
 
-    public Stroke Begin(Point2D point, string color)
+    public Stroke Begin(
+        Point2D point,
+        StrokeColor color,
+        double thickness)
     {
-        _current = new Stroke(color);
+        _current = new Stroke(color, thickness);
         _current.Points.Add(point);
         return _current;
     }

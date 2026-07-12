@@ -15,18 +15,25 @@ public sealed class DrawingCanvas : Control
     private readonly Stack<Stroke> _redoStack = new();
 
     private Stroke? _activeStroke;
-    private string _activeColor = "red";
+    private StrokeColor _activeColor = StrokeColor.Red;
+    private double _activeThickness = 4;
 
-    public void SetColor(string color)
+    public void SetColor(StrokeColor color)
     {
         _activeColor = color;
+    }
+
+    public void SetThickness(double thickness)
+    {
+        _activeThickness = thickness;
     }
 
     public void BeginStroke(Point point)
     {
         _activeStroke = _strokeBuilder.Begin(
             ToPoint2D(point),
-            _activeColor);
+            _activeColor,
+            _activeThickness);
         InvalidateVisual();
     }
 
@@ -83,14 +90,14 @@ public sealed class DrawingCanvas : Control
 
         var brush = stroke.Color switch
         {
-            "blue" => Brushes.DodgerBlue,
+            StrokeColor.Blue => Brushes.DodgerBlue,
             _ => Brushes.Red
         };
 
         var pen = new Pen
         {
             Brush = brush,
-            Thickness = 4,
+            Thickness = stroke.Thickness,
             LineCap = PenLineCap.Round,
             LineJoin = PenLineJoin.Round
         };
