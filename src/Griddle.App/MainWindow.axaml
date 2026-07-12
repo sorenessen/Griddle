@@ -1,6 +1,7 @@
 <Window
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Griddle.App.Controls"
     x:Class="Griddle.App.MainWindow"
     WindowDecorations="None"
     TransparencyLevelHint="Transparent"
@@ -11,13 +12,6 @@
     WindowState="Maximized"
     Title="Griddle Overlay">
 
-    <Grid>
-        <TextBlock
-            Text="Griddle Overlay — Click-through enabled"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            FontSize="32"
-            FontWeight="Bold"
-            Foreground="White" />
-    </Grid>
+    <controls:DrawingCanvas />
+
 </Window>
