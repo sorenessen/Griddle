@@ -12,7 +12,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
         Opened += OnOpened;
+        KeyDown += OnKeyDown;
     }
 
     private void OnOpened(object? sender, EventArgs e)
@@ -70,5 +72,14 @@ public partial class MainWindow : Window
         _isDrawing = false;
         e.Pointer.Capture(null);
         e.Handled = true;
+    }
+
+    private void OnKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.C)
+        {
+            DrawingSurface.Clear();
+            e.Handled = true;
+        }
     }
 }

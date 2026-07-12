@@ -92,4 +92,11 @@ public sealed class DrawingCanvas : Control
     {
         return new Point(point.X, point.Y);
     }
+    public void Clear()
+{
+    _strokes.Clear();
+    _activeStroke = null;
+
+    InvalidateVisual();
+}
 }
