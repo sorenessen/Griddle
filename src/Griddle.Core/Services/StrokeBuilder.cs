@@ -7,9 +7,9 @@ public sealed class StrokeBuilder
 {
     private Stroke? _current;
 
-    public Stroke Begin(Point2D point)
+    public Stroke Begin(Point2D point, string color)
     {
-        _current = new Stroke();
+        _current = new Stroke(color);
         _current.Points.Add(point);
         return _current;
     }

@@ -12,12 +12,21 @@ public sealed class DrawingCanvas : Control
 {
     private readonly List<Stroke> _strokes = new();
     private readonly StrokeBuilder _strokeBuilder = new();
+    private readonly Stack<Stroke> _redoStack = new();
 
     private Stroke? _activeStroke;
+    private string _activeColor = "red";
+
+    public void SetColor(string color)
+    {
+        _activeColor = color;
+    }
 
     public void BeginStroke(Point point)
     {
-        _activeStroke = _strokeBuilder.Begin(ToPoint2D(point));
+        _activeStroke = _strokeBuilder.Begin(
+            ToPoint2D(point),
+            _activeColor);
         InvalidateVisual();
     }
 
@@ -41,6 +50,7 @@ public sealed class DrawingCanvas : Control
 
         var completedStroke = _strokeBuilder.End(ToPoint2D(point));
 
+        _redoStack.Clear();
         _strokes.Add(completedStroke);
         _activeStroke = null;
 
@@ -51,28 +61,39 @@ public sealed class DrawingCanvas : Control
     {
         base.Render(context);
 
-        var pen = new Pen(Brushes.Red, 4);
-
         foreach (var stroke in _strokes)
         {
-            DrawStroke(context, pen, stroke);
+            DrawStroke(context, stroke);
         }
 
         if (_activeStroke is not null)
         {
-            DrawStroke(context, pen, _activeStroke);
+            DrawStroke(context, _activeStroke);
         }
     }
 
     private static void DrawStroke(
         DrawingContext context,
-        Pen pen,
         Stroke stroke)
     {
         if (stroke.Points.Count < 2)
         {
             return;
         }
+
+        var brush = stroke.Color switch
+        {
+            "blue" => Brushes.DodgerBlue,
+            _ => Brushes.Red
+        };
+
+        var pen = new Pen
+        {
+            Brush = brush,
+            Thickness = 4,
+            LineCap = PenLineCap.Round,
+            LineJoin = PenLineJoin.Round
+        };
 
         for (var index = 1; index < stroke.Points.Count; index++)
         {
@@ -92,11 +113,40 @@ public sealed class DrawingCanvas : Control
     {
         return new Point(point.X, point.Y);
     }
-    public void Clear()
-{
-    _strokes.Clear();
-    _activeStroke = null;
 
-    InvalidateVisual();
-}
+    public void Clear()
+    {
+        _strokes.Clear();
+        _redoStack.Clear();
+        _activeStroke = null;
+
+        InvalidateVisual();
+    }
+
+    public void Undo()
+    {
+        if (_strokes.Count == 0)
+        {
+            return;
+        }
+
+        var stroke = _strokes[^1];
+        _strokes.RemoveAt(_strokes.Count - 1);
+        _redoStack.Push(stroke);
+
+        InvalidateVisual();
+    }
+
+    public void Redo()
+    {
+        if (_redoStack.Count == 0)
+        {
+            return;
+        }
+
+        var stroke = _redoStack.Pop();
+        _strokes.Add(stroke);
+
+        InvalidateVisual();
+    }
 }

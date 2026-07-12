@@ -76,10 +76,44 @@ public partial class MainWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key == Key.C)
+        switch (e.Key)
         {
-            DrawingSurface.Clear();
-            e.Handled = true;
+            case Key.C:
+                DrawingSurface.Clear();
+                e.Handled = true;
+                break;
+
+            case Key.U:
+                DrawingSurface.Undo();
+                e.Handled = true;
+                break;
+
+            case Key.R:
+                DrawingSurface.Redo();
+                e.Handled = true;
+                break;
+
+            case Key.D1:
+            case Key.NumPad1:
+                DrawingSurface.SetColor("red");
+                e.Handled = true;
+                break;
+
+            case Key.D2:
+            case Key.NumPad2:
+                DrawingSurface.SetColor("blue");
+                e.Handled = true;
+                break;
         }
+    }
+
+    private void ClearCanvas()
+    {
+        DrawingSurface.Clear();
+    }
+
+    private void Undo()
+    {
+        DrawingSurface.Undo();
     }
 }
