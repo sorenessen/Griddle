@@ -1,12 +1,40 @@
 # Changelog
+# Changelog
 
 ## v0.1.0
 
 ### Added
 
-- Native macOS menu bar application
+- Native macOS proof-of-concept
 - Transparent overlay window
 - Multi-display overlay support
 - Click-through overlay mode
-- Xcode project structure
-- Initial project architecture
+- Initial Griddle architecture
+
+### Changed
+
+- **Migrated the project from Swift/AppKit to Avalonia UI and C#**
+- Replaced the Xcode-only architecture with a cross-platform .NET solution
+- Introduced a shared Core/App/Platform project structure
+- Established Windows and macOS as first-class deployment targets
+- Consolidated rendering, models, and services into reusable .NET libraries
+
+### Why
+
+The original Swift/AppKit implementation successfully validated transparent overlays, mouse passthrough, and multi-monitor behavior. After proving the concept, development transitioned to Avalonia to enable a single cross-platform codebase while retaining native platform integrations where necessary.
+
+## v0.1.1
+
+### Added
+- Floating toolbar
+- Shared PenTool architecture
+- Pen presets
+- Highlighter preset
+
+### Changed
+- Replaced string colors with StrokeColor enum
+- Introduced PenSettings model
+
+### Fixed
+- Toolbar interaction
+- Avalonia constructor warning
