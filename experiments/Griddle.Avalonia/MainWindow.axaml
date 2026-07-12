@@ -1,0 +1,23 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Griddle.Avalonia.MainWindow"
+    SystemDecorations="None"
+    TransparencyLevelHint="Transparent"
+    Background="#14FF8C00"
+    Topmost="True"
+    CanResize="False"
+    ShowInTaskbar="False"
+    WindowState="Maximized"
+    Title="Griddle Overlay">
+
+    <Grid>
+        <TextBlock
+            Text="Griddle Overlay — Click-through enabled"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            FontSize="32"
+            FontWeight="Bold"
+            Foreground="White" />
+    </Grid>
+</Window>

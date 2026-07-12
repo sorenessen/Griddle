@@ -8,3 +8,16 @@ xcuserdata/
 # Xcode build output
 DerivedData/
 build/
+
+# .NET build output
+**/bin/
+**/obj/
+
+# IDE and user-specific files
+.vs/
+.idea/
+*.user
+*.suo
+
+# Logs
+*.log
