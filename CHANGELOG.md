@@ -38,3 +38,15 @@ The original Swift/AppKit implementation successfully validated transparent over
 ### Fixed
 - Toolbar interaction
 - Avalonia constructor warning
+
+## v0.1.2
+
+### Changed
+
+- Replaced segmented line rendering with continuous `StreamGeometry` rendering.
+
+### Improved
+
+- Smoother pen strokes.
+- Cleaner highlighter rendering.
+- Better stroke joins and visual continuity.
