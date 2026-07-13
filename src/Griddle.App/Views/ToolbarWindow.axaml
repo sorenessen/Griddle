@@ -17,17 +17,103 @@
             Orientation="Horizontal"
             Spacing="8">
 
-            <Button 
-                Content="🔴"
-                Click="RedButton_Click"/>
+            <Button
+                Width="40"
+                Height="40"
+                Padding="0"
+                Click="RedButton_Click"
+                ToolTip.Tip="Pen">
 
-            <Button Content="🔵"/>
+                <Grid Width="22" Height="22">
+                    <Line
+                        StartPoint="5,17"
+                        EndPoint="16,6"
+                        Stroke="White"
+                        StrokeThickness="3"
+                        StrokeLineCap="Round"/>
+
+                    <Ellipse
+                        Width="5"
+                        Height="5"
+                        Fill="White"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,2,2,0"/>
+                </Grid>
+
+            </Button>
 
             <Button
-                Content="🟨"
-                Click="HighlighterButton_Click"/>
+                Width="40"
+                Height="40"
+                Padding="0"
+                ToolTip.Tip="Blue">
 
-            <Button Content="═"/>
+                <Ellipse
+                    Width="16"
+                    Height="16"
+                    Fill="DodgerBlue"/>
+
+            </Button>
+
+            <Button
+                Width="40"
+                Height="40"
+                Padding="0"
+                Click="HighlighterButton_Click"
+                ToolTip.Tip="Highlighter">
+
+                <Grid Width="22" Height="22">
+                    <Rectangle
+                        Width="8"
+                        Height="16"
+                        Fill="#FFF3C400"
+                        RadiusX="2"
+                        RadiusY="2"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        RenderTransformOrigin="0.5,0.5">
+
+                        <Rectangle.RenderTransform>
+                            <RotateTransform Angle="-35"/>
+                        </Rectangle.RenderTransform>
+
+                    </Rectangle>
+
+                    <Rectangle
+                        Width="14"
+                        Height="3"
+                        Fill="#FFF3C400"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,0,1"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Width="40"
+                Height="40"
+                Padding="0"
+                ToolTip.Tip="Thickness">
+
+                <Grid Width="22" Height="22">
+                    <Line
+                        StartPoint="3,7"
+                        EndPoint="19,7"
+                        Stroke="White"
+                        StrokeThickness="2"
+                        StrokeLineCap="Round"/>
+
+                    <Line
+                        StartPoint="3,15"
+                        EndPoint="19,15"
+                        Stroke="White"
+                        StrokeThickness="5"
+                        StrokeLineCap="Round"/>
+                </Grid>
+
+            </Button>
 
         </StackPanel>
 
