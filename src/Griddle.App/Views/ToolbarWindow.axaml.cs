@@ -30,17 +30,13 @@ public partial class ToolbarWindow : Window
         object? sender,
         RoutedEventArgs e)
     {
-        _viewModel.Pen.Settings.Color = StrokeColor.Red;
-        _viewModel.Pen.Settings.Thickness = 4;
-        _viewModel.Pen.Settings.Opacity = 1.0;
+        _viewModel.SelectPen();
     }
 
     private void HighlighterButton_Click(
         object? sender,
         RoutedEventArgs e)
     {
-        _viewModel.Pen.Settings.Color = StrokeColor.Yellow;
-        _viewModel.Pen.Settings.Thickness = 16;
-        _viewModel.Pen.Settings.Opacity = 0.18;
+        _viewModel.SelectHighlighter();
     }
 }

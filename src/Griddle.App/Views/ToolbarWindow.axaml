@@ -8,6 +8,32 @@
     WindowDecorations="None"
     Topmost="True">
 
+    <Window.Styles>
+
+        <Style Selector="Button.toolbar">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="BorderBrush" Value="#4A4A4A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style Selector="Button.toolbar:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#555555"/>
+            <Setter Property="BorderBrush" Value="#A0A0A0"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
+        <Style Selector="Button.toolbar:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#1F1F1F"/>
+            <Setter Property="BorderBrush" Value="#F28C28"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
+    </Window.Styles>
+
     <Border
         CornerRadius="10"
         Background="#DD2B2B2B"
@@ -18,9 +44,7 @@
             Spacing="8">
 
             <Button
-                Width="40"
-                Height="40"
-                Padding="0"
+                Classes="toolbar"
                 Click="RedButton_Click"
                 ToolTip.Tip="Pen">
 
@@ -44,9 +68,7 @@
             </Button>
 
             <Button
-                Width="40"
-                Height="40"
-                Padding="0"
+                Classes="toolbar"
                 ToolTip.Tip="Blue">
 
                 <Ellipse
@@ -57,9 +79,7 @@
             </Button>
 
             <Button
-                Width="40"
-                Height="40"
-                Padding="0"
+                Classes="toolbar"
                 Click="HighlighterButton_Click"
                 ToolTip.Tip="Highlighter">
 
@@ -92,9 +112,7 @@
             </Button>
 
             <Button
-                Width="40"
-                Height="40"
-                Padding="0"
+                Classes="toolbar"
                 ToolTip.Tip="Thickness">
 
                 <Grid Width="22" Height="22">
