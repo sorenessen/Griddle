@@ -121,13 +121,27 @@ public sealed class DrawingCanvas : Control
             LineJoin = PenLineJoin.Round
         };
 
-        for (var index = 1; index < stroke.Points.Count; index++)
+        var geometry = new StreamGeometry();
+
+        using (var geometryContext = geometry.Open())
         {
-            context.DrawLine(
-                pen,
-                ToAvaloniaPoint(stroke.Points[index - 1]),
-                ToAvaloniaPoint(stroke.Points[index]));
+            geometryContext.BeginFigure(
+                ToAvaloniaPoint(stroke.Points[0]),
+                isFilled: false);
+
+            for (var index = 1; index < stroke.Points.Count; index++)
+            {
+                geometryContext.LineTo(
+                    ToAvaloniaPoint(stroke.Points[index]));
+            }
+
+            geometryContext.EndFigure(isClosed: false);
         }
+
+        context.DrawGeometry(
+            brush: null,
+            pen,
+            geometry);
     }
 
     private static Point2D ToPoint2D(Point point)
