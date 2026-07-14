@@ -79,12 +79,29 @@
 
             <Button
                 Classes="toolbar"
+                Classes.active="{Binding IsBlueSelected}"
+                Click="BlueButton_Click"
                 ToolTip.Tip="Blue">
 
                 <Ellipse
                     Width="16"
                     Height="16"
                     Fill="DodgerBlue"/>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Classes.active="{Binding IsBlackSelected}"
+                Click="BlackButton_Click"
+                ToolTip.Tip="Black">
+
+                <Ellipse
+                    Width="16"
+                    Height="16"
+                    Fill="Black"
+                    Stroke="White"
+                    StrokeThickness="1"/>
 
             </Button>
 

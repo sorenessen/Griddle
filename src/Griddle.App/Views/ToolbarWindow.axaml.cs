@@ -1,11 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using Griddle.App.ViewModels;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
-using Avalonia;
-using Avalonia.Input;
-using Avalonia.VisualTree;
 
 namespace Griddle.App.Views;
 
@@ -33,7 +33,21 @@ public partial class ToolbarWindow : Window
         object? sender,
         RoutedEventArgs e)
     {
-        _viewModel.SelectPen();
+        _viewModel.SelectPen(StrokeColor.Red);
+    }
+
+    private void BlueButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectPen(StrokeColor.Blue);
+    }
+
+    private void BlackButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectPen(StrokeColor.Black);
     }
 
     private void HighlighterButton_Click(

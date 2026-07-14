@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Collections.ObjectModel;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
 
@@ -16,16 +17,32 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public PenTool Pen { get; }
 
+// *** TODO: Bring back when switched to ItemsControl-driven palette ***
+    // public ObservableCollection<ColorPreset> Colors { get; } =
+    // [
+    //     new("Red", StrokeColor.Red),
+    //     new("Blue", StrokeColor.Blue),
+    //     new("Black", StrokeColor.Black)
+    // ];
+
     public bool IsPenSelected =>
         Pen.Settings.Preset == PenPreset.Pen;
+
+    public bool IsBlueSelected =>
+        Pen.Settings.Preset == PenPreset.Pen &&
+        Pen.Settings.Color == StrokeColor.Blue;
+
+    public bool IsBlackSelected =>
+        Pen.Settings.Preset == PenPreset.Pen &&
+        Pen.Settings.Color == StrokeColor.Black;
 
     public bool IsHighlighterSelected =>
         Pen.Settings.Preset == PenPreset.Highlighter;
 
-    public void SelectPen()
+    public void SelectPen(StrokeColor color)
     {
         Pen.Settings.Preset = PenPreset.Pen;
-        Pen.Settings.Color = StrokeColor.Red;
+        Pen.Settings.Color = color;
         Pen.Settings.Thickness = 4;
         Pen.Settings.Opacity = 1.0;
 
@@ -46,6 +63,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     {
         OnPropertyChanged(nameof(IsPenSelected));
         OnPropertyChanged(nameof(IsHighlighterSelected));
+        OnPropertyChanged(nameof(IsBlueSelected));
+        OnPropertyChanged(nameof(IsBlackSelected));
     }
 
     private void OnPropertyChanged(

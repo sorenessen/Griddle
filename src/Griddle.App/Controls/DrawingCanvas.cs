@@ -109,6 +109,7 @@ public sealed class DrawingCanvas : Control
         var baseColor = stroke.Color switch
         {
             StrokeColor.Blue => Colors.DodgerBlue,
+            StrokeColor.Black => Colors.Black,
             StrokeColor.Yellow => Colors.Yellow,
             _ => Colors.Red
         };

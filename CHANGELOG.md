@@ -91,3 +91,19 @@ The original Swift/AppKit implementation successfully validated transparent over
 
 - Toolbar can be repositioned to avoid obstructing content.
 - Toolbar buttons remain clickable while background areas support window dragging.
+
+## v0.1.6
+
+### Added
+
+- Blue and Black pen colors.
+- Persistent active color selection.
+
+### Changed
+
+- Refactored pen selection into a single parameterized API.
+- Simplified color selection logic for future palette expansion.
+
+### Improved
+
+- Color selection now scales cleanly as additional colors are added.
