@@ -107,3 +107,17 @@ The original Swift/AppKit implementation successfully validated transparent over
 ### Improved
 
 - Color selection now scales cleanly as additional colors are added.
+
+## v0.1.7
+
+### Added
+
+- Native keyboard shortcuts.
+- ⌘Z / Ctrl+Z for Undo.
+- ⌘⇧Z / Ctrl+Shift+Z and ⌘Y / Ctrl+Y for Redo.
+- P to select the Pen.
+- H to select the Highlighter.
+
+### Changed
+
+- Keyboard tool selection now routes through the ToolbarViewModel to keep toolbar state synchronized.
