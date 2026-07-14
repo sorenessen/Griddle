@@ -121,3 +121,17 @@ The original Swift/AppKit implementation successfully validated transparent over
 ### Changed
 
 - Keyboard tool selection now routes through the ToolbarViewModel to keep toolbar state synchronized.
+
+## v0.1.8
+
+### Added
+
+- Arrow annotation tool.
+- Arrow toolbar button with active selection state.
+- Arrow rendering with configurable stroke styling.
+
+### Changed
+
+- Introduced StrokeKind to support multiple annotation types.
+- DrawingCanvas now renders based on stroke type.
+- Toolbar and DrawingCanvas now share a single ActiveToolService instance for synchronized tool selection.

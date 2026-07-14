@@ -32,7 +32,10 @@ public partial class MainWindow : Window
             this,
             ignoresMouseEvents: false);
 
-        _toolbarViewModel = new ToolbarViewModel(DrawingSurface.Pen);
+        _toolbarViewModel = new ToolbarViewModel(
+            DrawingSurface.Pen,
+            new ArrowTool(),
+            DrawingSurface.ActiveTool);
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
         var overlayScreen = Screens.ScreenFromTopLevel(this);

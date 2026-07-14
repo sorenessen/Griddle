@@ -50,6 +50,13 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectPen(StrokeColor.Black);
     }
 
+    private void ArrowButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectArrow();
+    }
+
     private void HighlighterButton_Click(
         object? sender,
         RoutedEventArgs e)

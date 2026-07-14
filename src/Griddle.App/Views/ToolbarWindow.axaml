@@ -4,7 +4,7 @@
     xmlns:vm="using:Griddle.App.ViewModels"
     x:Class="Griddle.App.Views.ToolbarWindow"
     x:DataType="vm:ToolbarViewModel"
-    Width="280"
+    Width="380"
     Height="60"
     CanResize="False"
     WindowDecorations="None"
@@ -73,6 +73,37 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Margin="0,2,2,0"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Classes.active="{Binding IsArrowSelected}"
+                Click="ArrowButton_Click"
+                ToolTip.Tip="Arrow">
+
+                <Grid Width="22" Height="22">
+                    <Line
+                        StartPoint="4,18"
+                        EndPoint="17,5"
+                        Stroke="White"
+                        StrokeThickness="3"
+                        StrokeLineCap="Round"/>
+
+                    <Line
+                        StartPoint="11,5"
+                        EndPoint="17,5"
+                        Stroke="White"
+                        StrokeThickness="3"
+                        StrokeLineCap="Round"/>
+
+                    <Line
+                        StartPoint="17,5"
+                        EndPoint="17,11"
+                        Stroke="White"
+                        StrokeThickness="3"
+                        StrokeLineCap="Round"/>
                 </Grid>
 
             </Button>
