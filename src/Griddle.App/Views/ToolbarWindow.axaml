@@ -1,7 +1,9 @@
 <Window
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Griddle.App.ViewModels"
     x:Class="Griddle.App.Views.ToolbarWindow"
+    x:DataType="vm:ToolbarViewModel"
     Width="280"
     Height="60"
     CanResize="False"
@@ -32,6 +34,12 @@
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
+        <Style Selector="Button.toolbar.active /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#3A3028"/>
+            <Setter Property="BorderBrush" Value="#F28C28"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
     </Window.Styles>
 
     <Border
@@ -45,6 +53,7 @@
 
             <Button
                 Classes="toolbar"
+                Classes.active="{Binding IsPenSelected}"
                 Click="RedButton_Click"
                 ToolTip.Tip="Pen">
 
@@ -80,6 +89,7 @@
 
             <Button
                 Classes="toolbar"
+                Classes.active="{Binding IsHighlighterSelected}"
                 Click="HighlighterButton_Click"
                 ToolTip.Tip="Highlighter">
 

@@ -4,10 +4,27 @@ namespace Griddle.Core.Services;
 
 public sealed class ActiveToolService
 {
+    private ITool _current;
+
     public ActiveToolService(ITool initialTool)
     {
-        Current = initialTool;
+        _current = initialTool;
     }
 
-    public ITool Current { get; set; }
+    public event EventHandler? CurrentToolChanged;
+
+    public ITool Current
+    {
+        get => _current;
+        set
+        {
+            if (ReferenceEquals(_current, value))
+            {
+                return;
+            }
+
+            _current = value;
+            CurrentToolChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
 }

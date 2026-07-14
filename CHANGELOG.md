@@ -64,3 +64,18 @@ The original Swift/AppKit implementation successfully validated transparent over
 - Simplified drawing pipeline.
 - Reduced coupling between the canvas and drawing implementation.
 - Established the foundation for future drawing tools.
+
+## v0.1.4
+
+### Added
+
+- Persistent active tool highlighting in the toolbar.
+
+### Changed
+
+- Toolbar styling now reflects application state.
+- Added compiled bindings for toolbar selection.
+
+### Improved
+
+- Clear visual indication of the active drawing preset.
