@@ -12,6 +12,10 @@ namespace Griddle.App;
 
 public partial class MainWindow : Window
 {
+
+    private ToolbarWindow? _toolbar;
+    private ToolbarViewModel? _toolbarViewModel;
+
     private bool _isDrawing;
 
     public MainWindow()
@@ -28,8 +32,8 @@ public partial class MainWindow : Window
             this,
             ignoresMouseEvents: false);
 
-        var toolbarViewModel = new ToolbarViewModel(DrawingSurface.Pen);
-        var toolbar = new ToolbarWindow(toolbarViewModel);
+        _toolbarViewModel = new ToolbarViewModel(DrawingSurface.Pen);
+        _toolbar = new ToolbarWindow(_toolbarViewModel);
 
         var overlayScreen = Screens.ScreenFromTopLevel(this);
 
@@ -37,12 +41,12 @@ public partial class MainWindow : Window
         {
             var workingArea = overlayScreen.WorkingArea;
 
-            toolbar.Position = new PixelPoint(
+            _toolbar.Position = new PixelPoint(
                 workingArea.X + 40,
                 workingArea.Y + 40);
         }
 
-        toolbar.Show(this);
+        _toolbar.Show(this);
     }
 
     private void Overlay_PointerPressed(
@@ -104,37 +108,53 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
 
-            case Key.U:
-                DrawingSurface.Undo();
+            case Key.Z:
+            {
+                var commandPressed =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Meta) ||
+                    e.KeyModifiers.HasFlag(KeyModifiers.Control);
+
+                if (!commandPressed)
+                {
+                    break;
+                }
+
+                if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                {
+                    DrawingSurface.Redo();
+                }
+                else
+                {
+                    DrawingSurface.Undo();
+                }
+
                 e.Handled = true;
                 break;
+            }
 
-            case Key.R:
+            case Key.Y:
+            {
+                var commandPressed =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Meta) ||
+                    e.KeyModifiers.HasFlag(KeyModifiers.Control);
+
+                if (!commandPressed)
+                {
+                    break;
+                }
+
                 DrawingSurface.Redo();
                 e.Handled = true;
                 break;
+            }
 
-            case Key.D1:
-            case Key.NumPad1:
-                DrawingSurface.SetColor(StrokeColor.Red);
+            case Key.P:
+                _toolbarViewModel?.SelectPen(StrokeColor.Red);
                 e.Handled = true;
                 break;
 
-            case Key.D2:
-            case Key.NumPad2:
-                DrawingSurface.SetColor(StrokeColor.Blue);
-                e.Handled = true;
-                break;
-
-            case Key.D3:
-            case Key.NumPad3:
-                DrawingSurface.SetThickness(2);
-                e.Handled = true;
-                break;
-
-            case Key.D4:
-            case Key.NumPad4:
-                DrawingSurface.SetThickness(6);
+            case Key.H:
+                _toolbarViewModel?.SelectHighlighter();
                 e.Handled = true;
                 break;
         }
