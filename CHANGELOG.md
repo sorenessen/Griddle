@@ -50,3 +50,17 @@ The original Swift/AppKit implementation successfully validated transparent over
 - Smoother pen strokes.
 - Cleaner highlighter rendering.
 - Better stroke joins and visual continuity.
+
+## v0.1.3
+
+### Changed
+
+- Introduced `ActiveToolService` as the single source of truth for the active drawing tool.
+- Moved stroke interaction behavior into `ITool` implementations.
+- Refactored `DrawingCanvas` to delegate pointer interaction to the active tool.
+
+### Improved
+
+- Simplified drawing pipeline.
+- Reduced coupling between the canvas and drawing implementation.
+- Established the foundation for future drawing tools.

@@ -17,10 +17,9 @@ public sealed class DrawingCanvas : Control
     private readonly Stack<Stroke> _redoStack = new();
 
     private Stroke? _activeStroke;
-    private readonly PenTool _pen;
     private readonly ActiveToolService _activeTool;
 
-    public PenTool Pen => _pen;
+    public PenTool Pen => (PenTool)_activeTool.Current;
     public ActiveToolService ActiveTool => _activeTool;
 
     public DrawingCanvas()
@@ -34,23 +33,22 @@ public sealed class DrawingCanvas : Control
         PenTool pen,
         ActiveToolService? activeTool)
     {
-        _pen = pen;
         _activeTool = activeTool ?? new ActiveToolService(pen);
     }
 
     public void SetColor(StrokeColor color)
     {
-        _pen.Settings.Color = color;
+        Pen.Settings.Color = color;
     }
 
     public void SetThickness(double thickness)
     {
-        _pen.Settings.Thickness = thickness;
+        Pen.Settings.Thickness = thickness;
     }
 
     public void BeginStroke(Point point)
     {
-        _activeStroke = _pen.Begin(
+        _activeStroke = _activeTool.Current.Begin(
             ToPoint2D(point));
 
         InvalidateVisual();
@@ -63,7 +61,7 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
-        _pen.Continue(ToPoint2D(point));
+        _activeTool.Current.Continue(ToPoint2D(point));
         InvalidateVisual();
     }
 
@@ -74,7 +72,8 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
-        var completedStroke = _pen.End(ToPoint2D(point));
+        var completedStroke = _activeTool.Current.End(
+            ToPoint2D(point));
 
         _redoStack.Clear();
         _strokes.Add(completedStroke);
