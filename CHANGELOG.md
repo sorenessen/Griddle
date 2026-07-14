@@ -79,3 +79,15 @@ The original Swift/AppKit implementation successfully validated transparent over
 ### Improved
 
 - Clear visual indication of the active drawing preset.
+
+## v0.1.5
+
+### Added
+
+- Draggable floating toolbar.
+- Cross-display toolbar movement.
+
+### Improved
+
+- Toolbar can be repositioned to avoid obstructing content.
+- Toolbar buttons remain clickable while background areas support window dragging.

@@ -45,7 +45,8 @@
     <Border
         CornerRadius="10"
         Background="#DD2B2B2B"
-        Padding="10">
+        Padding="10"
+        PointerPressed="ToolbarBackground_PointerPressed">
 
         <StackPanel
             Orientation="Horizontal"
