@@ -32,7 +32,10 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 ### High Priority
 
-- [ ] Selection Tool
+- [x] Selection Tool
+- [x] Select Rectangles
+- [x] Select Arrows
+- [ ] Select Freehand Strokes
 - [ ] Move Shapes
 - [ ] Resize Shapes
 - [ ] Delete Selected Shape
@@ -179,7 +182,7 @@ Move from a drawing prototype to a full annotation application.
 
 ### Target Features
 
-- [ ] Selection Tool
+- [x] Selection Tool
 - [ ] Thickness Picker
 - [ ] Color Palette Popup
 - [ ] Toolbar Position Persistence

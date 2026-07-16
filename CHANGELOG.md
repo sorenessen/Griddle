@@ -135,3 +135,19 @@ The original Swift/AppKit implementation successfully validated transparent over
 - Introduced StrokeKind to support multiple annotation types.
 - DrawingCanvas now renders based on stroke type.
 - Toolbar and DrawingCanvas now share a single ActiveToolService instance for synchronized tool selection.
+
+### Added
+
+- Added stable GUID identifiers to strokes.
+- Added a selection tool and selection service.
+- Added rectangle and arrow hit testing.
+- Added visible dashed selection outlines for selected rectangles and arrows.
+
+### Changed
+
+- Renamed drawing interaction methods from `BeginStroke`, `ContinueStroke`, and `EndStroke` to `BeginInteraction`, `ContinueInteraction`, and `EndInteraction`.
+- Updated the tool interface to support non-drawing tools that do not create strokes.
+
+### Fixed
+
+- Clear and Undo now remove stale selection state when the selected stroke is removed.
