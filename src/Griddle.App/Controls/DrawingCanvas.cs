@@ -13,7 +13,8 @@ namespace Griddle.App.Controls;
 public sealed class DrawingCanvas : Control
 {
     private readonly List<Stroke> _strokes = new();
-    private readonly Stack<Stroke> _redoStack = new();
+    private readonly Stack<HistoryAction> _undoStack = new();
+    private readonly Stack<HistoryAction> _redoStack = new();
     private readonly PenTool _pen;
     private readonly ActiveToolService _activeTool;
     private readonly SelectionService _selection;
@@ -21,6 +22,17 @@ public sealed class DrawingCanvas : Control
     private bool _isToolInteractionActive;
 
     private Stroke? _activeStroke;
+
+    private enum HistoryActionKind
+    {
+        Add,
+        Delete
+    }
+
+    private sealed record HistoryAction(
+        HistoryActionKind Kind,
+        Stroke Stroke,
+        int Index);
 
     public PenTool Pen => _pen;
     public ActiveToolService ActiveTool => _activeTool;
@@ -106,8 +118,14 @@ public sealed class DrawingCanvas : Control
 
         if (completedStroke is not null)
         {
-            _redoStack.Clear();
             _strokes.Add(completedStroke);
+
+            _undoStack.Push(new HistoryAction(
+                HistoryActionKind.Add,
+                completedStroke,
+                _strokes.Count - 1));
+
+            _redoStack.Clear();
         }
 
         _activeStroke = null;
@@ -501,6 +519,7 @@ public sealed class DrawingCanvas : Control
     public void Clear()
     {
         _strokes.Clear();
+        _undoStack.Clear();
         _redoStack.Clear();
         _activeStroke = null;
         _selection.Clear();
@@ -510,23 +529,38 @@ public sealed class DrawingCanvas : Control
 
     public void Undo()
     {
-        if (_strokes.Count == 0)
+        if (_undoStack.Count == 0)
         {
             return;
         }
 
-        var stroke = _strokes[^1];
+        var action = _undoStack.Pop();
 
-        _strokes.RemoveAt(
-            _strokes.Count - 1);
-
-        if (_selection.SelectedStroke?.Id == stroke.Id)
+        switch (action.Kind)
         {
-            _selection.Clear();
+            case HistoryActionKind.Add:
+                _strokes.Remove(action.Stroke);
+
+                if (_selection.SelectedStroke?.Id == action.Stroke.Id)
+                {
+                    _selection.Clear();
+                }
+
+                break;
+
+            case HistoryActionKind.Delete:
+                var restoreIndex = Math.Min(
+                    action.Index,
+                    _strokes.Count);
+
+                _strokes.Insert(
+                    restoreIndex,
+                    action.Stroke);
+
+                break;
         }
 
-        _redoStack.Push(stroke);
-
+        _redoStack.Push(action);
         InvalidateVisual();
     }
 
@@ -537,9 +571,60 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
-        var stroke = _redoStack.Pop();
+        var action = _redoStack.Pop();
 
-        _strokes.Add(stroke);
+        switch (action.Kind)
+        {
+            case HistoryActionKind.Add:
+                var restoreIndex = Math.Min(
+                    action.Index,
+                    _strokes.Count);
+
+                _strokes.Insert(
+                    restoreIndex,
+                    action.Stroke);
+
+                break;
+
+            case HistoryActionKind.Delete:
+                _strokes.Remove(action.Stroke);
+
+                if (_selection.SelectedStroke?.Id == action.Stroke.Id)
+                {
+                    _selection.Clear();
+                }
+
+                break;
+        }
+
+        _undoStack.Push(action);
+        InvalidateVisual();
+    }
+
+    public void DeleteSelection()
+    {
+        if (!_selection.HasSelection)
+        {
+            return;
+        }
+
+        var stroke = _selection.SelectedStroke!;
+        var index = _strokes.IndexOf(stroke);
+
+        if (index < 0)
+        {
+            return;
+        }
+
+        _strokes.RemoveAt(index);
+
+        _undoStack.Push(new HistoryAction(
+            HistoryActionKind.Delete,
+            stroke,
+            index));
+
+        _redoStack.Clear();
+        _selection.Clear();
 
         InvalidateVisual();
     }

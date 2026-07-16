@@ -116,6 +116,12 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
 
+            case Key.Delete:
+            case Key.Back:
+                DrawingSurface.DeleteSelection();
+                e.Handled = true;
+                break;
+
             case Key.Z:
             {
                 var commandPressed =

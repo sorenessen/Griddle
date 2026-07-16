@@ -151,3 +151,14 @@ The original Swift/AppKit implementation successfully validated transparent over
 ### Fixed
 
 - Clear and Undo now remove stale selection state when the selected stroke is removed.
+
+### Added
+
+- Added deletion of selected annotations.
+- Added command-based history actions for drawing and deletion.
+- Added undo/redo support for deleted annotations.
+
+### Changed
+
+- Replaced stroke-only redo stack with a generalized history action model.
+- Refactored undo/redo to support multiple action types.
