@@ -4,7 +4,7 @@
     xmlns:vm="using:Griddle.App.ViewModels"
     x:Class="Griddle.App.Views.ToolbarWindow"
     x:DataType="vm:ToolbarViewModel"
-    Width="380"
+    Width="420"
     Height="60"
     CanResize="False"
     WindowDecorations="None"
@@ -104,6 +104,23 @@
                         Stroke="White"
                         StrokeThickness="3"
                         StrokeLineCap="Round"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Classes.active="{Binding IsRectangleSelected}"
+                Click="RectangleButton_Click"
+                ToolTip.Tip="Rectangle">
+
+                <Grid Width="22" Height="22">
+                    <Rectangle
+                        Width="14"
+                        Height="12"
+                        Stroke="White"
+                        StrokeThickness="2"
+                        Fill="Transparent"/>
                 </Grid>
 
             </Button>

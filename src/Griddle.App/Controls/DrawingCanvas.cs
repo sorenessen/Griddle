@@ -8,18 +8,16 @@ using Griddle.Core.Models;
 using Griddle.Core.Services;
 using Griddle.Core.Tools;
 
-
 namespace Griddle.App.Controls;
 
 public sealed class DrawingCanvas : Control
 {
     private readonly List<Stroke> _strokes = new();
-    private readonly StrokeBuilder _strokeBuilder = new();
     private readonly Stack<Stroke> _redoStack = new();
     private readonly PenTool _pen;
+    private readonly ActiveToolService _activeTool;
 
     private Stroke? _activeStroke;
-    private readonly ActiveToolService _activeTool;
 
     public PenTool Pen => _pen;
     public ActiveToolService ActiveTool => _activeTool;
@@ -64,7 +62,9 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
-        _activeTool.Current.Continue(ToPoint2D(point));
+        _activeTool.Current.Continue(
+            ToPoint2D(point));
+
         InvalidateVisual();
     }
 
@@ -104,37 +104,36 @@ public sealed class DrawingCanvas : Control
         DrawingContext context,
         Stroke stroke)
     {
-        if (stroke.Kind == StrokeKind.Arrow)
+        switch (stroke.Kind)
         {
-            DrawArrow(context, stroke);
-            return;
-        }
+            case StrokeKind.Freehand:
+                DrawFreehand(context, stroke);
+                break;
 
+            case StrokeKind.Arrow:
+                DrawArrow(context, stroke);
+                break;
+
+            case StrokeKind.Rectangle:
+                DrawRectangle(context, stroke);
+                break;
+
+            default:
+                throw new NotSupportedException(
+                    $"Unsupported stroke kind: {stroke.Kind}");
+        }
+    }
+
+    private static void DrawFreehand(
+        DrawingContext context,
+        Stroke stroke)
+    {
         if (stroke.Points.Count < 2)
         {
             return;
         }
 
-        var baseColor = stroke.Color switch
-        {
-            StrokeColor.Blue => Colors.DodgerBlue,
-            StrokeColor.Black => Colors.Black,
-            StrokeColor.Yellow => Colors.Yellow,
-            _ => Colors.Red
-        };
-
-        var brush = new SolidColorBrush(
-            baseColor,
-            stroke.Opacity);
-
-        var pen = new Pen
-        {
-            Brush = brush,
-            Thickness = stroke.Thickness,
-            LineCap = PenLineCap.Round,
-            LineJoin = PenLineJoin.Round
-        };
-
+        var pen = CreatePen(stroke);
         var geometry = new StreamGeometry();
 
         using (var geometryContext = geometry.Open())
@@ -169,26 +168,7 @@ public sealed class DrawingCanvas : Control
 
         var start = ToAvaloniaPoint(stroke.Points[0]);
         var end = ToAvaloniaPoint(stroke.Points[1]);
-
-        var baseColor = stroke.Color switch
-        {
-            StrokeColor.Blue => Colors.DodgerBlue,
-            StrokeColor.Black => Colors.Black,
-            StrokeColor.Yellow => Colors.Yellow,
-            _ => Colors.Red
-        };
-
-        var brush = new SolidColorBrush(
-            baseColor,
-            stroke.Opacity);
-
-        var pen = new Pen
-        {
-            Brush = brush,
-            Thickness = stroke.Thickness,
-            LineCap = PenLineCap.Round,
-            LineJoin = PenLineJoin.Round
-        };
+        var pen = CreatePen(stroke);
 
         context.DrawLine(pen, start, end);
 
@@ -227,14 +207,70 @@ public sealed class DrawingCanvas : Control
         context.DrawLine(pen, end, right);
     }
 
+    private static void DrawRectangle(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return;
+        }
+
+        var start = ToAvaloniaPoint(stroke.Points[0]);
+        var end = ToAvaloniaPoint(stroke.Points[1]);
+
+        var x = Math.Min(start.X, end.X);
+        var y = Math.Min(start.Y, end.Y);
+        var width = Math.Abs(end.X - start.X);
+        var height = Math.Abs(end.Y - start.Y);
+
+        var rectangle = new Rect(
+            x,
+            y,
+            width,
+            height);
+
+        context.DrawRectangle(
+            brush: null,
+            CreatePen(stroke),
+            rectangle);
+    }
+
+    private static Pen CreatePen(Stroke stroke)
+    {
+        var baseColor = stroke.Color switch
+        {
+            StrokeColor.Blue => Colors.DodgerBlue,
+            StrokeColor.Black => Colors.Black,
+            StrokeColor.Yellow => Colors.Yellow,
+            _ => Colors.Red
+        };
+
+        var brush = new SolidColorBrush(
+            baseColor,
+            stroke.Opacity);
+
+        return new Pen
+        {
+            Brush = brush,
+            Thickness = stroke.Thickness,
+            LineCap = PenLineCap.Round,
+            LineJoin = PenLineJoin.Round
+        };
+    }
+
     private static Point2D ToPoint2D(Point point)
     {
-        return new Point2D(point.X, point.Y);
+        return new Point2D(
+            point.X,
+            point.Y);
     }
 
     private static Point ToAvaloniaPoint(Point2D point)
     {
-        return new Point(point.X, point.Y);
+        return new Point(
+            point.X,
+            point.Y);
     }
 
     public void Clear()
@@ -254,7 +290,10 @@ public sealed class DrawingCanvas : Control
         }
 
         var stroke = _strokes[^1];
-        _strokes.RemoveAt(_strokes.Count - 1);
+
+        _strokes.RemoveAt(
+            _strokes.Count - 1);
+
         _redoStack.Push(stroke);
 
         InvalidateVisual();
@@ -268,6 +307,7 @@ public sealed class DrawingCanvas : Control
         }
 
         var stroke = _redoStack.Pop();
+
         _strokes.Add(stroke);
 
         InvalidateVisual();

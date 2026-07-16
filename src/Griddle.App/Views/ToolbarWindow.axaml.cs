@@ -57,6 +57,13 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectArrow();
     }
 
+    private void RectangleButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectRectangle();
+    }
+
     private void HighlighterButton_Click(
         object? sender,
         RoutedEventArgs e)

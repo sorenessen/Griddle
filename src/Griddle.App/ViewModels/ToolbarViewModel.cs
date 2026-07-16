@@ -13,6 +13,7 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         : this(
             pen,
             new ArrowTool(),
+            new RectangleTool(),
             new ActiveToolService(pen))
     {
     }
@@ -20,10 +21,12 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public ToolbarViewModel(
         PenTool pen,
         ArrowTool arrow,
+        RectangleTool rectangle,
         ActiveToolService activeTool)
     {
         Pen = pen;
         Arrow = arrow;
+        Rectangle = rectangle;
         ActiveTool = activeTool;
 
         ActiveTool.CurrentToolChanged +=
@@ -35,6 +38,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public PenTool Pen { get; }
 
     public ArrowTool Arrow { get; }
+
+    public RectangleTool Rectangle { get; }
 
     public ActiveToolService ActiveTool { get; }
 
@@ -67,6 +72,9 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public bool IsArrowSelected =>
         ReferenceEquals(ActiveTool.Current, Arrow);
 
+    public bool IsRectangleSelected =>
+        ReferenceEquals(ActiveTool.Current, Rectangle);
+
     public void SelectPen(StrokeColor color)
     {
         Pen.Settings.Preset = PenPreset.Pen;
@@ -95,6 +103,12 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         NotifySelectionChanged();
     }
 
+    public void SelectRectangle()
+    {
+        ActiveTool.Current = Rectangle;
+        NotifySelectionChanged();
+    }
+
     private void OnCurrentToolChanged(
         object? sender,
         EventArgs e)
@@ -109,6 +123,7 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsBlueSelected));
         OnPropertyChanged(nameof(IsBlackSelected));
         OnPropertyChanged(nameof(IsArrowSelected));
+        OnPropertyChanged(nameof(IsRectangleSelected));
     }
 
     private void OnPropertyChanged(

@@ -32,9 +32,13 @@ public partial class MainWindow : Window
             this,
             ignoresMouseEvents: false);
 
+// TODO:
+// Introduce a ToolRegistry/ToolFactory so toolbar and drawing
+// surface share the same tool instances.
         _toolbarViewModel = new ToolbarViewModel(
             DrawingSurface.Pen,
             new ArrowTool(),
+            new RectangleTool(),
             DrawingSurface.ActiveTool);
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
