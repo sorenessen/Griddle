@@ -29,6 +29,13 @@ public partial class ToolbarWindow : Window
         DataContext = viewModel;
     }
 
+    private void SelectionButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectSelection();
+    }
+
     private void RedButton_Click(
         object? sender,
         RoutedEventArgs e)

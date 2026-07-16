@@ -1,3 +1,4 @@
+using System;
 using Griddle.Core.Geometry;
 
 namespace Griddle.Core.Models;
@@ -8,21 +9,22 @@ public sealed class Stroke
         StrokeColor color,
         double thickness,
         double opacity,
-        StrokeKind kind = StrokeKind.Freehand)
+        StrokeKind kind = StrokeKind.Freehand,
+        Guid? id = null)
     {
+        Id = id ?? Guid.NewGuid();
         Color = color;
         Thickness = thickness;
         Opacity = opacity;
         Kind = kind;
     }
 
+    public Guid Id { get; } = Guid.NewGuid();
     public StrokeColor Color { get; }
-
     public double Thickness { get; }
-
     public double Opacity { get; }
-
     public StrokeKind Kind { get; }
-
     public List<Point2D> Points { get; } = new();
+
+
 }

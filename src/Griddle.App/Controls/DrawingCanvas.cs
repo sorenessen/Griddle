@@ -16,25 +16,32 @@ public sealed class DrawingCanvas : Control
     private readonly Stack<Stroke> _redoStack = new();
     private readonly PenTool _pen;
     private readonly ActiveToolService _activeTool;
+    private readonly SelectionService _selection;
+
+    private bool _isToolInteractionActive;
 
     private Stroke? _activeStroke;
 
     public PenTool Pen => _pen;
     public ActiveToolService ActiveTool => _activeTool;
+    public SelectionService Selection => _selection;
 
     public DrawingCanvas()
         : this(
             new PenTool(new PenSettings()),
+            null,
             null)
     {
     }
 
     public DrawingCanvas(
         PenTool pen,
-        ActiveToolService? activeTool)
+        ActiveToolService? activeTool,
+        SelectionService? selection)
     {
         _pen = pen;
         _activeTool = activeTool ?? new ActiveToolService(pen);
+        _selection = selection ?? new SelectionService();
     }
 
     public void SetColor(StrokeColor color)
@@ -47,17 +54,36 @@ public sealed class DrawingCanvas : Control
         Pen.Settings.Thickness = thickness;
     }
 
-    public void BeginStroke(Point point)
+    public void BeginInteraction(Point point)
     {
+        if (_activeTool.Current is SelectionTool)
+        {
+            var hit = HitTest(point);
+
+            if (hit is null)
+            {
+                _selection.Clear();
+            }
+            else
+            {
+                _selection.Select(hit);
+            }
+
+            InvalidateVisual();
+            return;
+        }
+
+        _isToolInteractionActive = true;
+
         _activeStroke = _activeTool.Current.Begin(
             ToPoint2D(point));
 
         InvalidateVisual();
     }
 
-    public void ContinueStroke(Point point)
+    public void ContinueInteraction(Point point)
     {
-        if (_activeStroke is null)
+        if (!_isToolInteractionActive)
         {
             return;
         }
@@ -68,9 +94,9 @@ public sealed class DrawingCanvas : Control
         InvalidateVisual();
     }
 
-    public void EndStroke(Point point)
+    public void EndInteraction(Point point)
     {
-        if (_activeStroke is null)
+        if (!_isToolInteractionActive)
         {
             return;
         }
@@ -78,9 +104,14 @@ public sealed class DrawingCanvas : Control
         var completedStroke = _activeTool.Current.End(
             ToPoint2D(point));
 
-        _redoStack.Clear();
-        _strokes.Add(completedStroke);
+        if (completedStroke is not null)
+        {
+            _redoStack.Clear();
+            _strokes.Add(completedStroke);
+        }
+
         _activeStroke = null;
+        _isToolInteractionActive = false;
 
         InvalidateVisual();
     }
@@ -97,6 +128,13 @@ public sealed class DrawingCanvas : Control
         if (_activeStroke is not null)
         {
             DrawStroke(context, _activeStroke);
+        }
+
+        if (_selection.SelectedStroke is not null)
+        {
+            DrawSelectionOutline(
+                context,
+                _selection.SelectedStroke);
         }
     }
 
@@ -236,6 +274,193 @@ public sealed class DrawingCanvas : Control
             rectangle);
     }
 
+    private static void DrawSelectionOutline(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        switch (stroke.Kind)
+        {
+            case StrokeKind.Rectangle:
+                DrawRectangleSelectionOutline(context, stroke);
+                break;
+
+            case StrokeKind.Arrow:
+                DrawArrowSelectionOutline(context, stroke);
+                break;
+        }
+    }
+
+    private static void DrawRectangleSelectionOutline(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return;
+        }
+
+        var start = ToAvaloniaPoint(stroke.Points[0]);
+        var end = ToAvaloniaPoint(stroke.Points[1]);
+
+        var left = Math.Min(start.X, end.X);
+        var right = Math.Max(start.X, end.X);
+        var top = Math.Min(start.Y, end.Y);
+        var bottom = Math.Max(start.Y, end.Y);
+
+        var bounds = new Rect(
+            left - 4,
+            top - 4,
+            (right - left) + 8,
+            (bottom - top) + 8);
+
+        var pen = new Pen(
+            Brushes.White,
+            1.5,
+            dashStyle: new DashStyle(
+                new[] { 4.0, 4.0 },
+                0));
+
+        context.DrawRectangle(null, pen, bounds);
+    }
+
+    private static void DrawArrowSelectionOutline(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return;
+        }
+
+        var start = ToAvaloniaPoint(stroke.Points[0]);
+        var end = ToAvaloniaPoint(stroke.Points[^1]);
+
+        var left = Math.Min(start.X, end.X);
+        var right = Math.Max(start.X, end.X);
+        var top = Math.Min(start.Y, end.Y);
+        var bottom = Math.Max(start.Y, end.Y);
+
+        var bounds = new Rect(
+            left - 8,
+            top - 8,
+            Math.Max((right - left) + 16, 16),
+            Math.Max((bottom - top) + 16, 16));
+
+        var pen = new Pen(
+            Brushes.White,
+            1.5,
+            dashStyle: new DashStyle(
+                new[] { 4.0, 4.0 },
+                0));
+
+        context.DrawRectangle(null, pen, bounds);
+    }
+
+    private Stroke? HitTest(Point point)
+    {
+        const double tolerance = 8.0;
+
+        for (var i = _strokes.Count - 1; i >= 0; i--)
+        {
+            var stroke = _strokes[i];
+
+            if (IsHit(stroke, point, tolerance))
+            {
+                return stroke;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsHit(
+        Stroke stroke,
+        Point point,
+        double tolerance)
+    {
+        return stroke.Kind switch
+    {
+        StrokeKind.Rectangle =>
+            IsRectangleHit(stroke, point, tolerance),
+
+        StrokeKind.Arrow =>
+            IsLineHit(stroke, point, tolerance),
+
+        _ => false
+    };
+    }
+
+    private static bool IsRectangleHit(
+        Stroke stroke,
+        Point point,
+        double tolerance)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return false;
+        }
+
+        var start = ToAvaloniaPoint(stroke.Points[0]);
+        var end = ToAvaloniaPoint(stroke.Points[1]);
+
+        var left = Math.Min(start.X, end.X);
+        var right = Math.Max(start.X, end.X);
+        var top = Math.Min(start.Y, end.Y);
+        var bottom = Math.Max(start.Y, end.Y);
+
+        var expanded = new Rect(
+            left - tolerance,
+            top - tolerance,
+            (right - left) + tolerance * 2,
+            (bottom - top) + tolerance * 2);
+
+        return expanded.Contains(point);
+    }
+
+    private static bool IsLineHit(
+        Stroke stroke,
+        Point point,
+        double tolerance)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return false;
+        }
+
+        var start = ToAvaloniaPoint(stroke.Points[0]);
+        var end = ToAvaloniaPoint(stroke.Points[^1]);
+
+        var dx = end.X - start.X;
+        var dy = end.Y - start.Y;
+        var lengthSquared = dx * dx + dy * dy;
+
+        if (lengthSquared == 0)
+        {
+        var startDistance = Math.Sqrt(
+            Math.Pow(point.X - start.X, 2) +
+            Math.Pow(point.Y - start.Y, 2));
+
+        return startDistance <= tolerance;
+        }
+
+        var t =
+            ((point.X - start.X) * dx +
+             (point.Y - start.Y) * dy) /
+            lengthSquared;
+
+        t = Math.Clamp(t, 0, 1);
+
+        var nearest = new Point(
+            start.X + t * dx,
+            start.Y + t * dy);
+
+        var distance = Math.Sqrt(
+            Math.Pow(point.X - nearest.X, 2) +
+            Math.Pow(point.Y - nearest.Y, 2));
+
+        return distance <= tolerance;
+    }
+
     private static Pen CreatePen(Stroke stroke)
     {
         var baseColor = stroke.Color switch
@@ -278,6 +503,7 @@ public sealed class DrawingCanvas : Control
         _strokes.Clear();
         _redoStack.Clear();
         _activeStroke = null;
+        _selection.Clear();
 
         InvalidateVisual();
     }
@@ -293,6 +519,11 @@ public sealed class DrawingCanvas : Control
 
         _strokes.RemoveAt(
             _strokes.Count - 1);
+
+        if (_selection.SelectedStroke?.Id == stroke.Id)
+        {
+            _selection.Clear();
+        }
 
         _redoStack.Push(stroke);
 

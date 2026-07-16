@@ -39,6 +39,7 @@ public partial class MainWindow : Window
             DrawingSurface.Pen,
             new ArrowTool(),
             new RectangleTool(),
+            new SelectionTool(DrawingSurface.Selection),
             DrawingSurface.ActiveTool);
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
@@ -68,7 +69,7 @@ public partial class MainWindow : Window
         }
 
         _isDrawing = true;
-        DrawingSurface.BeginStroke(currentPoint.Position);
+        DrawingSurface.BeginInteraction(currentPoint.Position);
 
         e.Pointer.Capture(this);
         e.Handled = true;
@@ -83,7 +84,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        DrawingSurface.ContinueStroke(
+        DrawingSurface.ContinueInteraction(
             e.GetPosition(DrawingSurface));
 
         e.Handled = true;
@@ -98,7 +99,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        DrawingSurface.EndStroke(
+        DrawingSurface.EndInteraction(
             e.GetPosition(DrawingSurface));
 
         _isDrawing = false;
