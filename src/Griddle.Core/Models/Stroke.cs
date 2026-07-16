@@ -19,12 +19,25 @@ public sealed class Stroke
         Kind = kind;
     }
 
-    public Guid Id { get; } = Guid.NewGuid();
+    public Guid Id { get; }
     public StrokeColor Color { get; }
     public double Thickness { get; }
     public double Opacity { get; }
     public StrokeKind Kind { get; }
     public List<Point2D> Points { get; } = new();
 
+    public void Translate(
+        double deltaX,
+        double deltaY)
+    {
+        for (var index = 0; index < Points.Count; index++)
+        {
+            var point = Points[index];
+
+            Points[index] = new Point2D(
+                point.X + deltaX,
+                point.Y + deltaY);
+        }
+    }
 
 }

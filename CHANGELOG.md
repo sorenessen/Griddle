@@ -162,3 +162,14 @@ The original Swift/AppKit implementation successfully validated transparent over
 
 - Replaced stroke-only redo stack with a generalized history action model.
 - Refactored undo/redo to support multiple action types.
+
+### Added
+
+- Added drag-to-move support for selected rectangles and arrows.
+- Added undo and redo support for move operations.
+- Added command-based history actions for add, delete, and move operations.
+
+### Changed
+
+- Replaced enum-based history handling with polymorphic `IHistoryAction` commands.
+- Simplified undo and redo execution through action-specific behavior.
