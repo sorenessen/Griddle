@@ -807,4 +807,30 @@ public sealed class DrawingCanvas : Control
 
         InvalidateVisual();
     }
+
+    public void NudgeSelection(
+        double deltaX,
+        double deltaY)
+    {
+        if (!_selection.HasSelection)
+        {
+            return;
+        }
+
+        var stroke = _selection.SelectedStroke!;
+
+        stroke.Translate(
+            deltaX,
+            deltaY);
+
+        _undoStack.Push(
+            new MoveStrokeAction(
+                stroke,
+                deltaX,
+                deltaY));
+
+        _redoStack.Clear();
+
+        InvalidateVisual();
+    }
 }

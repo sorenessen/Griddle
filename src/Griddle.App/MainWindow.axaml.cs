@@ -162,6 +162,66 @@ public partial class MainWindow : Window
                 break;
             }
 
+            case Key.Left:
+            {
+                var distance =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+                        ? 10
+                        : 1;
+
+                DrawingSurface.NudgeSelection(
+                    -distance,
+                    0);
+
+                e.Handled = true;
+                break;
+            }
+
+            case Key.Right:
+            {
+                var distance =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+                        ? 10
+                        : 1;
+
+                DrawingSurface.NudgeSelection(
+                    distance,
+                    0);
+
+                e.Handled = true;
+                break;
+            }
+
+            case Key.Up:
+            {
+                var distance =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+                        ? 10
+                        : 1;
+
+                DrawingSurface.NudgeSelection(
+                    0,
+                    -distance);
+
+                e.Handled = true;
+                break;
+            }
+
+            case Key.Down:
+            {
+                var distance =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Shift)
+                        ? 10
+                        : 1;
+
+                DrawingSurface.NudgeSelection(
+                    0,
+                    distance);
+
+                e.Handled = true;
+                break;
+            }
+
             case Key.P:
                 _toolbarViewModel?.SelectPen(StrokeColor.Red);
                 e.Handled = true;
