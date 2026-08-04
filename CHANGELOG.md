@@ -178,3 +178,8 @@ The original Swift/AppKit implementation successfully validated transparent over
 - Added keyboard arrow controls for nudging selected shapes.
 - Added Shift + Arrow shortcuts for larger 10-pixel movements.
 - Added undo and redo support for keyboard nudge operations.
+
+### Added
+
+- Added corner resize handles to selected rectangles.
+- Resize handles remain aligned while selected rectangles are moved.

@@ -34,6 +34,9 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 - [x] Selection Tool
 - [x] Select Rectangles
+- [x] Render Rectangle Resize Handles
+- [ ] Resize Rectangle from Handles
+- [ ] Undo and Redo Rectangle Resize
 - [x] Select Arrows
 - [ ] Select Freehand Strokes
 - [x] Move Shapes
