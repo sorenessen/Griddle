@@ -1,5 +1,4 @@
 # Changelog
-# Changelog
 
 ## v0.1.0
 
@@ -173,3 +172,9 @@ The original Swift/AppKit implementation successfully validated transparent over
 
 - Replaced enum-based history handling with polymorphic `IHistoryAction` commands.
 - Simplified undo and redo execution through action-specific behavior.
+
+### Added
+
+- Added keyboard arrow controls for nudging selected shapes.
+- Added Shift + Arrow shortcuts for larger 10-pixel movements.
+- Added undo and redo support for keyboard nudge operations.
