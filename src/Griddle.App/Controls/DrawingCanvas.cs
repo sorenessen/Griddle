@@ -439,6 +439,42 @@ public sealed class DrawingCanvas : Control
             null,
             pen,
             bounds);
+
+        DrawResizeHandle(
+            context,
+            new Point(left, top));
+
+        DrawResizeHandle(
+            context,
+            new Point(right, top));
+
+        DrawResizeHandle(
+            context,
+            new Point(left, bottom));
+
+        DrawResizeHandle(
+            context,
+            new Point(right, bottom));
+    }
+
+    private static void DrawResizeHandle(
+        DrawingContext context,
+        Point center)
+    {
+        const double size = 8;
+
+        var rect = new Rect(
+            center.X - size / 2,
+            center.Y - size / 2,
+            size,
+            size);
+
+        context.DrawRectangle(
+            Brushes.White,
+            new Pen(
+                Brushes.Black,
+                1),
+            rect);
     }
 
     private static void DrawArrowSelectionOutline(
