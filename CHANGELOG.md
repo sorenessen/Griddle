@@ -183,3 +183,10 @@ The original Swift/AppKit implementation successfully validated transparent over
 
 - Added corner resize handles to selected rectangles.
 - Resize handles remain aligned while selected rectangles are moved.
+
+### Added
+
+- Added bottom-right rectangle resize handle.
+- Added stable anchor-based rectangle resizing.
+- Added undo and redo support for rectangle resize operations.
+

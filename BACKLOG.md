@@ -41,7 +41,14 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 - [ ] Select Freehand Strokes
 - [x] Move Shapes
 - [x] Keyboard Nudge for Selected Shapes
-- [ ] Resize Shapes
+- [o] Resize Shapes
+- [x] Bottom-right rectangle resize
+- [x] Undo/Redo rectangle resize
+- [ ] Top-left resize
+- [ ] Top-right resize
+- [ ] Bottom-left resize
+- [ ] Minimum rectangle size
+- [ ] Resize cursors
 - [x] Delete Selected Shape
 - [ ] Duplicate Shape
 

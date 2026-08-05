@@ -26,6 +26,11 @@ public sealed class DrawingCanvas : Control
     private Stroke? _activeStroke;
     private Stroke? _draggingStroke;
     private Point? _lastPointerPosition;
+    private Point2D? _resizeAnchorPoint;
+    private Point2D? _resizeBeforeStart;
+    private Point2D? _resizeBeforeEnd;
+
+    private ResizeHandle _activeResizeHandle = ResizeHandle.None;
 
     private double _dragDeltaX;
     private double _dragDeltaY;
@@ -76,10 +81,42 @@ public sealed class DrawingCanvas : Control
             else
             {
                 _selection.Select(hit);
+
+                _activeResizeHandle = ResizeHandle.None;
+                _resizeAnchorPoint = null;
                 _draggingStroke = hit;
-                _lastPointerPosition = point;
+                _lastPointerPosition = null;
                 _dragDeltaX = 0;
                 _dragDeltaY = 0;
+
+                if (hit.Kind == StrokeKind.Rectangle)
+                {
+                    var bounds = GetRectangleBounds(hit);
+
+                    _activeResizeHandle =
+                        HitTestResizeHandle(
+                            bounds,
+                            point);
+
+                    if (_activeResizeHandle != ResizeHandle.None)
+                    {
+                        _resizeBeforeStart = hit.Points[0];
+                        _resizeBeforeEnd = hit.Points[1];
+                    }
+
+                    if (_activeResizeHandle ==
+                        ResizeHandle.BottomRight)
+                    {
+                        _resizeAnchorPoint = new Point2D(
+                            bounds.Left,
+                            bounds.Top);
+                    }
+                }
+
+                if (_activeResizeHandle == ResizeHandle.None)
+                {
+                    _lastPointerPosition = point;
+                }
             }
 
             InvalidateVisual();
@@ -98,6 +135,27 @@ public sealed class DrawingCanvas : Control
     {
         if (_activeTool.Current is SelectionTool)
         {
+            if (_activeResizeHandle != ResizeHandle.None)
+            {
+                if (_draggingStroke is null)
+                {
+                    return;
+                }
+
+                if (_activeResizeHandle == ResizeHandle.BottomRight &&
+                    _resizeAnchorPoint is not null)
+                {
+                    _draggingStroke.Points[0] =
+                        _resizeAnchorPoint.Value;
+
+                    _draggingStroke.Points[1] =
+                        ToPoint2D(point);
+
+                    InvalidateVisual();
+                }
+                return;
+            }
+
             if (_draggingStroke is null ||
                 _lastPointerPosition is null)
             {
@@ -137,8 +195,30 @@ public sealed class DrawingCanvas : Control
     {
         if (_activeTool.Current is SelectionTool)
         {
-            if (_draggingStroke is not null &&
-                (_dragDeltaX != 0 || _dragDeltaY != 0))
+            if (_activeResizeHandle != ResizeHandle.None &&
+                _draggingStroke is not null &&
+                _resizeBeforeStart is not null &&
+                _resizeBeforeEnd is not null)
+            {
+                var afterStart = _draggingStroke.Points[0];
+                var afterEnd = _draggingStroke.Points[1];
+
+                if (afterStart != _resizeBeforeStart.Value ||
+                    afterEnd != _resizeBeforeEnd.Value)
+                {
+                    _undoStack.Push(
+                        new ResizeStrokeAction(
+                            _draggingStroke,
+                            _resizeBeforeStart.Value,
+                            _resizeBeforeEnd.Value,
+                            afterStart,
+                            afterEnd));
+
+                    _redoStack.Clear();
+                }
+            }
+            else if (_draggingStroke is not null &&
+                     (_dragDeltaX != 0 || _dragDeltaY != 0))
             {
                 _undoStack.Push(
                     new MoveStrokeAction(
@@ -477,6 +557,67 @@ public sealed class DrawingCanvas : Control
             rect);
     }
 
+    private static ResizeHandle HitTestResizeHandle(
+        Rect bounds,
+        Point point)
+    {
+        const double size = 8;
+
+        if (new Rect(
+                bounds.TopLeft.X - size / 2,
+                bounds.TopLeft.Y - size / 2,
+                size,
+                size).Contains(point))
+        {
+            return ResizeHandle.TopLeft;
+        }
+
+        if (new Rect(
+                bounds.TopRight.X - size / 2,
+                bounds.TopRight.Y - size / 2,
+                size,
+                size).Contains(point))
+        {
+            return ResizeHandle.TopRight;
+        }
+
+        if (new Rect(
+                bounds.BottomLeft.X - size / 2,
+                bounds.BottomLeft.Y - size / 2,
+                size,
+                size).Contains(point))
+        {
+            return ResizeHandle.BottomLeft;
+        }
+
+        if (new Rect(
+                bounds.BottomRight.X - size / 2,
+                bounds.BottomRight.Y - size / 2,
+                size,
+                size).Contains(point))
+        {
+            return ResizeHandle.BottomRight;
+        }
+
+        return ResizeHandle.None;
+    }
+
+    private static Rect GetRectangleBounds(
+        Stroke stroke)
+    {
+        var start = ToAvaloniaPoint(
+            stroke.Points[0]);
+
+        var end = ToAvaloniaPoint(
+            stroke.Points[1]);
+
+        return new Rect(
+            Math.Min(start.X, end.X),
+            Math.Min(start.Y, end.Y),
+            Math.Abs(end.X - start.X),
+            Math.Abs(end.Y - start.Y));
+    }
+
     private static void DrawArrowSelectionOutline(
         DrawingContext context,
         Stroke stroke)
@@ -741,8 +882,12 @@ public sealed class DrawingCanvas : Control
     {
         _draggingStroke = null;
         _lastPointerPosition = null;
+        _activeResizeHandle = ResizeHandle.None;
+        _resizeAnchorPoint = null;
         _dragDeltaX = 0;
         _dragDeltaY = 0;
+        _resizeBeforeStart = null;
+        _resizeBeforeEnd = null;
     }
 
     private void ClearInvalidSelection()
