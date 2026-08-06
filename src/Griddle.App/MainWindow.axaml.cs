@@ -71,7 +71,7 @@ public partial class MainWindow : Window
         _isDrawing = true;
         DrawingSurface.BeginInteraction(currentPoint.Position);
 
-        e.Pointer.Capture(this);
+        e.Pointer.Capture(DrawingSurface);
         e.Handled = true;
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Input;
 using Griddle.Core.Geometry;
 using Griddle.Core.History;
 using Griddle.Core.Models;
@@ -65,6 +66,40 @@ public sealed class DrawingCanvas : Control
     public void SetThickness(double thickness)
     {
         Pen.Settings.Thickness = thickness;
+    }
+
+    private void UpdateCursor(Point point)
+    {
+        var selectedStroke = _selection.SelectedStroke;
+
+        if (selectedStroke is null ||
+            selectedStroke.Kind != StrokeKind.Rectangle)
+        {
+            Cursor = Cursor.Default;
+            return;
+        }
+
+        var handle = HitTestResizeHandle(
+            GetRectangleBounds(selectedStroke),
+            point);
+
+        Cursor = handle switch
+        {
+            ResizeHandle.TopLeft =>
+                new Cursor(StandardCursorType.TopLeftCorner),
+
+            ResizeHandle.BottomRight =>
+                new Cursor(StandardCursorType.BottomRightCorner),
+
+            ResizeHandle.TopRight =>
+                new Cursor(StandardCursorType.TopRightCorner),
+
+            ResizeHandle.BottomLeft =>
+                new Cursor(StandardCursorType.BottomLeftCorner),
+
+            _ =>
+                Cursor.Default
+        };
     }
 
     public void BeginInteraction(Point point)
@@ -152,6 +187,8 @@ public sealed class DrawingCanvas : Control
 
     public void ContinueInteraction(Point point)
     {
+        UpdateCursor(point);
+
         if (_activeTool.Current is SelectionTool)
         {
             if (_activeResizeHandle != ResizeHandle.None)
