@@ -30,8 +30,11 @@ public sealed class DrawingCanvas : Control
     private Point2D? _resizeAnchorPoint;
     private Point2D? _resizeBeforeStart;
     private Point2D? _resizeBeforeEnd;
+    private Point2D? _arrowBeforeStart;
+    private Point2D? _arrowBeforeEnd;
 
     private ResizeHandle _activeResizeHandle = ResizeHandle.None;
+    private ArrowHandle _activeArrowHandle = ArrowHandle.None;
 
     private double _dragDeltaX;
     private double _dragDeltaY;
@@ -72,34 +75,66 @@ public sealed class DrawingCanvas : Control
     {
         var selectedStroke = _selection.SelectedStroke;
 
-        if (selectedStroke is null ||
-            selectedStroke.Kind != StrokeKind.Rectangle)
+        if (selectedStroke is null)
         {
             Cursor = Cursor.Default;
             return;
         }
 
-        var handle = HitTestResizeHandle(
-            GetRectangleBounds(selectedStroke),
-            point);
-
-        Cursor = handle switch
+        switch (selectedStroke.Kind)
         {
-            ResizeHandle.TopLeft =>
-                new Cursor(StandardCursorType.TopLeftCorner),
+            case StrokeKind.Rectangle:
 
-            ResizeHandle.BottomRight =>
-                new Cursor(StandardCursorType.BottomRightCorner),
+                var resizeHandle = HitTestResizeHandle(
+                    GetRectangleBounds(selectedStroke),
+                    point);
 
-            ResizeHandle.TopRight =>
-                new Cursor(StandardCursorType.TopRightCorner),
+                Cursor = resizeHandle switch
+                {
+                    ResizeHandle.TopLeft =>
+                        new Cursor(StandardCursorType.TopLeftCorner),
 
-            ResizeHandle.BottomLeft =>
-                new Cursor(StandardCursorType.BottomLeftCorner),
+                    ResizeHandle.BottomRight =>
+                        new Cursor(StandardCursorType.BottomRightCorner),
 
-            _ =>
-                Cursor.Default
-        };
+                    ResizeHandle.TopRight =>
+                        new Cursor(StandardCursorType.TopRightCorner),
+
+                    ResizeHandle.BottomLeft =>
+                        new Cursor(StandardCursorType.BottomLeftCorner),
+
+                    _ =>
+                        Cursor.Default
+                };
+
+                break;
+
+            case StrokeKind.Arrow:
+
+                var arrowHandle =
+                    HitTestArrowHandle(
+                        selectedStroke,
+                        point);
+
+                Cursor = arrowHandle switch
+                {
+                    ArrowHandle.Start =>
+                        new Cursor(StandardCursorType.Cross),
+
+                    ArrowHandle.End =>
+                        new Cursor(StandardCursorType.Cross),
+
+                    _ =>
+                        Cursor.Default
+                };
+
+                break;
+
+            default:
+
+                Cursor = Cursor.Default;
+                break;
+        }
     }
 
     public void BeginInteraction(Point point)
@@ -118,6 +153,8 @@ public sealed class DrawingCanvas : Control
                 _selection.Select(hit);
 
                 _activeResizeHandle = ResizeHandle.None;
+                _activeArrowHandle = ArrowHandle.None;
+
                 _resizeAnchorPoint = null;
                 _draggingStroke = hit;
                 _lastPointerPosition = null;
@@ -166,8 +203,22 @@ public sealed class DrawingCanvas : Control
                             break;
                     }
                 }
+                else if (hit.Kind == StrokeKind.Arrow)
+                {
+                    _activeArrowHandle =
+                        HitTestArrowHandle(
+                            hit,
+                            point);
 
-                if (_activeResizeHandle == ResizeHandle.None)
+                    if (_activeArrowHandle != ArrowHandle.None)
+                    {
+                        _arrowBeforeStart = hit.Points[0];
+                        _arrowBeforeEnd = hit.Points[1];
+                    }
+                }
+
+                if (_activeResizeHandle == ResizeHandle.None &&
+                    _activeArrowHandle == ArrowHandle.None)
                 {
                     _lastPointerPosition = point;
                 }
@@ -191,6 +242,12 @@ public sealed class DrawingCanvas : Control
 
         if (_activeTool.Current is SelectionTool)
         {
+            if (_activeArrowHandle != ArrowHandle.None)
+            {
+                MoveArrowEndpoint(point);
+                return;
+            }
+
             if (_activeResizeHandle != ResizeHandle.None)
             {
                 ResizeRectangle(point);
@@ -236,6 +293,41 @@ public sealed class DrawingCanvas : Control
     {
         if (_activeTool.Current is SelectionTool)
         {
+            if (_activeArrowHandle != ArrowHandle.None &&
+                _draggingStroke is not null &&
+                _arrowBeforeStart is not null &&
+                _arrowBeforeEnd is not null)
+            {
+                var afterStart =
+                    _draggingStroke.Points[0];
+
+                var afterEnd =
+                    _draggingStroke.Points[1];
+
+                if (afterStart != _arrowBeforeStart.Value ||
+                    afterEnd != _arrowBeforeEnd.Value)
+                {
+                    _undoStack.Push(
+                        new ArrowEndpointMoveAction(
+                            _draggingStroke,
+                            _arrowBeforeStart.Value,
+                            _arrowBeforeEnd.Value,
+                            afterStart,
+                            afterEnd));
+
+                    _redoStack.Clear();
+                }
+            }
+            else if (_activeResizeHandle != ResizeHandle.None)
+            {
+                // keep your existing rectangle resize history block here
+            }
+            else if (_draggingStroke is not null &&
+                     (_dragDeltaX != 0 || _dragDeltaY != 0))
+            {
+                // keep your existing move history block here
+            }
+
             if (_activeResizeHandle != ResizeHandle.None &&
                 _draggingStroke is not null &&
                 _resizeBeforeStart is not null &&
@@ -643,6 +735,48 @@ public sealed class DrawingCanvas : Control
         return ResizeHandle.None;
     }
 
+    private static ArrowHandle HitTestArrowHandle(
+        Stroke stroke,
+        Point point)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return ArrowHandle.None;
+        }
+
+        const double size = 8;
+
+        var start = ToAvaloniaPoint(
+            stroke.Points[0]);
+
+        var end = ToAvaloniaPoint(
+            stroke.Points[1]);
+
+        var startBounds = new Rect(
+            start.X - size / 2,
+            start.Y - size / 2,
+            size,
+            size);
+
+        if (startBounds.Contains(point))
+        {
+            return ArrowHandle.Start;
+        }
+
+        var endBounds = new Rect(
+            end.X - size / 2,
+            end.Y - size / 2,
+            size,
+            size);
+
+        if (endBounds.Contains(point))
+        {
+            return ArrowHandle.End;
+        }
+
+        return ArrowHandle.None;
+    }
+
     private static Rect GetRectangleBounds(
         Stroke stroke)
     {
@@ -660,7 +794,7 @@ public sealed class DrawingCanvas : Control
     }
 
     private void ResizeRectangle(
-    Point point)
+        Point point)
     {
         if (_draggingStroke is null ||
             _resizeAnchorPoint is null)
@@ -719,6 +853,30 @@ public sealed class DrawingCanvas : Control
         InvalidateVisual();
     }
 
+    private void MoveArrowEndpoint(
+        Point point)
+    {
+        if (_draggingStroke is null)
+        {
+            return;
+        }
+
+        switch (_activeArrowHandle)
+        {
+            case ArrowHandle.Start:
+                _draggingStroke.Points[0] =
+                    ToPoint2D(point);
+                break;
+
+            case ArrowHandle.End:
+                _draggingStroke.Points[1] =
+                    ToPoint2D(point);
+                break;
+        }
+
+        InvalidateVisual();
+    }
+
     private static void DrawArrowSelectionOutline(
         DrawingContext context,
         Stroke stroke)
@@ -766,6 +924,14 @@ public sealed class DrawingCanvas : Control
             null,
             pen,
             bounds);
+
+        DrawResizeHandle(
+            context,
+            start);
+
+        DrawResizeHandle(
+            context,
+            end);
     }
 
     private static Pen CreateSelectionPen()
@@ -989,6 +1155,10 @@ public sealed class DrawingCanvas : Control
         _dragDeltaY = 0;
         _resizeBeforeStart = null;
         _resizeBeforeEnd = null;
+        _activeArrowHandle = ArrowHandle.None;
+        _activeArrowHandle = ArrowHandle.None;
+        _arrowBeforeStart = null;
+        _arrowBeforeEnd = null;
     }
 
     private void ClearInvalidSelection()
