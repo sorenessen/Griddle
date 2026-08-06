@@ -104,12 +104,31 @@ public sealed class DrawingCanvas : Control
                         _resizeBeforeEnd = hit.Points[1];
                     }
 
-                    if (_activeResizeHandle ==
-                        ResizeHandle.BottomRight)
+                    switch (_activeResizeHandle)
                     {
-                        _resizeAnchorPoint = new Point2D(
-                            bounds.Left,
-                            bounds.Top);
+                        case ResizeHandle.BottomRight:
+                            _resizeAnchorPoint = new Point2D(
+                                bounds.Left,
+                                bounds.Top);
+                            break;
+
+                        case ResizeHandle.BottomLeft:
+                            _resizeAnchorPoint = new Point2D(
+                                bounds.Right,
+                                bounds.Top);
+                            break;
+
+                        case ResizeHandle.TopRight:
+                            _resizeAnchorPoint = new Point2D(
+                                bounds.Left,
+                                bounds.Bottom);
+                            break;
+
+                        case ResizeHandle.TopLeft:
+                            _resizeAnchorPoint = new Point2D(
+                                bounds.Right,
+                                bounds.Bottom);
+                            break;
                     }
                 }
 
@@ -137,22 +156,7 @@ public sealed class DrawingCanvas : Control
         {
             if (_activeResizeHandle != ResizeHandle.None)
             {
-                if (_draggingStroke is null)
-                {
-                    return;
-                }
-
-                if (_activeResizeHandle == ResizeHandle.BottomRight &&
-                    _resizeAnchorPoint is not null)
-                {
-                    _draggingStroke.Points[0] =
-                        _resizeAnchorPoint.Value;
-
-                    _draggingStroke.Points[1] =
-                        ToPoint2D(point);
-
-                    InvalidateVisual();
-                }
+                ResizeRectangle(point);
                 return;
             }
 
@@ -616,6 +620,66 @@ public sealed class DrawingCanvas : Control
             Math.Min(start.Y, end.Y),
             Math.Abs(end.X - start.X),
             Math.Abs(end.Y - start.Y));
+    }
+
+    private void ResizeRectangle(
+    Point point)
+    {
+        if (_draggingStroke is null ||
+            _resizeAnchorPoint is null)
+        {
+            return;
+        }
+
+        switch (_activeResizeHandle)
+        {
+            case ResizeHandle.BottomRight:
+
+                _draggingStroke.Points[0] =
+                    _resizeAnchorPoint.Value;
+
+                _draggingStroke.Points[1] =
+                    ToPoint2D(point);
+
+                break;
+
+            case ResizeHandle.BottomLeft:
+                _draggingStroke.Points[0] =
+                    new Point2D(
+                        point.X,
+                        _resizeAnchorPoint.Value.Y);
+
+                _draggingStroke.Points[1] =
+                    new Point2D(
+                        _resizeAnchorPoint.Value.X,
+                        point.Y);
+
+                break;
+
+            case ResizeHandle.TopRight:
+                _draggingStroke.Points[0] =
+                    new Point2D(
+                        _resizeAnchorPoint.Value.X,
+                        point.Y);
+
+                _draggingStroke.Points[1] =
+                    new Point2D(
+                        point.X,
+                        _resizeAnchorPoint.Value.Y);
+
+                break;
+
+            case ResizeHandle.TopLeft:
+                _draggingStroke.Points[0] =
+                    ToPoint2D(point);
+
+                _draggingStroke.Points[1] =
+                    _resizeAnchorPoint.Value;
+
+                break;
+        }
+
+        InvalidateVisual();
     }
 
     private static void DrawArrowSelectionOutline(
