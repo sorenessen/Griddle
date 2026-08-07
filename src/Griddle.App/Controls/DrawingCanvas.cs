@@ -245,7 +245,9 @@ public sealed class DrawingCanvas : Control
         InvalidateVisual();
     }
 
-    public void BeginInteraction(Point point)
+    public void BeginInteraction(
+        Point point, 
+        int clickCount = 1)
     {
         if (_activeTool.Current is TextTool)
         {
@@ -276,6 +278,20 @@ public sealed class DrawingCanvas : Control
         if (_activeTool.Current is SelectionTool)
         {
             var hit = HitTest(point);
+
+            if (clickCount == 2 &&
+                hit?.Kind == StrokeKind.Text)
+            {
+                _editingTextStroke = hit;
+                _isEditingText = true;
+                _isCaretVisible = true;
+
+                _caretTimer.Stop();
+                _caretTimer.Start();
+
+                InvalidateVisual();
+                return;
+            }
 
             if (hit is null)
             {
@@ -794,7 +810,8 @@ public sealed class DrawingCanvas : Control
                 24,
                 Brushes.White);
 
-            textWidth = formattedText.Width;
+            textWidth = formattedText.WidthIncludingTrailingWhitespace;
+
         }
 
         var caretX =
@@ -1209,6 +1226,12 @@ public sealed class DrawingCanvas : Control
                     point,
                     tolerance),
 
+            StrokeKind.Text =>
+                IsTextHit(
+                    stroke,
+                    point,
+                    tolerance),
+
             _ => false
         };
     }
@@ -1305,6 +1328,38 @@ public sealed class DrawingCanvas : Control
         return CalculateDistance(
             point,
             nearest) <= tolerance;
+    }
+
+    private static bool IsTextHit(
+        Stroke stroke,
+        Point point,
+        double tolerance)
+    {
+        if (stroke.Points.Count == 0)
+        {
+            return false;
+        }
+
+        var origin = ToAvaloniaPoint(
+            stroke.Points[0]);
+
+        var formattedText = new FormattedText(
+            stroke.Text,
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface("Arial"),
+            24,
+            Brushes.White);
+
+        var bounds = new Rect(
+            origin.X,
+            origin.Y,
+            formattedText.Width,
+            formattedText.Height);
+
+        bounds = bounds.Inflate(tolerance);
+
+        return bounds.Contains(point);
     }
 
     private static double CalculateDistance(
