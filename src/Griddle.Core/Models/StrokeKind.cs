@@ -5,5 +5,6 @@ public enum StrokeKind
     Freehand,
     Arrow,
     Rectangle,
-    Text
+    Text,
+    Callout
 }

@@ -32,6 +32,7 @@ public sealed class DrawingCanvas : Control
     private bool _isEditingText;
     private readonly DispatcherTimer _caretTimer;
     private bool _isCaretVisible;
+    private int _nextCalloutNumber = 1;
     private Point? _lastPointerPosition;
     private Point2D? _resizeAnchorPoint;
     private Point2D? _resizeBeforeStart;
@@ -246,7 +247,7 @@ public sealed class DrawingCanvas : Control
     }
 
     public void BeginInteraction(
-        Point point, 
+        Point point,
         int clickCount = 1)
     {
         if (_activeTool.Current is TextTool)
@@ -261,8 +262,8 @@ public sealed class DrawingCanvas : Control
 
                 _editingTextStroke = textStroke;
                 _isEditingText = true;
-                _isCaretVisible = true;
-                _caretTimer.Start();
+
+                StartCaret();
 
                 _selection.Clear();
                 ResetDragState();
@@ -280,14 +281,14 @@ public sealed class DrawingCanvas : Control
             var hit = HitTest(point);
 
             if (clickCount == 2 &&
-                hit?.Kind == StrokeKind.Text)
+                hit is not null &&
+                (hit.Kind == StrokeKind.Text ||
+                 hit.Kind == StrokeKind.Callout))
             {
                 _editingTextStroke = hit;
                 _isEditingText = true;
-                _isCaretVisible = true;
 
-                _caretTimer.Stop();
-                _caretTimer.Start();
+                StartCaret();
 
                 InvalidateVisual();
                 return;
@@ -530,13 +531,28 @@ public sealed class DrawingCanvas : Control
         {
             _strokes.Add(completedStroke);
 
-            _undoStack.Push(
-                new AddStrokeAction(
-                    _strokes,
-                    completedStroke,
-                    _strokes.Count - 1));
+            if (completedStroke.Kind == StrokeKind.Callout)
+            {
+                completedStroke.CalloutNumber = _nextCalloutNumber++;
 
-            _redoStack.Clear();
+                _editingTextStroke = completedStroke;
+                _isEditingText = true;
+                _isCaretVisible = true;
+
+                _caretTimer.Stop();
+                _caretTimer.Start();
+                InvalidateVisual();
+            }
+            else
+            {
+                _undoStack.Push(
+                    new AddStrokeAction(
+                        _strokes,
+                        completedStroke,
+                        _strokes.Count - 1));
+
+                _redoStack.Clear();
+            }
         }
 
         _activeStroke = null;
@@ -596,6 +612,10 @@ public sealed class DrawingCanvas : Control
 
             case StrokeKind.Text:
                 DrawText(context, stroke);
+                break;
+
+            case StrokeKind.Callout:
+                DrawCallout(context, stroke);
                 break;
 
             default:
@@ -664,6 +684,19 @@ public sealed class DrawingCanvas : Control
             start,
             end);
 
+        DrawArrowHead(
+            context,
+            pen,
+            start,
+            end);
+    }
+
+    private static void DrawArrowHead(
+        DrawingContext context,
+        Pen pen,
+        Point start,
+        Point end)
+    {
         var direction = start - end;
 
         var length = Math.Sqrt(
@@ -709,6 +742,79 @@ public sealed class DrawingCanvas : Control
             pen,
             end,
             right);
+    }
+
+    private static void DrawCallout(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return;
+        }
+
+        var start =
+            ToAvaloniaPoint(stroke.Points[0]);
+
+        var end =
+            ToAvaloniaPoint(stroke.Points[1]);
+
+        var pen = CreatePen(stroke);
+
+        context.DrawLine(
+            pen,
+            start,
+            end);
+
+        DrawArrowHead(
+            context,
+            pen,
+            start,
+            end);
+
+        if (!string.IsNullOrEmpty(stroke.Text))
+        {
+            var text = new FormattedText(
+                stroke.Text,
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                new Typeface("Arial"),
+                20,
+                Brushes.White);
+
+            var textPosition = new Point(
+                end.X + 12,
+                end.Y - text.Height / 2);
+
+            context.DrawText(
+                text,
+                textPosition);
+        }
+
+        const double radius = 12;
+
+        context.DrawEllipse(
+            Brushes.White,
+            pen,
+            start,
+            radius,
+            radius);
+
+        var number = new FormattedText(
+            (stroke.CalloutNumber?.ToString() ?? "•"),
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface("Arial"),
+            14,
+            Brushes.Black);
+
+        var numberPosition = new Point(
+            start.X - number.Width / 2,
+            start.Y - number.Height / 2);
+
+        context.DrawText(
+            number,
+            numberPosition);
     }
 
     private static void DrawRectangle(
@@ -795,27 +901,43 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
+        var isCallout =
+            stroke.Kind == StrokeKind.Callout &&
+            stroke.Points.Count > 1;
+
+        var fontSize =
+            isCallout ? 20.0 : 24.0;
+
         var position =
-            ToAvaloniaPoint(stroke.Points[0]);
+            isCallout
+                ? new Point(
+                    stroke.Points[1].X + 12,
+                    stroke.Points[1].Y)
+                : ToAvaloniaPoint(stroke.Points[0]);
 
-        var textWidth = 0.0;
+        var formattedText = new FormattedText(
+            stroke.Text,
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface("Arial"),
+            fontSize,
+            Brushes.White);
 
-        if (!string.IsNullOrEmpty(stroke.Text))
-        {
-            var formattedText = new FormattedText(
-                stroke.Text,
-                CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                new Typeface("Arial"),
-                24,
-                Brushes.White);
+        var textWidth =
+            formattedText.WidthIncludingTrailingWhitespace;
 
-            textWidth = formattedText.WidthIncludingTrailingWhitespace;
-
-        }
+        var caretHeight =
+            formattedText.Height > 0
+                ? formattedText.Height
+                : fontSize;
 
         var caretX =
             position.X + textWidth;
+
+        var caretTop =
+            isCallout
+                ? position.Y - caretHeight / 2
+                : position.Y;
 
         context.DrawLine(
             new Pen(
@@ -823,10 +945,20 @@ public sealed class DrawingCanvas : Control
                 2),
             new Point(
                 caretX,
-                position.Y),
+                caretTop),
             new Point(
                 caretX,
-                position.Y + 28));
+                caretTop + caretHeight));
+    }
+
+    private void StartCaret()
+    {
+        _isCaretVisible = true;
+
+        _caretTimer.Stop();
+        _caretTimer.Start();
+
+        InvalidateVisual();
     }
 
     private static void DrawSelectionOutline(
@@ -1232,6 +1364,12 @@ public sealed class DrawingCanvas : Control
                     point,
                     tolerance),
 
+            StrokeKind.Callout =>
+                IsCalloutHit(
+                    stroke,
+                    point,
+                    tolerance),
+
             _ => false
         };
     }
@@ -1360,6 +1498,51 @@ public sealed class DrawingCanvas : Control
         bounds = bounds.Inflate(tolerance);
 
         return bounds.Contains(point);
+    }
+
+    private static bool IsCalloutHit(
+        Stroke stroke,
+        Point point,
+        double tolerance)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return false;
+        }
+
+        if (IsLineHit(
+            stroke,
+            point,
+            tolerance))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrEmpty(stroke.Text))
+        {
+            return false;
+        }
+
+        var end =
+            ToAvaloniaPoint(stroke.Points[1]);
+
+        var formattedText = new FormattedText(
+            stroke.Text,
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface("Arial"),
+            20,
+            Brushes.White);
+
+        var textBounds = new Rect(
+            end.X + 12,
+            end.Y - formattedText.Height / 2,
+            formattedText.Width,
+            formattedText.Height);
+
+        return textBounds
+            .Inflate(tolerance)
+            .Contains(point);
     }
 
     private static double CalculateDistance(

@@ -78,6 +78,13 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectText();
     }
 
+    private void CalloutButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectCallout();
+    }
+
     private void HighlighterButton_Click(
         object? sender,
         RoutedEventArgs e)

@@ -41,6 +41,7 @@ public partial class MainWindow : Window
             new ArrowTool(),
             new RectangleTool(),
             new TextTool(),
+            new CalloutTool(),
             new SelectionTool(DrawingSurface.Selection),
             DrawingSurface.ActiveTool);
         _toolbar = new ToolbarWindow(_toolbarViewModel);
@@ -69,6 +70,8 @@ public partial class MainWindow : Window
         {
             return;
         }
+
+        Focus();
 
         _isDrawing = true;
         DrawingSurface.BeginInteraction(

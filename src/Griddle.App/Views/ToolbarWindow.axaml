@@ -4,7 +4,7 @@
     xmlns:vm="using:Griddle.App.ViewModels"
     x:Class="Griddle.App.Views.ToolbarWindow"
     x:DataType="vm:ToolbarViewModel"
-    Width="508"
+    Width="556"
     Height="60"
     CanResize="False"
     WindowDecorations="None"
@@ -151,6 +151,30 @@
                         Text="T"
                         Foreground="White"
                         FontSize="18"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Classes.active="{Binding IsCalloutSelected}"
+                Click="CalloutButton_Click"
+                ToolTip.Tip="Callout">
+
+                <Grid Width="22" Height="22">
+                    <Ellipse
+                        Width="16"
+                        Height="16"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+
+                    <TextBlock
+                        Text="1"
+                        Foreground="White"
+                        FontSize="10"
                         FontWeight="Bold"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"/>

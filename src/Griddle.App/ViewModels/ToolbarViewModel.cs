@@ -15,6 +15,7 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
             new ArrowTool(),
             new RectangleTool(),
             new TextTool(),
+            new CalloutTool(),
             new SelectionTool(new SelectionService()),
             new ActiveToolService(pen))
     {
@@ -25,6 +26,7 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         ArrowTool arrow,
         RectangleTool rectangle,
         TextTool text,
+        CalloutTool callout,
         SelectionTool selection,
         ActiveToolService activeTool)
     {
@@ -32,6 +34,7 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         Arrow = arrow;
         Rectangle = rectangle;
         Text = text;
+        Callout = callout;
         Selection = selection;
         ActiveTool = activeTool;
 
@@ -48,6 +51,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public RectangleTool Rectangle { get; }
 
     public TextTool Text { get; }
+
+    public CalloutTool Callout { get; }
 
     public SelectionTool Selection { get; }
 
@@ -87,6 +92,9 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public bool IsTextSelected =>
         ReferenceEquals(ActiveTool.Current, Text);
+
+    public bool IsCalloutSelected =>
+        ReferenceEquals(ActiveTool.Current, Callout);
 
     public bool IsSelectionSelected =>
         ReferenceEquals(ActiveTool.Current, Selection);
@@ -131,6 +139,12 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         NotifySelectionChanged();
     }
 
+    public void SelectCallout()
+    {
+        ActiveTool.Current = Callout;
+        NotifySelectionChanged();
+    }
+
     public void SelectSelection()
     {
         ActiveTool.Current = Selection;
@@ -153,6 +167,7 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(IsArrowSelected));
         OnPropertyChanged(nameof(IsRectangleSelected));
         OnPropertyChanged(nameof(IsTextSelected));
+        OnPropertyChanged(nameof(IsCalloutSelected));
         OnPropertyChanged(nameof(IsSelectionSelected));
     }
 
