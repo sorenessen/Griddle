@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Sparrow Config
+sparrow.toml
+
 # Xcode user-specific data
 xcuserdata/
 *.xcuserstate

@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Input;
+using Avalonia.Threading;
 using Griddle.Core.Geometry;
 using Griddle.Core.History;
 using Griddle.Core.Models;
@@ -29,6 +30,8 @@ public sealed class DrawingCanvas : Control
     private Stroke? _draggingStroke;
     private Stroke? _editingTextStroke;
     private bool _isEditingText;
+    private readonly DispatcherTimer _caretTimer;
+    private bool _isCaretVisible;
     private Point? _lastPointerPosition;
     private Point2D? _resizeAnchorPoint;
     private Point2D? _resizeBeforeStart;
@@ -65,6 +68,21 @@ public sealed class DrawingCanvas : Control
         _pen = pen;
         _activeTool = activeTool ?? new ActiveToolService(pen);
         _selection = selection ?? new SelectionService();
+        _caretTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(500)
+        };
+
+        _caretTimer.Tick += (_, _) =>
+        {
+            if (!IsEditingText)
+            {
+                return;
+            }
+
+            _isCaretVisible = !_isCaretVisible;
+            InvalidateVisual();
+        };
     }
 
     public void SetColor(StrokeColor color)
@@ -150,6 +168,10 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
+        _isCaretVisible = true;
+        _caretTimer.Stop();
+        _caretTimer.Start();
+
         _editingTextStroke!.Text += text;
 
         InvalidateVisual();
@@ -162,6 +184,10 @@ public sealed class DrawingCanvas : Control
         {
             return;
         }
+
+        _isCaretVisible = true;
+        _caretTimer.Stop();
+        _caretTimer.Start();
 
         _editingTextStroke.Text =
             _editingTextStroke.Text[..^1];
@@ -197,6 +223,8 @@ public sealed class DrawingCanvas : Control
 
         _editingTextStroke = null;
         _isEditingText = false;
+        _isCaretVisible = false;
+        _caretTimer.Stop();
 
         InvalidateVisual();
     }
@@ -231,6 +259,8 @@ public sealed class DrawingCanvas : Control
 
                 _editingTextStroke = textStroke;
                 _isEditingText = true;
+                _isCaretVisible = true;
+                _caretTimer.Start();
 
                 _selection.Clear();
                 ResetDragState();
@@ -513,6 +543,15 @@ public sealed class DrawingCanvas : Control
             DrawStroke(context, _activeStroke);
         }
 
+        if (IsEditingText &&
+            _isCaretVisible &&
+            _editingTextStroke is not null)
+        {
+            DrawTextCaret(
+                context,
+                _editingTextStroke);
+        }
+
         if (_selection.SelectedStroke is not null)
         {
             DrawSelectionOutline(
@@ -729,6 +768,48 @@ public sealed class DrawingCanvas : Control
         context.DrawText(
             formattedText,
             position);
+    }
+
+    private static void DrawTextCaret(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        if (stroke.Points.Count == 0)
+        {
+            return;
+        }
+
+        var position =
+            ToAvaloniaPoint(stroke.Points[0]);
+
+        var textWidth = 0.0;
+
+        if (!string.IsNullOrEmpty(stroke.Text))
+        {
+            var formattedText = new FormattedText(
+                stroke.Text,
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                new Typeface("Arial"),
+                24,
+                Brushes.White);
+
+            textWidth = formattedText.Width;
+        }
+
+        var caretX =
+            position.X + textWidth;
+
+        context.DrawLine(
+            new Pen(
+                Brushes.White,
+                2),
+            new Point(
+                caretX,
+                position.Y),
+            new Point(
+                caretX,
+                position.Y + 28));
     }
 
     private static void DrawSelectionOutline(
