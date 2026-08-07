@@ -24,6 +24,7 @@ public partial class MainWindow : Window
 
         Opened += OnOpened;
         KeyDown += OnKeyDown;
+        TextInput += OnTextInput;
     }
 
     private void OnOpened(object? sender, EventArgs e)
@@ -39,6 +40,7 @@ public partial class MainWindow : Window
             DrawingSurface.Pen,
             new ArrowTool(),
             new RectangleTool(),
+            new TextTool(),
             new SelectionTool(DrawingSurface.Selection),
             DrawingSurface.ActiveTool);
         _toolbar = new ToolbarWindow(_toolbarViewModel);
@@ -109,6 +111,29 @@ public partial class MainWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (DrawingSurface.IsEditingText)
+        {
+            switch (e.Key)
+            {
+                case Key.Back:
+                    DrawingSurface.BackspaceText();
+                    e.Handled = true;
+                    return;
+
+                case Key.Enter:
+                    DrawingSurface.CommitText();
+                    e.Handled = true;
+                    return;
+
+                case Key.Escape:
+                    DrawingSurface.CancelText();
+                    e.Handled = true;
+                    return;
+            }
+
+            return;
+        }
+        
         switch (e.Key)
         {
             case Key.C:
@@ -232,6 +257,20 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
         }
+    }
+
+    private void OnTextInput(
+        object? sender,
+        TextInputEventArgs e)
+    {
+        if (!DrawingSurface.IsEditingText ||
+            string.IsNullOrEmpty(e.Text))
+        {
+            return;
+        }
+
+        DrawingSurface.AppendText(e.Text);
+        e.Handled = true;
     }
 
     private void ClearCanvas()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -26,6 +27,8 @@ public sealed class DrawingCanvas : Control
 
     private Stroke? _activeStroke;
     private Stroke? _draggingStroke;
+    private Stroke? _editingTextStroke;
+    private bool _isEditingText;
     private Point? _lastPointerPosition;
     private Point2D? _resizeAnchorPoint;
     private Point2D? _resizeBeforeStart;
@@ -42,6 +45,9 @@ public sealed class DrawingCanvas : Control
     public PenTool Pen => _pen;
     public ActiveToolService ActiveTool => _activeTool;
     public SelectionService Selection => _selection;
+    public bool IsEditingText =>
+        _isEditingText &&
+        _editingTextStroke is not null;
 
     public DrawingCanvas()
         : this(
@@ -137,8 +143,106 @@ public sealed class DrawingCanvas : Control
         }
     }
 
+    public void AppendText(string text)
+    {
+        if (!IsEditingText)
+        {
+            return;
+        }
+
+        _editingTextStroke!.Text += text;
+
+        InvalidateVisual();
+    }
+
+    public void BackspaceText()
+    {
+        if (!IsEditingText ||
+            string.IsNullOrEmpty(_editingTextStroke!.Text))
+        {
+            return;
+        }
+
+        _editingTextStroke.Text =
+            _editingTextStroke.Text[..^1];
+
+        InvalidateVisual();
+    }
+
+    public void CommitText()
+    {
+        if (!IsEditingText)
+        {
+            return;
+        }
+
+        var stroke = _editingTextStroke!;
+
+        if (string.IsNullOrWhiteSpace(stroke.Text))
+        {
+            _strokes.Remove(stroke);
+        }
+        else
+        {
+            var index = _strokes.IndexOf(stroke);
+
+            _undoStack.Push(
+                new AddStrokeAction(
+                    _strokes,
+                    stroke,
+                    index));
+
+            _redoStack.Clear();
+        }
+
+        _editingTextStroke = null;
+        _isEditingText = false;
+
+        InvalidateVisual();
+    }
+
+    public void CancelText()
+    {
+        if (!IsEditingText)
+        {
+            return;
+        }
+
+        _strokes.Remove(
+            _editingTextStroke!);
+
+        _editingTextStroke = null;
+        _isEditingText = false;
+
+        InvalidateVisual();
+    }
+
     public void BeginInteraction(Point point)
     {
+        if (_activeTool.Current is TextTool)
+        {
+            var textStroke =
+                _activeTool.Current.Begin(
+                    ToPoint2D(point));
+
+            if (textStroke is not null)
+            {
+                _strokes.Add(textStroke);
+
+                _editingTextStroke = textStroke;
+                _isEditingText = true;
+
+                _selection.Clear();
+                ResetDragState();
+            }
+
+            _activeStroke = null;
+            _isToolInteractionActive = false;
+
+            InvalidateVisual();
+            return;
+        }
+
         if (_activeTool.Current is SelectionTool)
         {
             var hit = HitTest(point);
@@ -435,6 +539,10 @@ public sealed class DrawingCanvas : Control
                 DrawRectangle(context, stroke);
                 break;
 
+            case StrokeKind.Text:
+                DrawText(context, stroke);
+                break;
+
             default:
                 throw new NotSupportedException(
                     $"Unsupported stroke kind: {stroke.Kind}");
@@ -587,6 +695,40 @@ public sealed class DrawingCanvas : Control
             brush: null,
             CreatePen(stroke),
             rectangle);
+    }
+
+    private static void DrawText(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        if (stroke.Points.Count == 0 ||
+            string.IsNullOrEmpty(stroke.Text))
+        {
+            return;
+        }
+
+        var position =
+            ToAvaloniaPoint(stroke.Points[0]);
+
+        var baseColor = stroke.Color switch
+        {
+            StrokeColor.Blue => Colors.DodgerBlue,
+            StrokeColor.Black => Colors.Black,
+            StrokeColor.Yellow => Colors.Yellow,
+            _ => Colors.Red
+        };
+
+        var formattedText = new FormattedText(
+            stroke.Text,
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface("Arial"),
+            24,
+            new SolidColorBrush(baseColor));
+
+        context.DrawText(
+            formattedText,
+            position);
     }
 
     private static void DrawSelectionOutline(
