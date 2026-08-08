@@ -174,6 +174,9 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public void SelectCalloutGroup()
     {
         SelectCalloutGroupRequested?.Invoke();
+
+        ActiveTool.Current = Selection;
+        NotifySelectionChanged();
     }
 
     public void SelectSelection()

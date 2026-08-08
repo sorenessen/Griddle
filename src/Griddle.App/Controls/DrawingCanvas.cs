@@ -1732,21 +1732,36 @@ public sealed class DrawingCanvas : Control
         _resizeBeforeStart = null;
         _resizeBeforeEnd = null;
         _activeArrowHandle = ArrowHandle.None;
-        _activeArrowHandle = ArrowHandle.None;
         _arrowBeforeStart = null;
         _arrowBeforeEnd = null;
     }
 
     private void ClearInvalidSelection()
     {
-        var selectedStroke =
-            _selection.SelectedStroke;
+        var validSelectedStrokes =
+            _selection.SelectedStrokes
+                .Where(stroke =>
+                    _strokes.Contains(stroke))
+                .ToList();
 
-        if (selectedStroke is not null &&
-            !_strokes.Contains(selectedStroke))
+        if (validSelectedStrokes.Count == 0)
         {
             _selection.Clear();
+            return;
         }
+
+        var primary =
+            _selection.SelectedStroke;
+
+        if (primary is null ||
+            !validSelectedStrokes.Contains(primary))
+        {
+            primary = validSelectedStrokes[0];
+        }
+
+        _selection.SelectMany(
+            validSelectedStrokes,
+            primary);
     }
 
     public void Clear()
@@ -1915,6 +1930,47 @@ public sealed class DrawingCanvas : Control
     {
         if (!_selection.HasSelection)
         {
+            return;
+        }
+
+        if (_selection.SelectedStrokes.Count > 1)
+        {
+            var entries =
+                _selection.SelectedStrokes
+                    .Select(stroke =>
+                        (
+                            Stroke: stroke,
+                            Index: _strokes.IndexOf(stroke)
+                        ))
+                    .Where(entry =>
+                        entry.Index >= 0)
+                    .OrderBy(entry =>
+                        entry.Index)
+                    .ToList();
+
+            if (entries.Count == 0)
+            {
+                _selection.Clear();
+                return;
+            }
+
+            foreach (var entry in entries
+                         .OrderByDescending(entry => entry.Index))
+            {
+                _strokes.RemoveAt(
+                    entry.Index);
+            }
+
+            _undoStack.Push(
+                new DeleteStrokeGroupAction(
+                    _strokes,
+                    entries));
+
+            _redoStack.Clear();
+            _selection.Clear();
+            ResetDragState();
+
+            InvalidateVisual();
             return;
         }
 
