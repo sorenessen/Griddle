@@ -207,6 +207,36 @@
 
             <Button
                 Classes="toolbar"
+                Click="SelectCalloutGroupButton_Click"
+                ToolTip.Tip="Select callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <Ellipse
+                        Width="14"
+                        Height="14"
+                        Stroke="White"
+                        StrokeThickness="1.5"
+                        HorizontalAlignment="Left"/>
+
+                    <Ellipse
+                        Width="14"
+                        Height="14"
+                        Stroke="White"
+                        StrokeThickness="1.5"
+                        HorizontalAlignment="Right"/>
+
+                    <TextBlock
+                        Text="•••"
+                        Foreground="White"
+                        FontSize="8"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
                 Click="ContinueCalloutGroupButton_Click"
                 ToolTip.Tip="Continue selected callout sequence">
 

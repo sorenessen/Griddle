@@ -311,7 +311,10 @@ public sealed class DrawingCanvas : Control
             }
             else
             {
-                _selection.Select(hit);
+                if (!_selection.IsSelected(hit))
+                {
+                    _selection.Select(hit);
+                }
 
                 _activeResizeHandle = ResizeHandle.None;
                 _activeArrowHandle = ArrowHandle.None;
@@ -428,9 +431,22 @@ public sealed class DrawingCanvas : Control
             var deltaY =
                 point.Y - _lastPointerPosition.Value.Y;
 
-            _draggingStroke.Translate(
-                deltaX,
-                deltaY);
+            if (_selection.SelectedStrokes.Count > 1 &&
+                _selection.IsSelected(_draggingStroke))
+            {
+                foreach (var stroke in _selection.SelectedStrokes)
+                {
+                    stroke.Translate(
+                        deltaX,
+                        deltaY);
+                }
+            }
+            else
+            {
+                _draggingStroke.Translate(
+                    deltaX,
+                    deltaY);
+            }
 
             _dragDeltaX += deltaX;
             _dragDeltaY += deltaY;
@@ -515,11 +531,23 @@ public sealed class DrawingCanvas : Control
             else if (_draggingStroke is not null &&
                      (_dragDeltaX != 0 || _dragDeltaY != 0))
             {
-                _undoStack.Push(
-                    new MoveStrokeAction(
-                        _draggingStroke,
-                        _dragDeltaX,
-                        _dragDeltaY));
+                if (_selection.SelectedStrokes.Count > 1 &&
+                    _selection.IsSelected(_draggingStroke))
+                {
+                    _undoStack.Push(
+                        new MoveStrokeGroupAction(
+                            _selection.SelectedStrokes,
+                            _dragDeltaX,
+                            _dragDeltaY));
+                }
+                else
+                {
+                    _undoStack.Push(
+                        new MoveStrokeAction(
+                            _draggingStroke,
+                            _dragDeltaX,
+                            _dragDeltaY));
+                }
 
                 _redoStack.Clear();
             }
@@ -599,11 +627,11 @@ public sealed class DrawingCanvas : Control
                 _editingTextStroke);
         }
 
-        if (_selection.SelectedStroke is not null)
+        foreach (var selectedStroke in _selection.SelectedStrokes)
         {
             DrawSelectionOutline(
                 context,
-                _selection.SelectedStroke);
+                selectedStroke);
         }
     }
 
@@ -1812,6 +1840,35 @@ public sealed class DrawingCanvas : Control
 
             _redoStack.Clear();
         }
+
+        InvalidateVisual();
+    }
+
+    public void SelectSelectedCalloutGroup()
+    {
+        var selected =
+            _selection.SelectedStroke;
+
+        if (selected is null ||
+            selected.Kind != StrokeKind.Callout ||
+            selected.CalloutGroupId is null)
+        {
+            return;
+        }
+
+        var groupId =
+            selected.CalloutGroupId.Value;
+
+        var group =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId == groupId)
+                .ToList();
+
+        _selection.SelectMany(
+            group,
+            selected);
 
         InvalidateVisual();
     }

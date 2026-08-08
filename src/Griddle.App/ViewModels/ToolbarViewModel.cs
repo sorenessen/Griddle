@@ -60,6 +60,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public event Action? RenumberCalloutGroupRequested;
 
+    public event Action? SelectCalloutGroupRequested;
+
     public SelectionTool Selection { get; }
 
     public ActiveToolService ActiveTool { get; }
@@ -167,6 +169,11 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public void RenumberCalloutGroup()
     {
         RenumberCalloutGroupRequested?.Invoke();
+    }
+
+    public void SelectCalloutGroup()
+    {
+        SelectCalloutGroupRequested?.Invoke();
     }
 
     public void SelectSelection()

@@ -92,6 +92,13 @@ public partial class ToolbarWindow : Window
         _viewModel.StartNewCalloutGroup();
     }
 
+    private void SelectCalloutGroupButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectCalloutGroup();
+    }
+
     private void ContinueCalloutGroupButton_Click(
         object? sender,
         RoutedEventArgs e)
