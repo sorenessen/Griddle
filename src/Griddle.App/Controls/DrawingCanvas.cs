@@ -260,6 +260,14 @@ public sealed class DrawingCanvas : Control
             {
                 _strokes.Add(textStroke);
 
+                _undoStack.Push(
+                    new AddStrokeAction(
+                        _strokes,
+                        textStroke,
+                        _strokes.Count - 1));
+
+                _redoStack.Clear();
+
                 _editingTextStroke = textStroke;
                 _isEditingText = true;
 
@@ -541,18 +549,17 @@ public sealed class DrawingCanvas : Control
 
                 _caretTimer.Stop();
                 _caretTimer.Start();
-                InvalidateVisual();
             }
-            else
-            {
-                _undoStack.Push(
-                    new AddStrokeAction(
-                        _strokes,
-                        completedStroke,
-                        _strokes.Count - 1));
 
-                _redoStack.Clear();
-            }
+            _undoStack.Push(
+                new AddStrokeAction(
+                    _strokes,
+                    completedStroke,
+                    _strokes.Count - 1));
+
+            _redoStack.Clear();
+
+            InvalidateVisual();
         }
 
         _activeStroke = null;
@@ -978,6 +985,12 @@ public sealed class DrawingCanvas : Control
                     context,
                     stroke);
                 break;
+
+            case StrokeKind.Callout:
+                DrawCalloutSelectionOutline(
+                    context,
+                    stroke);
+                break;
         }
     }
 
@@ -1040,6 +1053,51 @@ public sealed class DrawingCanvas : Control
         DrawResizeHandle(
             context,
             new Point(right, bottom));
+    }
+
+    private static void DrawCalloutSelectionOutline(
+        DrawingContext context,
+        Stroke stroke)
+    {
+        if (stroke.Points.Count < 2)
+        {
+            return;
+        }
+
+        var start =
+            ToAvaloniaPoint(stroke.Points[0]);
+
+        var end =
+            ToAvaloniaPoint(stroke.Points[1]);
+
+        var selectionPen =
+            new Pen(
+                Brushes.White,
+                2,
+                dashStyle: new DashStyle(
+                    new double[] { 4, 4 },
+                    0));
+
+        context.DrawLine(
+            selectionPen,
+            start,
+            end);
+
+        const double handleRadius = 6;
+
+        context.DrawEllipse(
+            Brushes.White,
+            null,
+            start,
+            handleRadius,
+            handleRadius);
+
+        context.DrawEllipse(
+            Brushes.White,
+            null,
+            end,
+            handleRadius,
+            handleRadius);
     }
 
     private static void DrawResizeHandle(
