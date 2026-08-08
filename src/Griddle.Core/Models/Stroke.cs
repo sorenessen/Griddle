@@ -30,6 +30,7 @@ public sealed class Stroke
     public List<Point2D> Points { get; } = new();
     public bool IsVisible { get; set; } = true;
     public bool IsPresentationVisible { get; set; } = true;
+    public double PresentationOpacity { get; set; } = 1.0;
 
     public void Translate(
         double deltaX,

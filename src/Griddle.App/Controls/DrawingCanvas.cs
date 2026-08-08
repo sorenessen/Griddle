@@ -656,31 +656,35 @@ public sealed class DrawingCanvas : Control
         DrawingContext context,
         Stroke stroke)
     {
-        switch (stroke.Kind)
+        using (context.PushOpacity(
+            stroke.PresentationOpacity))
         {
-            case StrokeKind.Freehand:
-                DrawFreehand(context, stroke);
-                break;
+            switch (stroke.Kind)
+            {
+                case StrokeKind.Freehand:
+                    DrawFreehand(context, stroke);
+                    break;
 
-            case StrokeKind.Arrow:
-                DrawArrow(context, stroke);
-                break;
+                case StrokeKind.Arrow:
+                    DrawArrow(context, stroke);
+                    break;
 
-            case StrokeKind.Rectangle:
-                DrawRectangle(context, stroke);
-                break;
+                case StrokeKind.Rectangle:
+                    DrawRectangle(context, stroke);
+                    break;
 
-            case StrokeKind.Text:
-                DrawText(context, stroke);
-                break;
+                case StrokeKind.Text:
+                    DrawText(context, stroke);
+                    break;
 
-            case StrokeKind.Callout:
-                DrawCallout(context, stroke);
-                break;
+                case StrokeKind.Callout:
+                    DrawCallout(context, stroke);
+                    break;
 
-            default:
-                throw new NotSupportedException(
-                    $"Unsupported stroke kind: {stroke.Kind}");
+                default:
+                    throw new NotSupportedException(
+                        $"Unsupported stroke kind: {stroke.Kind}");
+            }
         }
     }
 
@@ -2029,6 +2033,15 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
+        foreach (var stroke in _strokes)
+        {
+            stroke.PresentationOpacity =
+                stroke.Kind == StrokeKind.Callout &&
+                stroke.CalloutGroupId == groupId
+                    ? 1.0
+                    : 0.25;
+        }
+
         foreach (var stroke in group)
         {
             stroke.IsPresentationVisible = false;
@@ -2060,6 +2073,11 @@ public sealed class DrawingCanvas : Control
             {
                 stroke.IsPresentationVisible = true;
             }
+        }
+
+        foreach (var stroke in _strokes)
+        {
+            stroke.PresentationOpacity = 1.0;
         }
 
         _presentationCalloutGroupId = null;
