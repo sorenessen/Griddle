@@ -47,7 +47,10 @@ public partial class MainWindow : Window
 
         _toolbarViewModel.NewCalloutGroupRequested +=
             DrawingSurface.StartNewCalloutGroup;
-            
+
+        _toolbarViewModel.ContinueCalloutGroupRequested +=
+            DrawingSurface.ContinueSelectedCalloutGroup;
+
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
         var overlayScreen = Screens.ScreenFromTopLevel(this);

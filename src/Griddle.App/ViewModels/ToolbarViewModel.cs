@@ -56,6 +56,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public event Action? NewCalloutGroupRequested;
 
+    public event Action? ContinueCalloutGroupRequested;
+
     public SelectionTool Selection { get; }
 
     public ActiveToolService ActiveTool { get; }
@@ -150,6 +152,14 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public void StartNewCalloutGroup()
     {
         NewCalloutGroupRequested?.Invoke();
+    }
+
+    public void ContinueCalloutGroup()
+    {
+        ContinueCalloutGroupRequested?.Invoke();
+
+        ActiveTool.Current = Callout;
+        NotifySelectionChanged();
     }
 
     public void SelectSelection()

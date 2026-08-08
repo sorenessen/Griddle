@@ -1743,6 +1743,22 @@ public sealed class DrawingCanvas : Control
         InvalidateVisual();
     }
 
+    public void ContinueSelectedCalloutGroup()
+    {
+        var selected =
+            _selection.SelectedStroke;
+
+        if (selected is null ||
+            selected.Kind != StrokeKind.Callout ||
+            selected.CalloutGroupId is null)
+        {
+            return;
+        }
+
+        _activeCalloutGroupId =
+            selected.CalloutGroupId.Value;
+    }
+
     public void Undo()
     {
         if (_undoStack.Count == 0)
