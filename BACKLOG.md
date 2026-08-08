@@ -52,7 +52,7 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 ### Planned
 
-- [ ] Delete Entire Sequence
+- [x] Delete Entire Sequence
 - [ ] Change Sequence Color
 - [ ] Hide/Show Sequence
 - [ ] Lock Sequence

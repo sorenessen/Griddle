@@ -62,6 +62,12 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public event Action? SelectCalloutGroupRequested;
 
+    public event Action? HideCalloutGroupRequested;
+
+    public event Action? ShowLastHiddenCalloutGroupRequested;
+
+    public event Action? StartCalloutPresentationRequested;
+
     public SelectionTool Selection { get; }
 
     public ActiveToolService ActiveTool { get; }
@@ -177,6 +183,21 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
         ActiveTool.Current = Selection;
         NotifySelectionChanged();
+    }
+
+    public void HideCalloutGroup()
+    {
+        HideCalloutGroupRequested?.Invoke();
+    }
+
+    public void ShowLastHiddenCalloutGroup()
+    {
+        ShowLastHiddenCalloutGroupRequested?.Invoke();
+    }
+
+    public void StartCalloutPresentation()
+    {
+        StartCalloutPresentationRequested?.Invoke();
     }
 
     public void SelectSelection()

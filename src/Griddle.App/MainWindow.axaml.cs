@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using Griddle.Platform.MacOS;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
@@ -56,6 +57,39 @@ public partial class MainWindow : Window
 
         _toolbarViewModel.SelectCalloutGroupRequested +=
             DrawingSurface.SelectSelectedCalloutGroup;
+
+        _toolbarViewModel.HideCalloutGroupRequested += () =>
+        {
+            DrawingSurface.HideSelectedCalloutGroup();
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                Activate();
+                Focus();
+            });
+        };
+
+        _toolbarViewModel.StartCalloutPresentationRequested += () =>
+        {
+            DrawingSurface.StartSelectedCalloutPresentation();
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                Activate();
+                Focus();
+            });
+        };
+
+        _toolbarViewModel.ShowLastHiddenCalloutGroupRequested += () =>
+        {
+            DrawingSurface.ShowLastHiddenCalloutGroup();
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                Activate();
+                Focus();
+            });
+        };
 
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
@@ -165,6 +199,17 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
 
+            case Key.Escape:
+            {
+                if (DrawingSurface.IsPresentingCalloutSequence)
+                {
+                    DrawingSurface.EndSelectedCalloutPresentation();
+                    e.Handled = true;
+                }
+
+                break;
+            }
+
             case Key.Z:
             {
                 var commandPressed =
@@ -207,6 +252,13 @@ public partial class MainWindow : Window
 
             case Key.Left:
             {
+                if (DrawingSurface.IsPresentingCalloutSequence)
+                {
+                    DrawingSurface.RevealPreviousCallout();
+                    e.Handled = true;
+                    break;
+                }
+
                 var distance =
                     e.KeyModifiers.HasFlag(KeyModifiers.Shift)
                         ? 10
@@ -219,9 +271,15 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
             }
-
             case Key.Right:
             {
+                if (DrawingSurface.IsPresentingCalloutSequence)
+                {
+                    DrawingSurface.RevealNextCallout();
+                    e.Handled = true;
+                    break;
+                }
+
                 var distance =
                     e.KeyModifiers.HasFlag(KeyModifiers.Shift)
                         ? 10

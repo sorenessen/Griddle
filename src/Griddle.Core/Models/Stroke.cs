@@ -28,6 +28,8 @@ public sealed class Stroke
     public Guid? CalloutGroupId { get; set; }
     public string Text { get; set; } = string.Empty;
     public List<Point2D> Points { get; } = new();
+    public bool IsVisible { get; set; } = true;
+    public bool IsPresentationVisible { get; set; } = true;
 
     public void Translate(
         double deltaX,

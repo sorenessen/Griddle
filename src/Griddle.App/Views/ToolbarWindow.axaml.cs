@@ -99,6 +99,27 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectCalloutGroup();
     }
 
+    private void HideCalloutGroupButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.HideCalloutGroup();
+    }
+
+    private void ShowLastHiddenCalloutGroupButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.ShowLastHiddenCalloutGroup();
+    }
+
+    private void StartCalloutPresentationButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.StartCalloutPresentation();
+    }
+
     private void ContinueCalloutGroupButton_Click(
         object? sender,
         RoutedEventArgs e)

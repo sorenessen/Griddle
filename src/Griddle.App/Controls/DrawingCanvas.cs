@@ -34,6 +34,9 @@ public sealed class DrawingCanvas : Control
     private readonly DispatcherTimer _caretTimer;
     private bool _isCaretVisible;
     private Guid _activeCalloutGroupId = Guid.NewGuid();
+    private Guid? _lastHiddenCalloutGroupId;
+    private Guid? _presentationCalloutGroupId;
+    private int _presentationRevealCount;
     private Point? _lastPointerPosition;
     private Point2D? _resizeAnchorPoint;
     private Point2D? _resizeBeforeStart;
@@ -53,6 +56,8 @@ public sealed class DrawingCanvas : Control
     public bool IsEditingText =>
         _isEditingText &&
         _editingTextStroke is not null;
+    public bool IsPresentingCalloutSequence =>
+    _presentationCalloutGroupId is not null;
 
     public DrawingCanvas()
         : this(
@@ -610,6 +615,12 @@ public sealed class DrawingCanvas : Control
 
         foreach (var stroke in _strokes)
         {
+            if (!stroke.IsVisible ||
+                !stroke.IsPresentationVisible)
+            {
+                continue;
+            }
+
             DrawStroke(context, stroke);
         }
 
@@ -629,6 +640,12 @@ public sealed class DrawingCanvas : Control
 
         foreach (var selectedStroke in _selection.SelectedStrokes)
         {
+            if (!selectedStroke.IsVisible ||
+                !selectedStroke.IsPresentationVisible)
+            {
+                continue;
+            }
+
             DrawSelectionOutline(
                 context,
                 selectedStroke);
@@ -1442,6 +1459,11 @@ public sealed class DrawingCanvas : Control
         {
             var stroke = _strokes[index];
 
+            if (!stroke.IsVisible)
+            {
+                continue;
+            }
+
             if (IsHit(
                 stroke,
                 point,
@@ -1884,6 +1906,220 @@ public sealed class DrawingCanvas : Control
         _selection.SelectMany(
             group,
             selected);
+
+        InvalidateVisual();
+    }
+
+    public void HideSelectedCalloutGroup()
+    {
+        var selected =
+            _selection.SelectedStroke;
+
+        if (selected is null ||
+            selected.Kind != StrokeKind.Callout ||
+            selected.CalloutGroupId is null)
+        {
+            return;
+        }
+
+        var groupId =
+            selected.CalloutGroupId.Value;
+
+        var group =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId == groupId)
+                .ToList();
+
+        if (group.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var stroke in group)
+        {
+            stroke.IsVisible = false;
+        }
+
+        _undoStack.Push(
+            new SetStrokeGroupVisibilityAction(
+                group,
+                before: true,
+                after: false));
+
+        _redoStack.Clear();
+
+        _lastHiddenCalloutGroupId = groupId;
+
+        _selection.Clear();
+        ResetDragState();
+
+        InvalidateVisual();
+    }
+
+    public void ShowLastHiddenCalloutGroup()
+    {
+        if (_lastHiddenCalloutGroupId is null)
+        {
+            return;
+        }
+
+        var groupId =
+            _lastHiddenCalloutGroupId.Value;
+
+        var group =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId == groupId &&
+                    !stroke.IsVisible)
+                .ToList();
+
+        if (group.Count == 0)
+        {
+            _lastHiddenCalloutGroupId = null;
+            return;
+        }
+
+        foreach (var stroke in group)
+        {
+            stroke.IsVisible = true;
+        }
+
+        _undoStack.Push(
+            new SetStrokeGroupVisibilityAction(
+                group,
+                before: false,
+                after: true));
+
+        _redoStack.Clear();
+
+        _lastHiddenCalloutGroupId = null;
+
+        InvalidateVisual();
+    }
+
+    public void StartSelectedCalloutPresentation()
+    {
+        var selected =
+            _selection.SelectedStroke;
+
+        if (selected is null ||
+            selected.Kind != StrokeKind.Callout ||
+            selected.CalloutGroupId is null)
+        {
+            return;
+        }
+
+        var groupId =
+            selected.CalloutGroupId.Value;
+
+        var group =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId == groupId)
+                .OrderBy(stroke =>
+                    stroke.CalloutNumber ?? int.MaxValue)
+                .ToList();
+
+        if (group.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var stroke in group)
+        {
+            stroke.IsPresentationVisible = false;
+        }
+
+        _presentationCalloutGroupId = groupId;
+        _presentationRevealCount = 0;
+
+        _selection.Clear();
+        ResetDragState();
+
+        InvalidateVisual();
+    }
+
+    public void EndSelectedCalloutPresentation()
+    {
+        if (_presentationCalloutGroupId is null)
+        {
+            return;
+        }
+
+        var groupId =
+            _presentationCalloutGroupId.Value;
+
+        foreach (var stroke in _strokes)
+        {
+            if (stroke.Kind == StrokeKind.Callout &&
+                stroke.CalloutGroupId == groupId)
+            {
+                stroke.IsPresentationVisible = true;
+            }
+        }
+
+        _presentationCalloutGroupId = null;
+        _presentationRevealCount = 0;
+
+        InvalidateVisual();
+    }
+
+    public void RevealNextCallout()
+    {
+        if (_presentationCalloutGroupId is null)
+        {
+            return;
+        }
+
+        var group =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId ==
+                        _presentationCalloutGroupId.Value)
+                .OrderBy(stroke =>
+                    stroke.CalloutNumber ?? int.MaxValue)
+                .ToList();
+
+        if (_presentationRevealCount >= group.Count)
+        {
+            return;
+        }
+
+        group[_presentationRevealCount]
+            .IsPresentationVisible = true;
+
+        _presentationRevealCount++;
+
+        InvalidateVisual();
+    }
+
+    public void RevealPreviousCallout()
+    {
+        if (_presentationCalloutGroupId is null ||
+            _presentationRevealCount <= 0)
+        {
+            return;
+        }
+
+        var group =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId ==
+                        _presentationCalloutGroupId.Value)
+                .OrderBy(stroke =>
+                    stroke.CalloutNumber ?? int.MaxValue)
+                .ToList();
+
+        _presentationRevealCount--;
+
+        group[_presentationRevealCount]
+            .IsPresentationVisible = false;
 
         InvalidateVisual();
     }

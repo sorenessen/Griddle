@@ -4,7 +4,7 @@
     xmlns:vm="using:Griddle.App.ViewModels"
     x:Class="Griddle.App.Views.ToolbarWindow"
     x:DataType="vm:ToolbarViewModel"
-    Width="556"
+    Width="1000"
     Height="60"
     CanResize="False"
     WindowDecorations="None"
@@ -231,6 +231,59 @@
                         FontSize="8"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Click="HideCalloutGroupButton_Click"
+                ToolTip.Tip="Hide selected callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <TextBlock
+                        Text="◉"
+                        Foreground="White"
+                        FontSize="14"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+
+                    <Line
+                        StartPoint="4,18"
+                        EndPoint="18,4"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Click="ShowLastHiddenCalloutGroupButton_Click"
+                ToolTip.Tip="Show last hidden callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <TextBlock
+                        Text="◉"
+                        Foreground="White"
+                        FontSize="14"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Click="StartCalloutPresentationButton_Click"
+                ToolTip.Tip="Present selected callout sequence">
+
+                <Grid Width="22" Height="22">
+
+                    <Path
+                        Fill="White"
+                        Data="M7,4 L18,11 L7,18 Z"/>
+
                 </Grid>
 
             </Button>
