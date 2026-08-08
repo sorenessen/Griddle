@@ -135,6 +135,7 @@ public sealed class DrawingCanvas : Control
                 break;
 
             case StrokeKind.Arrow:
+            case StrokeKind.Callout:
 
                 var arrowHandle =
                     HitTestArrowHandle(
@@ -362,7 +363,8 @@ public sealed class DrawingCanvas : Control
                             break;
                     }
                 }
-                else if (hit.Kind == StrokeKind.Arrow)
+                else if (hit.Kind == StrokeKind.Arrow ||
+                         hit.Kind == StrokeKind.Callout)
                 {
                     _activeArrowHandle =
                         HitTestArrowHandle(
