@@ -184,6 +184,29 @@
 
             <Button
                 Classes="toolbar"
+                Click="NewCalloutGroupButton_Click"
+                ToolTip.Tip="Start new callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <Ellipse
+                        Width="16"
+                        Height="16"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+
+                    <TextBlock
+                        Text="1↺"
+                        Foreground="White"
+                        FontSize="8"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
                 Classes.active="{Binding IsBlueSelected}"
                 Click="BlueButton_Click"
                 ToolTip.Tip="Blue">

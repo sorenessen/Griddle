@@ -25,6 +25,7 @@ public sealed class Stroke
     public double Opacity { get; }
     public StrokeKind Kind { get; }
     public int? CalloutNumber { get; set; }
+    public Guid? CalloutGroupId { get; set; }
     public string Text { get; set; } = string.Empty;
     public List<Point2D> Points { get; } = new();
 

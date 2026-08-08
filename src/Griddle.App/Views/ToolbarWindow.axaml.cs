@@ -85,6 +85,13 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectCallout();
     }
 
+    private void NewCalloutGroupButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.StartNewCalloutGroup();
+    }
+
     private void HighlighterButton_Click(
         object? sender,
         RoutedEventArgs e)

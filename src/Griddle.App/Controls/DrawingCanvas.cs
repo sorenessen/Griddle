@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -32,7 +33,7 @@ public sealed class DrawingCanvas : Control
     private bool _isEditingText;
     private readonly DispatcherTimer _caretTimer;
     private bool _isCaretVisible;
-    private int _nextCalloutNumber = 1;
+    private Guid _activeCalloutGroupId = Guid.NewGuid();
     private Point? _lastPointerPosition;
     private Point2D? _resizeAnchorPoint;
     private Point2D? _resizeBeforeStart;
@@ -543,7 +544,12 @@ public sealed class DrawingCanvas : Control
 
             if (completedStroke.Kind == StrokeKind.Callout)
             {
-                completedStroke.CalloutNumber = _nextCalloutNumber++;
+                completedStroke.CalloutGroupId =
+                    _activeCalloutGroupId;
+
+                completedStroke.CalloutNumber =
+                    GetNextCalloutNumber(
+                        _activeCalloutGroupId);
 
                 _editingTextStroke = completedStroke;
                 _isEditingText = true;
@@ -824,6 +830,27 @@ public sealed class DrawingCanvas : Control
         context.DrawText(
             number,
             numberPosition);
+    }
+
+    private int GetNextCalloutNumber(Guid groupId)
+    {
+        var usedNumbers =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId == groupId &&
+                    stroke.CalloutNumber.HasValue)
+                .Select(stroke => stroke.CalloutNumber!.Value)
+                .ToHashSet();
+
+        var number = 1;
+
+        while (usedNumbers.Contains(number))
+        {
+            number++;
+        }
+
+        return number;
     }
 
     private static void DrawRectangle(
@@ -1705,6 +1732,13 @@ public sealed class DrawingCanvas : Control
 
         ResetDragState();
         _selection.Clear();
+
+        InvalidateVisual();
+    }
+
+    public void StartNewCalloutGroup()
+    {
+        _activeCalloutGroupId = Guid.NewGuid();
 
         InvalidateVisual();
     }
