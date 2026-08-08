@@ -99,6 +99,13 @@ public partial class ToolbarWindow : Window
         _viewModel.ContinueCalloutGroup();
     }
 
+    private void RenumberCalloutGroupButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.RenumberCalloutGroup();
+    }
+
     private void HighlighterButton_Click(
         object? sender,
         RoutedEventArgs e)

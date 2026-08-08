@@ -1759,6 +1759,63 @@ public sealed class DrawingCanvas : Control
             selected.CalloutGroupId.Value;
     }
 
+    public void RenumberSelectedCalloutGroup()
+    {
+        var selected =
+            _selection.SelectedStroke;
+
+        if (selected is null ||
+            selected.Kind != StrokeKind.Callout ||
+            selected.CalloutGroupId is null)
+        {
+            return;
+        }
+
+        var groupId =
+            selected.CalloutGroupId.Value;
+
+        var callouts =
+            _strokes
+                .Where(stroke =>
+                    stroke.Kind == StrokeKind.Callout &&
+                    stroke.CalloutGroupId == groupId &&
+                    stroke.CalloutNumber.HasValue)
+                .OrderBy(stroke =>
+                    stroke.CalloutNumber!.Value)
+                .ToList();
+
+        var changes =
+            new List<(Stroke Stroke, int Before, int After)>();
+
+        for (var i = 0; i < callouts.Count; i++)
+        {
+            var stroke = callouts[i];
+            var before = stroke.CalloutNumber!.Value;
+            var after = i + 1;
+
+            if (before == after)
+            {
+                continue;
+            }
+
+            changes.Add(
+                (stroke, before, after));
+
+            stroke.CalloutNumber = after;
+        }
+
+        if (changes.Count > 0)
+        {
+            _undoStack.Push(
+                new RenumberCalloutGroupAction(
+                    changes));
+
+            _redoStack.Clear();
+        }
+
+        InvalidateVisual();
+    }
+
     public void Undo()
     {
         if (_undoStack.Count == 0)
