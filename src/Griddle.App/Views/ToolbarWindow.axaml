@@ -17,25 +17,29 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Background" Value="#333333"/>
-            <Setter Property="BorderBrush" Value="#4A4A4A"/>
+
+            <!-- much darker control face -->
+            <Setter Property="Background" Value="#17191B"/>
+
+            <!-- exposed steel edge -->
+            <Setter Property="BorderBrush" Value="#73787D"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
         <Style Selector="Button.toolbar:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#555555"/>
-            <Setter Property="BorderBrush" Value="#A0A0A0"/>
+            <Setter Property="Background" Value="#292C2F"/>
+            <Setter Property="BorderBrush" Value="#B4BBC0"/>
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
         <Style Selector="Button.toolbar:pressed /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#1F1F1F"/>
+            <Setter Property="Background" Value="#0D0E0F"/>
             <Setter Property="BorderBrush" Value="#F28C28"/>
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
         <Style Selector="Button.toolbar.active /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#3A3028"/>
+            <Setter Property="Background" Value="#201C18"/>
             <Setter Property="BorderBrush" Value="#F28C28"/>
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
@@ -43,14 +47,36 @@
     </Window.Styles>
 
     <Border
-        CornerRadius="10"
-        Background="#DD2B2B2B"
+        CornerRadius="12"
+        BorderBrush="#8E9296"
+        BorderThickness="1"
         Padding="10"
         PointerPressed="ToolbarBackground_PointerPressed">
+
+        <Border.Background>
+            <ImageBrush
+                Source="avares://Griddle.App/Assets/griddle-industrial-blue-tile.png"
+                Stretch="UniformToFill"
+                AlignmentX="Center"
+                AlignmentY="Center"/>
+        </Border.Background>
 
         <StackPanel
             Orientation="Horizontal"
             Spacing="8">
+
+            <Image
+                Source="avares://Griddle.App/Assets/griddle-toolbar.png"
+                Width="82"
+                Height="82"
+                Stretch="Uniform"
+                Margin="0,0,-8,0"/>
+
+            <Border
+                Width="1"
+                Height="30"
+                Background="#5A5A5A"
+                Margin="0,0,4,0"/>
 
             <Button
                 Classes="toolbar"
