@@ -18,6 +18,7 @@ public partial class MainWindow : Window
     private ToolbarViewModel? _toolbarViewModel;
 
     private bool _isDrawing;
+    private bool _isClickThrough;
 
     public MainWindow()
     {
@@ -30,9 +31,7 @@ public partial class MainWindow : Window
 
     private void OnOpened(object? sender, EventArgs e)
     {
-        MacOSWindowInterop.SetIgnoresMouseEvents(
-            this,
-            ignoresMouseEvents: false);
+        SetClickThrough(false);
 
 // TODO:
 // Introduce a ToolRegistry/ToolFactory so toolbar and drawing
@@ -97,7 +96,15 @@ public partial class MainWindow : Window
         _toolbarViewModel.SetPresentationProgress(
             DrawingSurface.PresentationRevealCount,
             DrawingSurface.PresentationTotalCount);
+        
+        _toolbarViewModel.ToggleOverlayInteractionRequested += () =>
+        {
+            SetClickThrough(
+                !_isClickThrough);
 
+            _toolbarViewModel.SetOverlayEngaged(
+                !_isClickThrough);
+        };
 
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
@@ -167,6 +174,16 @@ public partial class MainWindow : Window
         _isDrawing = false;
         e.Pointer.Capture(null);
         e.Handled = true;
+    }
+
+    private void SetClickThrough(
+        bool isClickThrough)
+    {
+        _isClickThrough = isClickThrough;
+
+        MacOSWindowInterop.SetIgnoresMouseEvents(
+            this,
+            ignoresMouseEvents: isClickThrough);
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)

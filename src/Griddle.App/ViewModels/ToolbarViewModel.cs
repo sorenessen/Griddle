@@ -42,7 +42,6 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
             OnCurrentToolChanged;
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     public PenTool Pen { get; }
 
@@ -55,6 +54,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public CalloutTool Callout { get; }
 
     public bool IsCalloutPresentationActive { get; private set; }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public event Action? NewCalloutGroupRequested;
 
@@ -69,6 +70,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public event Action? ShowLastHiddenCalloutGroupRequested;
 
     public event Action? StartCalloutPresentationRequested;
+
+    public event Action? ToggleOverlayInteractionRequested;
 
     public SelectionTool Selection { get; }
 
@@ -88,6 +91,28 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     //     new("Blue", StrokeColor.Blue),
     //     new("Black", StrokeColor.Black)
     // ];
+
+    public bool IsOverlayEngaged { get; private set; } = true;
+
+    public bool IsOverlayDisengaged =>
+        !IsOverlayEngaged;
+
+    public void SetOverlayEngaged(
+        bool isEngaged)
+    {
+        if (IsOverlayEngaged == isEngaged)
+        {
+            return;
+        }
+
+        IsOverlayEngaged = isEngaged;
+
+        OnPropertyChanged(
+            nameof(IsOverlayEngaged));
+
+        OnPropertyChanged(
+            nameof(IsOverlayDisengaged));
+    }
 
     public bool IsPenSelected =>
         ReferenceEquals(ActiveTool.Current, Pen) &&
@@ -238,6 +263,11 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(
             nameof(PresentationProgressText));
+    }
+
+    public void ToggleOverlayInteraction()
+    {
+        ToggleOverlayInteractionRequested?.Invoke();
     }
 
     public void SelectSelection()

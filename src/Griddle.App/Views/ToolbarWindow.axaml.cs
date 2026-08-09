@@ -141,6 +141,13 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectHighlighter();
     }
 
+    private void GriddleKnob_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.ToggleOverlayInteraction();
+    }
+
     private void ToolbarBackground_PointerPressed(
         object? sender,
         PointerPressedEventArgs e)
