@@ -54,6 +54,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public CalloutTool Callout { get; }
 
+    public bool IsCalloutPresentationActive { get; private set; }
+
     public event Action? NewCalloutGroupRequested;
 
     public event Action? ContinueCalloutGroupRequested;
@@ -71,6 +73,13 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public SelectionTool Selection { get; }
 
     public ActiveToolService ActiveTool { get; }
+
+    public int PresentationRevealCount { get; private set; }
+
+    public int PresentationTotalCount { get; private set; }
+
+    public string PresentationProgressText =>
+        $"{PresentationRevealCount} / {PresentationTotalCount}";
 
     // TODO: Bring back when switched to an ItemsControl-driven palette.
     // public ObservableCollection<ColorPreset> Colors { get; } =
@@ -198,6 +207,37 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public void StartCalloutPresentation()
     {
         StartCalloutPresentationRequested?.Invoke();
+    }
+
+    public void SetCalloutPresentationActive(
+        bool isActive)
+    {
+        if (IsCalloutPresentationActive == isActive)
+        {
+            return;
+        }
+
+        IsCalloutPresentationActive = isActive;
+
+        OnPropertyChanged(
+            nameof(IsCalloutPresentationActive));
+    }
+
+    public void SetPresentationProgress(
+        int revealed,
+        int total)
+    {
+        PresentationRevealCount = revealed;
+        PresentationTotalCount = total;
+
+        OnPropertyChanged(
+            nameof(PresentationRevealCount));
+
+        OnPropertyChanged(
+            nameof(PresentationTotalCount));
+
+        OnPropertyChanged(
+            nameof(PresentationProgressText));
     }
 
     public void SelectSelection()

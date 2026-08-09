@@ -69,17 +69,6 @@ public partial class MainWindow : Window
             });
         };
 
-        _toolbarViewModel.StartCalloutPresentationRequested += () =>
-        {
-            DrawingSurface.StartSelectedCalloutPresentation();
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                Activate();
-                Focus();
-            });
-        };
-
         _toolbarViewModel.ShowLastHiddenCalloutGroupRequested += () =>
         {
             DrawingSurface.ShowLastHiddenCalloutGroup();
@@ -90,6 +79,25 @@ public partial class MainWindow : Window
                 Focus();
             });
         };
+
+        _toolbarViewModel.StartCalloutPresentationRequested += () =>
+        {
+            DrawingSurface.StartSelectedCalloutPresentation();
+
+            _toolbarViewModel.SetCalloutPresentationActive(
+                DrawingSurface.IsPresentingCalloutSequence);
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                Activate();
+                Focus();
+            });
+        };
+
+        _toolbarViewModel.SetPresentationProgress(
+            DrawingSurface.PresentationRevealCount,
+            DrawingSurface.PresentationTotalCount);
+
 
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
@@ -204,6 +212,14 @@ public partial class MainWindow : Window
                 if (DrawingSurface.IsPresentingCalloutSequence)
                 {
                     DrawingSurface.EndSelectedCalloutPresentation();
+
+                    _toolbarViewModel?.SetCalloutPresentationActive(
+                        false);
+
+                    _toolbarViewModel?.SetPresentationProgress(
+                        0,
+                        0);
+
                     e.Handled = true;
                 }
 
@@ -255,6 +271,11 @@ public partial class MainWindow : Window
                 if (DrawingSurface.IsPresentingCalloutSequence)
                 {
                     DrawingSurface.RevealPreviousCallout();
+
+                    _toolbarViewModel?.SetPresentationProgress(
+                        DrawingSurface.PresentationRevealCount,
+                        DrawingSurface.PresentationTotalCount);
+
                     e.Handled = true;
                     break;
                 }
@@ -276,6 +297,11 @@ public partial class MainWindow : Window
                 if (DrawingSurface.IsPresentingCalloutSequence)
                 {
                     DrawingSurface.RevealNextCallout();
+
+                    _toolbarViewModel?.SetPresentationProgress(
+                        DrawingSurface.PresentationRevealCount,
+                        DrawingSurface.PresentationTotalCount);
+
                     e.Handled = true;
                     break;
                 }

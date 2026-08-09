@@ -275,6 +275,7 @@
 
             <Button
                 Classes="toolbar"
+                Classes.active="{Binding IsCalloutPresentationActive}"
                 Click="StartCalloutPresentationButton_Click"
                 ToolTip.Tip="Present selected callout sequence">
 
@@ -287,6 +288,26 @@
                 </Grid>
 
             </Button>
+
+            <Border
+                IsVisible="{Binding IsCalloutPresentationActive}"
+                Height="40"
+                MinWidth="52"
+                Padding="8,0"
+                CornerRadius="8"
+                Background="#333333"
+                BorderBrush="#F28C28"
+                BorderThickness="1">
+
+                <TextBlock
+                    Text="{Binding PresentationProgressText}"
+                    Foreground="White"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+
+            </Border>
 
             <Button
                 Classes="toolbar"

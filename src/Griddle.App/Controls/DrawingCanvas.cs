@@ -2033,6 +2033,11 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
+        if (_presentationCalloutGroupId is not null)
+        {
+            EndSelectedCalloutPresentation();
+        }
+
         foreach (var stroke in _strokes)
         {
             stroke.PresentationOpacity =
@@ -2140,6 +2145,25 @@ public sealed class DrawingCanvas : Control
             .IsPresentationVisible = false;
 
         InvalidateVisual();
+    }
+
+    public int PresentationRevealCount =>
+        _presentationRevealCount;
+
+    public int PresentationTotalCount
+    {
+        get
+        {
+            if (_presentationCalloutGroupId is null)
+            {
+                return 0;
+            }
+
+            return _strokes.Count(stroke =>
+                stroke.Kind == StrokeKind.Callout &&
+                stroke.CalloutGroupId ==
+                    _presentationCalloutGroupId.Value);
+        }
     }
 
     public void Undo()
