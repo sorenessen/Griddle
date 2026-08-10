@@ -2,7 +2,7 @@
 
 ## Vision
 
-Griddle is a lightweight cross-platform screen annotation tool designed for technical demonstrations, presentations, pair programming, and collaborative meetings.
+Griddle is a lightweight cross-platform screen annotation and presentation tool designed for technical demonstrations, presentations, pair programming, and collaborative meetings.
 
 ---
 
@@ -34,7 +34,7 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 - [x] Numbered Callouts
 - [x] Automatic Sequential Numbering
 - [x] Neutral Placeholder While Drawing
-- [x] Callout Text Labels
+- [x] Optional Callout Text Labels
 - [x] Select Callouts
 - [x] Move Callouts
 - [x] Resize Callout Endpoints
@@ -49,12 +49,16 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 - [x] Select Entire Callout Sequence
 - [x] Move Entire Callout Sequence
 - [x] Undo/Redo Sequence Movement
+- [x] Delete Entire Sequence
+- [x] Undo/Redo Sequence Deletion
+- [x] Hide/Show Sequence
+- [x] Undo/Redo Sequence Visibility
+- [x] Empty Callouts Remain Valid Sequence Members
+- [x] Sequence Selection Restores Canvas Keyboard Focus
 
 ### Planned
 
-- [x] Delete Entire Sequence
 - [ ] Change Sequence Color
-- [x] Hide/Show Sequence
 - [ ] Lock Sequence
 - [ ] Reorder Callouts Manually
 - [ ] Duplicate Callout
@@ -68,8 +72,18 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 - [x] Progressive Callout Reveal
 - [x] Advance to Next Callout
 - [x] Previous Callout
-- [x] Reset Sequence Presentation
+- [x] Reset / Exit Sequence Presentation
 - [x] Focus Sequence / Dim Other Annotations
+- [x] Presentation Progress Indicator
+- [x] Presentation Active-State Indicator
+- [x] Safely Switch Between Presented Sequences
+
+### Planned
+
+- [ ] Presentation Keyboard Shortcut Configuration
+- [ ] Presentation Sequence Picker
+- [ ] Auto-advance Timing
+- [ ] Presentation Notes
 
 ---
 
@@ -120,6 +134,7 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 - [x] Delete Selected Shape
 - [x] Undo/Redo Rectangle Resize
 - [x] Undo/Redo Group Movement
+- [x] Multi-selection State Cleanup Across Undo/Redo
 
 ### Planned
 
@@ -132,7 +147,46 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 ---
 
+## Overlay Controls
+
+### Completed
+
+- [x] macOS Click-through Overlay
+- [x] Explicit Overlay Interaction State
+- [x] Toggle Click-through from Toolbar
+- [x] Griddle G Master Engagement Control
+- [x] Visual ON/OFF G Indicator
+- [x] Toolbar Remains Interactive During Click-through
+- [x] Local Keyboard Shortcut for Click-through
+- [x] ⌘⇧G / Ctrl+Shift+G Toggle
+- [x] Optional Overlay Tint
+- [x] Toggle Tint Independently of Click-through
+- [x] Tint OFF by Default
+- [x] Tint Active-State Indicator
+- [x] Clear Presentation Overlay
+- [x] Remove Default Button Flash from G Control
+
+### Planned
+
+- [ ] Global System Hotkey for Click-through
+- [ ] Configurable Tint Color
+- [ ] Configurable Tint Opacity
+- [ ] Persist Tint Preference
+- [ ] Persist Click-through Startup Preference
+
+---
+
 ## Appearance
+
+### Branding & Toolbar
+
+- [x] Griddle G Industrial Control Logo
+- [x] Distressed Industrial Toolbar Skin
+- [x] Dark Mounted Control Styling
+- [x] Metallic Toolbar Border
+- [x] Active Tool Highlighting
+- [x] Griddle Engagement Indicator
+- [x] Expandable Texture-Based Toolbar Background
 
 ### Colors
 
@@ -142,6 +196,9 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 ### Planned
 
+- [ ] Toolbar Skin Selector
+- [ ] Industrial Red Skin
+- [ ] Electric Blue Skin
 - [ ] Color Palette Popup
 - [ ] Custom Colors
 - [ ] Recent Colors
@@ -168,14 +225,22 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 - [x] Draggable
 - [x] Active Tool Highlighting
 - [x] Callout Sequence Controls
+- [x] Presentation Controls
+- [x] Presentation Progress Display
+- [x] Master Overlay Engagement Control
+- [x] Tint Toggle
+- [x] Industrial Griddle Branding
 
 ### Planned
 
 - [ ] Improve Callout Sequence Control Icons
+- [ ] Reorganize / Group Toolbar Controls
 - [ ] Remember Toolbar Position
 - [ ] Dock to Screen Edge
 - [ ] Compact Mode
 - [ ] Horizontal / Vertical Layout
+- [ ] Overflow Menu for Smaller Displays
+- [ ] Tool Groups / Separators
 
 ---
 
@@ -186,10 +251,14 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 - [x] Undo
 - [x] Redo
 - [x] Keyboard Shortcuts
+- [x] Click-through Keyboard Shortcut
+- [x] Keyboard Nudge
 - [x] History Tracking for Text Creation
 - [x] History Tracking for Callout Creation
 - [x] Atomic History for Sequence Renumbering
 - [x] Atomic History for Sequence Movement
+- [x] Atomic History for Sequence Deletion
+- [x] Atomic History for Sequence Visibility
 
 ### Planned
 
@@ -221,13 +290,16 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 ### macOS
 
-- [x] Click-through Overlay
+- [x] Transparent Overlay
+- [x] Click-through Support
 - [x] Always-on-top Toolbar
+- [x] Runtime Click-through Toggle
 
 ### Windows
 
 - [ ] Native Overlay
 - [ ] Click-through Support
+- [ ] Runtime Click-through Toggle
 
 ### Linux
 
@@ -260,10 +332,12 @@ These are intentionally not prioritized.
 - [ ] AI-assisted Shape Recognition
 - [ ] Alternate Callout Styles
 - [ ] Collapsible Callout Labels
+- [ ] Animated Callout Reveal
+- [ ] Toolbar Theme Packs
 
 ---
 
-# Current Milestone
+# Milestones
 
 ## v0.7.0-alpha — Callout Sequences & Presentation Foundations
 
@@ -281,14 +355,44 @@ Evolve Griddle's annotations from independent shapes into structured presentatio
 - [x] Sequence Renumbering
 - [x] Sequence Selection
 - [x] Sequence Movement
+- [x] Sequence Deletion
+- [x] Sequence Visibility
+- [x] Progressive Presentation
+- [x] Presentation Focus / Dimming
+- [x] Presentation Progress
 - [x] Undo/Redo Group Operations
+
+---
+
+# Current Milestone
+
+## v0.8.0-alpha — Overlay Controls & Presentation UX
+
+### Goal
+
+Make Griddle practical during live demonstrations by allowing presenters to move seamlessly between annotation and normal application interaction without interrupting their workflow.
+
+### Completed
+
+- [x] Master G Engagement Control
+- [x] Runtime Click-through Toggle
+- [x] ON/OFF Engagement Indicator
+- [x] ⌘⇧G / Ctrl+Shift+G Shortcut
+- [x] Optional Overlay Tint
+- [x] Tint OFF by Default
+- [x] Independent Tint / Click-through State
+- [x] Industrial Toolbar Branding
+- [x] Distressed Metal Toolbar Skin
+- [x] Callout Interaction Regression Fixes
 
 ### Next
 
-- [x] Delete Entire Sequence
-- [x] Sequence Visibility
-- [x] Present Sequence
-- [x] Progressive Callout Reveal
+- [ ] Toolbar Control Organization
+- [ ] Toolbar Position Persistence
+- [ ] Thickness Picker
+- [ ] Color Palette Popup
+- [ ] General Multi-select
+- [ ] Windows Overlay / Click-through
 
 ---
 
