@@ -54,7 +54,7 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 - [x] Delete Entire Sequence
 - [ ] Change Sequence Color
-- [ ] Hide/Show Sequence
+- [x] Hide/Show Sequence
 - [ ] Lock Sequence
 - [ ] Reorder Callouts Manually
 - [ ] Duplicate Callout
@@ -64,12 +64,12 @@ Griddle is a lightweight cross-platform screen annotation tool designed for tech
 
 ### Presentation
 
-- [ ] Present Callout Sequence
-- [ ] Progressive Callout Reveal
-- [ ] Advance to Next Callout
-- [ ] Previous Callout
-- [ ] Reset Sequence Presentation
-- [ ] Focus Sequence / Dim Other Annotations
+- [x] Present Callout Sequence
+- [x] Progressive Callout Reveal
+- [x] Advance to Next Callout
+- [x] Previous Callout
+- [x] Reset Sequence Presentation
+- [x] Focus Sequence / Dim Other Annotations
 
 ---
 
@@ -285,10 +285,10 @@ Evolve Griddle's annotations from independent shapes into structured presentatio
 
 ### Next
 
-- [ ] Delete Entire Sequence
-- [ ] Sequence Visibility
-- [ ] Present Sequence
-- [ ] Progressive Callout Reveal
+- [x] Delete Entire Sequence
+- [x] Sequence Visibility
+- [x] Present Sequence
+- [x] Progressive Callout Reveal
 
 ---
 
