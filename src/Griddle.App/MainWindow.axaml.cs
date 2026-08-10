@@ -161,6 +161,8 @@ public partial class MainWindow : Window
         _toolbarViewModel.DisplayRequested +=
             MoveOverlayToScreenIndex;
 
+        Screens.Changed += Screens_Changed;
+
         _toolbar.Show(this);
     }
 
@@ -326,6 +328,46 @@ public partial class MainWindow : Window
         _isDrawing = false;
         e.Pointer.Capture(null);
         e.Handled = true;
+    }
+
+    private void Screens_Changed(
+        object? sender,
+        EventArgs e)
+    {
+        _toolbarViewModel?.SetDisplays(
+            Screens.All.Count);
+
+        var currentScreen =
+            Screens.ScreenFromWindow(this);
+
+        if (currentScreen is null)
+        {
+            return;
+        }
+
+        MoveOverlayToScreen(
+            currentScreen);
+
+        var currentIndex = -1;
+
+        for (var index = 0;
+             index < Screens.All.Count;
+             index++)
+        {
+            if (ReferenceEquals(
+                Screens.All[index],
+                currentScreen))
+            {
+                currentIndex = index;
+                break;
+            }
+        }
+
+        if (currentIndex >= 0)
+        {
+            _toolbarViewModel?.SetActiveDisplay(
+                currentIndex);
+        }
     }
 
     private void SetClickThrough(
