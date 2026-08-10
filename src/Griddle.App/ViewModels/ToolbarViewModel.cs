@@ -118,6 +118,9 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public StrokeColor SelectedColor =>
         Pen.Settings.Color;
 
+    public double SelectedThickness =>
+        Pen.Settings.Thickness;
+
     public bool IsOverlayEngaged { get; private set; } = true;
 
     public bool IsOverlayDisengaged =>
@@ -152,6 +155,15 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(
             nameof(IsOverlayDisengaged));
+    }
+
+    public void SelectThickness(
+        double thickness)
+    {
+        Pen.Settings.Thickness = thickness;
+
+        OnPropertyChanged(
+            nameof(SelectedThickness));
     }
 
     public void ToggleTint()

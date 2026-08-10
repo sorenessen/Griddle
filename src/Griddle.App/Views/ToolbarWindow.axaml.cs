@@ -190,6 +190,34 @@ public partial class ToolbarWindow : Window
         _viewModel.ToggleOverlayInteraction();
     }
 
+    private void Thickness2Button_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectThickness(2);
+    }
+
+    private void Thickness4Button_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectThickness(4);
+    }
+
+    private void Thickness6Button_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectThickness(6);
+    }
+
+    private void Thickness8Button_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectThickness(8);
+    }
+
     private void TintButton_Click(
         object? sender,
         RoutedEventArgs e)

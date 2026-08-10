@@ -23,9 +23,9 @@ public sealed class CalloutTool : ITool
 
         _current = new Stroke(
             _style.Color,
-            thickness: 2,
+            thickness: _style.Thickness,
             opacity: 1.0,
-            kind: StrokeKind.Callout);
+            kind: StrokeKind.Callout);   
 
         _current.Points.Add(point);
         _current.Points.Add(point);

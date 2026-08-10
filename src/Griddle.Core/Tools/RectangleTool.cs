@@ -23,7 +23,7 @@ public sealed class RectangleTool : ITool
 
         _current = new Stroke(
             _style.Color,
-            thickness: 4,
+            thickness: _style.Thickness,
             opacity: 1.0,
             kind: StrokeKind.Rectangle);
 

@@ -60,6 +60,22 @@
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
+        <Style Selector="Button.thickness-swatch">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="#25282B"/>
+            <Setter Property="BorderBrush" Value="#50555A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style Selector="Button.thickness-swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#35393D"/>
+            <Setter Property="BorderBrush" Value="#F28C28"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
     </Window.Styles>
 
     <Border
@@ -598,6 +614,75 @@
                         StrokeThickness="5"
                         StrokeLineCap="Round"/>
                 </Grid>
+
+                <Button.Flyout>
+                    <Flyout Placement="Bottom">
+
+                        <Border
+                            Background="#1B1D1F"
+                            BorderBrush="#73787D"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="8">
+
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="6">
+
+                                <Button
+                                    Classes="thickness-swatch"
+                                    Click="Thickness2Button_Click"
+                                    ToolTip.Tip="2 px">
+                                    <Line
+                                        StartPoint="4,15"
+                                        EndPoint="26,15"
+                                        Stroke="White"
+                                        StrokeThickness="2"
+                                        StrokeLineCap="Round"/>
+                                </Button>
+
+                                <Button
+                                    Classes="thickness-swatch"
+                                    Click="Thickness4Button_Click"
+                                    ToolTip.Tip="4 px">
+                                    <Line
+                                        StartPoint="4,15"
+                                        EndPoint="26,15"
+                                        Stroke="White"
+                                        StrokeThickness="4"
+                                        StrokeLineCap="Round"/>
+                                </Button>
+
+                                <Button
+                                    Classes="thickness-swatch"
+                                    Click="Thickness6Button_Click"
+                                    ToolTip.Tip="6 px">
+                                    <Line
+                                        StartPoint="4,15"
+                                        EndPoint="26,15"
+                                        Stroke="White"
+                                        StrokeThickness="6"
+                                        StrokeLineCap="Round"/>
+                                </Button>
+
+                                <Button
+                                    Classes="thickness-swatch"
+                                    Click="Thickness8Button_Click"
+                                    ToolTip.Tip="8 px">
+                                    <Line
+                                        StartPoint="4,15"
+                                        EndPoint="26,15"
+                                        Stroke="White"
+                                        StrokeThickness="8"
+                                        StrokeLineCap="Round"/>
+                                </Button>
+
+                            </StackPanel>
+
+                        </Border>
+
+                    </Flyout>
+                </Button.Flyout>
 
             </Button>
 
