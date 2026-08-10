@@ -194,8 +194,8 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 ### Planned
 
 - [ ] Remember Preferred Display
-- [ ] Handle Display Disconnect Gracefully
-- [ ] Handle Display Connect While Running
+- [x] Handle Display Disconnect Gracefully
+- [x] Handle Display Connect While Running
 - [ ] Identify Displays by Friendly Name
 - [ ] Annotate Multiple Displays Simultaneously
 
