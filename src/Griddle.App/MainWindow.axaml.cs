@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using Griddle.Platform.MacOS;
 using Griddle.Core.Models;
@@ -17,6 +18,8 @@ public partial class MainWindow : Window
 
     private ToolbarWindow? _toolbar;
     private ToolbarViewModel? _toolbarViewModel;
+
+    private Screen? _overlayScreen;
 
     private bool _isDrawing;
     private bool _isClickThrough;
@@ -33,6 +36,16 @@ public partial class MainWindow : Window
 
     private void OnOpened(object? sender, EventArgs e)
     {
+        _overlayScreen =
+            Screens.ScreenFromTopLevel(this)
+            ?? Screens.Primary;
+
+        if (_overlayScreen is not null)
+        {
+            MoveOverlayToScreen(
+                _overlayScreen);
+        }
+
         SetClickThrough(false);
 
 // TODO:
@@ -130,11 +143,9 @@ public partial class MainWindow : Window
 
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
-        var overlayScreen = Screens.ScreenFromTopLevel(this);
-
-        if (overlayScreen is not null)
+        if (_overlayScreen is not null)
         {
-            var workingArea = overlayScreen.WorkingArea;
+            var workingArea = _overlayScreen.WorkingArea;
 
             _toolbar.Position = new PixelPoint(
                 workingArea.X + 40,
@@ -142,6 +153,59 @@ public partial class MainWindow : Window
         }
 
         _toolbar.Show(this);
+    }
+
+    private void MoveOverlayToScreen(
+        Screen screen)
+    {
+        var bounds = screen.Bounds;
+
+        WindowState = WindowState.Normal;
+
+        Position = new PixelPoint(
+            bounds.X,
+            bounds.Y);
+
+        Width =
+            bounds.Width / screen.Scaling;
+
+        Height =
+            bounds.Height / screen.Scaling;
+    }
+
+    private void MoveOverlayToNextScreen()
+    {
+        var screens = Screens.All;
+
+        if (screens.Count < 2)
+        {
+            return;
+        }
+
+        var currentIndex = -1;
+
+        if (_overlayScreen is not null)
+        {
+            for (var index = 0; index < screens.Count; index++)
+            {
+                if (ReferenceEquals(
+                    screens[index],
+                    _overlayScreen))
+                {
+                    currentIndex = index;
+                    break;
+                }
+            }
+        }
+
+        var nextIndex =
+            (currentIndex + 1) % screens.Count;
+
+        _overlayScreen =
+            screens[nextIndex];
+
+        MoveOverlayToScreen(
+            _overlayScreen);
     }
 
     private void Overlay_PointerPressed(
@@ -221,6 +285,16 @@ public partial class MainWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.Key == Key.M &&
+            e.KeyModifiers.HasFlag(KeyModifiers.Meta) &&
+            e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+        {
+            MoveOverlayToNextScreen();
+
+            e.Handled = true;
+            return;
+        }
+        
         if (DrawingSurface.IsEditingText)
         {
             switch (e.Key)
