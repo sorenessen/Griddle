@@ -176,6 +176,31 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ---
 
+### Multi-Display
+
+#### Completed
+
+- [x] Detect Connected Displays
+- [x] Display Selection Menu
+- [x] Identify Active Display
+- [x] Move Annotation Overlay Between Displays
+- [x] Move Toolbar With Selected Display
+- [x] Preserve Overlay Interaction State When Switching Displays
+- [x] Preserve Existing Annotations When Switching Displays
+- [x] Live Display Selection Checkmark Update
+- [x] Correct Display Selection After Menu Reopen
+- [x] Multi-Display Overlay Bounds Management
+
+### Planned
+
+- [ ] Remember Preferred Display
+- [ ] Handle Display Disconnect Gracefully
+- [ ] Handle Display Connect While Running
+- [ ] Identify Displays by Friendly Name
+- [ ] Annotate Multiple Displays Simultaneously
+
+---
+
 ## Appearance
 
 ### Branding & Toolbar
@@ -205,7 +230,7 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ### Stroke
 
-- [ ] Thickness Picker
+- [x] Thickness Picker
 - [ ] Dashed Lines
 - [ ] Dotted Lines
 - [ ] Opacity Slider
@@ -294,6 +319,10 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 - [x] Click-through Support
 - [x] Always-on-top Toolbar
 - [x] Runtime Click-through Toggle
+- [x] Multi-Display Detection
+- [x] Runtime Display Switching
+- [x] Overlay Repositioning Across Displays
+- [x] Toolbar Repositioning Across Displays
 
 ### Windows
 
@@ -366,11 +395,11 @@ Evolve Griddle's annotations from independent shapes into structured presentatio
 
 # Current Milestone
 
-## v0.8.0-alpha — Overlay Controls & Presentation UX
+## v0.8.0-alpha — Overlay & Multi-Display UX
 
 ### Goal
 
-Make Griddle practical during live demonstrations by allowing presenters to move seamlessly between annotation and normal application interaction without interrupting their workflow.
+Make Griddle practical during live demonstrations by allowing presenters to move seamlessly between annotation and normal application interaction, including across multiple displays, without interrupting their workflow.
 
 ### Completed
 
@@ -384,15 +413,21 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 - [x] Industrial Toolbar Branding
 - [x] Distressed Metal Toolbar Skin
 - [x] Callout Interaction Regression Fixes
+- [x] Thickness Picker
+- [x] Connected Display Detection
+- [x] Display Selection Menu
+- [x] Runtime Display Switching
+- [x] Overlay Movement Between Displays
+- [x] Toolbar Movement Between Displays
+- [x] Active Display Indicator
+- [x] Live Display Selection State Updates
 
 ### Next
 
 - [ ] Toolbar Control Organization
 - [ ] Toolbar Position Persistence
-- [ ] Thickness Picker
 - [ ] Color Palette Popup
 - [ ] General Multi-select
-- [ ] Windows Overlay / Click-through
 
 ---
 
