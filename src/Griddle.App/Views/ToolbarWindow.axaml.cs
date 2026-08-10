@@ -36,25 +36,67 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectSelection();
     }
 
-    private void RedButton_Click(
+    private void PenButton_Click(
         object? sender,
         RoutedEventArgs e)
     {
-        _viewModel.SelectPen(StrokeColor.Red);
+        _viewModel.SelectPen();
     }
 
-    private void BlueButton_Click(
+    private void RedColorButton_Click(
         object? sender,
         RoutedEventArgs e)
     {
-        _viewModel.SelectPen(StrokeColor.Blue);
+        _viewModel.SelectColor(StrokeColor.Red);
     }
 
-    private void BlackButton_Click(
+    private void OrangeColorButton_Click(
         object? sender,
         RoutedEventArgs e)
     {
-        _viewModel.SelectPen(StrokeColor.Black);
+        _viewModel.SelectColor(StrokeColor.Orange);
+    }
+
+    private void YellowColorButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectColor(StrokeColor.Yellow);
+    }
+
+    private void GreenColorButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectColor(StrokeColor.Green);
+    }
+
+    private void BlueColorButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectColor(StrokeColor.Blue);
+    }
+
+    private void PurpleColorButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectColor(StrokeColor.Purple);
+    }
+
+    private void WhiteColorButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectColor(StrokeColor.White);
+    }
+
+    private void BlackColorButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.SelectColor(StrokeColor.Black);
     }
 
     private void ArrowButton_Click(

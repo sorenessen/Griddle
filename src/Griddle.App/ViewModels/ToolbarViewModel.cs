@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Griddle.Core.Models;
@@ -88,13 +89,34 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public string PresentationProgressText =>
         $"{PresentationRevealCount} / {PresentationTotalCount}";
 
-    // TODO: Bring back when switched to an ItemsControl-driven palette.
-    // public ObservableCollection<ColorPreset> Colors { get; } =
-    // [
-    //     new("Red", StrokeColor.Red),
-    //     new("Blue", StrokeColor.Blue),
-    //     new("Black", StrokeColor.Black)
-    // ];
+    public ObservableCollection<ColorPreset> Colors { get; } =
+    [
+        new("Red", StrokeColor.Red),
+        new("Orange", StrokeColor.Orange),
+        new("Yellow", StrokeColor.Yellow),
+        new("Green", StrokeColor.Green),
+        new("Blue", StrokeColor.Blue),
+        new("Purple", StrokeColor.Purple),
+        new("White", StrokeColor.White),
+        new("Black", StrokeColor.Black)
+    ];
+
+    public string SelectedColorBrush =>
+        SelectedColor switch
+        {
+            StrokeColor.Red => "Red",
+            StrokeColor.Orange => "Orange",
+            StrokeColor.Yellow => "Yellow",
+            StrokeColor.Green => "LimeGreen",
+            StrokeColor.Blue => "DodgerBlue",
+            StrokeColor.Purple => "MediumPurple",
+            StrokeColor.White => "White",
+            StrokeColor.Black => "Black",
+            _ => "Red"
+        };
+
+    public StrokeColor SelectedColor =>
+        Pen.Settings.Color;
 
     public bool IsOverlayEngaged { get; private set; } = true;
 
@@ -139,21 +161,17 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public bool IsPenSelected =>
         ReferenceEquals(ActiveTool.Current, Pen) &&
-        Pen.Settings.Preset == PenPreset.Pen;
+        Pen.Preset == PenPreset.Pen;
 
     public bool IsBlueSelected =>
-        ReferenceEquals(ActiveTool.Current, Pen) &&
-        Pen.Settings.Preset == PenPreset.Pen &&
         Pen.Settings.Color == StrokeColor.Blue;
 
     public bool IsBlackSelected =>
-        ReferenceEquals(ActiveTool.Current, Pen) &&
-        Pen.Settings.Preset == PenPreset.Pen &&
         Pen.Settings.Color == StrokeColor.Black;
 
     public bool IsHighlighterSelected =>
         ReferenceEquals(ActiveTool.Current, Pen) &&
-        Pen.Settings.Preset == PenPreset.Highlighter;
+        Pen.Preset == PenPreset.Highlighter;
 
     public bool IsArrowSelected =>
         ReferenceEquals(ActiveTool.Current, Arrow);
@@ -170,23 +188,31 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public bool IsSelectionSelected =>
         ReferenceEquals(ActiveTool.Current, Selection);
 
-    public void SelectPen(StrokeColor color)
+    public void SelectPen()
     {
-        Pen.Settings.Preset = PenPreset.Pen;
-        Pen.Settings.Color = color;
-        Pen.Settings.Thickness = 4;
-        Pen.Settings.Opacity = 1.0;
+        Pen.Preset = PenPreset.Pen;
 
         ActiveTool.Current = Pen;
         NotifySelectionChanged();
     }
 
+    public void SelectColor(
+        StrokeColor color)
+    {
+        Pen.Settings.Color = color;
+
+        OnPropertyChanged(
+            nameof(SelectedColor));
+
+        OnPropertyChanged(
+            nameof(SelectedColorBrush));
+
+        NotifySelectionChanged();
+    }
+
     public void SelectHighlighter()
     {
-        Pen.Settings.Preset = PenPreset.Highlighter;
-        Pen.Settings.Color = StrokeColor.Yellow;
-        Pen.Settings.Thickness = 16;
-        Pen.Settings.Opacity = 0.18;
+        Pen.Preset = PenPreset.Highlighter;
 
         ActiveTool.Current = Pen;
         NotifySelectionChanged();

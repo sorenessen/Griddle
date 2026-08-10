@@ -44,6 +44,22 @@
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
+        <Style Selector="Button.color-swatch">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="#25282B"/>
+            <Setter Property="BorderBrush" Value="#50555A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style Selector="Button.color-swatch:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#35393D"/>
+            <Setter Property="BorderBrush" Value="#F28C28"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
     </Window.Styles>
 
     <Border
@@ -132,7 +148,7 @@
             <Button
                 Classes="toolbar"
                 Classes.active="{Binding IsPenSelected}"
-                Click="RedButton_Click"
+                Click="PenButton_Click"
                 ToolTip.Tip="Pen">
 
                 <Grid Width="22" Height="22">
@@ -413,29 +429,119 @@
 
             <Button
                 Classes="toolbar"
-                Classes.active="{Binding IsBlueSelected}"
-                Click="BlueButton_Click"
-                ToolTip.Tip="Blue">
+                ToolTip.Tip="Annotation color">
 
-                <Ellipse
-                    Width="16"
-                    Height="16"
-                    Fill="DodgerBlue"/>
+                <Grid Width="22" Height="22">
 
-            </Button>
+                    <Ellipse
+                        Width="16"
+                        Height="16"
+                        Fill="{Binding SelectedColorBrush}"
+                        Stroke="White"
+                        StrokeThickness="1"/>
 
-            <Button
-                Classes="toolbar"
-                Classes.active="{Binding IsBlackSelected}"
-                Click="BlackButton_Click"
-                ToolTip.Tip="Black">
+                </Grid>
 
-                <Ellipse
-                    Width="16"
-                    Height="16"
-                    Fill="Black"
-                    Stroke="White"
-                    StrokeThickness="1"/>
+                <Button.Flyout>
+                    <Flyout Placement="Bottom">
+
+                        <Border
+                            Background="#1B1D1F"
+                            BorderBrush="#73787D"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="8">
+
+                            <Grid
+                                ColumnDefinitions="Auto,Auto,Auto,Auto"
+                                RowDefinitions="Auto,Auto"
+                                ColumnSpacing="6"
+                                RowSpacing="6">
+
+                                <Button
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Classes="color-swatch"
+                                    Click="RedColorButton_Click"
+                                    ToolTip.Tip="Red">
+                                    <Ellipse Fill="Red"/>
+                                </Button>
+
+                                <Button
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Classes="color-swatch"
+                                    Click="OrangeColorButton_Click"
+                                    ToolTip.Tip="Orange">
+                                    <Ellipse Fill="Orange"/>
+                                </Button>
+
+                                <Button
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Classes="color-swatch"
+                                    Click="YellowColorButton_Click"
+                                    ToolTip.Tip="Yellow">
+                                    <Ellipse Fill="Yellow"/>
+                                </Button>
+
+                                <Button
+                                    Grid.Row="0"
+                                    Grid.Column="3"
+                                    Classes="color-swatch"
+                                    Click="GreenColorButton_Click"
+                                    ToolTip.Tip="Green">
+                                    <Ellipse Fill="LimeGreen"/>
+                                </Button>
+
+                                <Button
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Classes="color-swatch"
+                                    Click="BlueColorButton_Click"
+                                    ToolTip.Tip="Blue">
+                                    <Ellipse Fill="DodgerBlue"/>
+                                </Button>
+
+                                <Button
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Classes="color-swatch"
+                                    Click="PurpleColorButton_Click"
+                                    ToolTip.Tip="Purple">
+                                    <Ellipse Fill="MediumPurple"/>
+                                </Button>
+
+                                <Button
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Classes="color-swatch"
+                                    Click="WhiteColorButton_Click"
+                                    ToolTip.Tip="White">
+                                    <Ellipse
+                                        Fill="White"
+                                        Stroke="#777777"
+                                        StrokeThickness="1"/>
+                                </Button>
+
+                                <Button
+                                    Grid.Row="1"
+                                    Grid.Column="3"
+                                    Classes="color-swatch"
+                                    Click="BlackColorButton_Click"
+                                    ToolTip.Tip="Black">
+                                    <Ellipse
+                                        Fill="Black"
+                                        Stroke="White"
+                                        StrokeThickness="1"/>
+                                </Button>
+
+                            </Grid>
+
+                        </Border>
+
+                    </Flyout>
+                </Button.Flyout>
 
             </Button>
 

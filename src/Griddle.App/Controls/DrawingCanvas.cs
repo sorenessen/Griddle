@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Input;
 using Avalonia.Threading;
+using Griddle.App.Rendering;
 using Griddle.Core.Geometry;
 using Griddle.Core.History;
 using Griddle.Core.Models;
@@ -966,13 +967,9 @@ public sealed class DrawingCanvas : Control
         var position =
             ToAvaloniaPoint(stroke.Points[0]);
 
-        var baseColor = stroke.Color switch
-        {
-            StrokeColor.Blue => Colors.DodgerBlue,
-            StrokeColor.Black => Colors.Black,
-            StrokeColor.Yellow => Colors.Yellow,
-            _ => Colors.Red
-        };
+        var baseColor =
+            StrokeColorMapper.ToAvaloniaColor(
+                stroke.Color);
 
         var formattedText = new FormattedText(
             stroke.Text,
@@ -1713,20 +1710,9 @@ public sealed class DrawingCanvas : Control
 
     private static Pen CreatePen(Stroke stroke)
     {
-        var baseColor = stroke.Color switch
-        {
-            StrokeColor.Blue =>
-                Colors.DodgerBlue,
-
-            StrokeColor.Black =>
-                Colors.Black,
-
-            StrokeColor.Yellow =>
-                Colors.Yellow,
-
-            _ =>
-                Colors.Red
-        };
+        var baseColor =
+            StrokeColorMapper.ToAvaloniaColor(
+                stroke.Color);
 
         var brush = new SolidColorBrush(
             baseColor,

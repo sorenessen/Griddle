@@ -424,7 +424,7 @@ public partial class MainWindow : Window
             }
 
             case Key.P:
-                _toolbarViewModel?.SelectPen(StrokeColor.Red);
+                _toolbarViewModel?.SelectPen();
                 e.Handled = true;
                 break;
 

@@ -17,8 +17,20 @@ public sealed class PenTool : ITool
 
     public AnnotationStyle Settings { get; }
 
+    public PenPreset Preset { get; set; } =
+        PenPreset.Pen;
+
     public Stroke Begin(Point2D point)
     {
+        if (Preset == PenPreset.Highlighter)
+        {
+            return _strokeBuilder.Begin(
+                point,
+                StrokeColor.Yellow,
+                thickness: 16,
+                opacity: 0.18);
+        }
+
         return _strokeBuilder.Begin(
             point,
             Settings.Color,
