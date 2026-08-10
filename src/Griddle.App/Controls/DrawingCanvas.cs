@@ -856,6 +856,8 @@ public sealed class DrawingCanvas : Control
             start,
             end);
 
+        const double radius = 12;
+
         if (!string.IsNullOrEmpty(stroke.Text))
         {
             var text = new FormattedText(
@@ -866,16 +868,64 @@ public sealed class DrawingCanvas : Control
                 20,
                 Brushes.White);
 
-            var textPosition = new Point(
-                end.X + 12,
-                end.Y - text.Height / 2);
+            Point textPosition;
+
+            if (stroke.CalloutLabelPosition ==
+                CalloutLabelPosition.Anchor)
+            {
+                var deltaX =
+                    end.X - start.X;
+
+                var deltaY =
+                    end.Y - start.Y;
+
+                var length =
+                    Math.Sqrt(
+                        deltaX * deltaX +
+                        deltaY * deltaY);
+
+                if (length > 0.001)
+                {
+                    var directionX =
+                        deltaX / length;
+
+                    var directionY =
+                        deltaY / length;
+
+                    const double gap = 8;
+
+                    var textCenterX =
+                        start.X -
+                        directionX *
+                        (radius + gap + text.Width / 2);
+
+                    var textCenterY =
+                        start.Y -
+                        directionY *
+                        (radius + gap + text.Height / 2);
+
+                    textPosition = new Point(
+                        textCenterX - text.Width / 2,
+                        textCenterY - text.Height / 2);
+                }
+                else
+                {
+                    textPosition = new Point(
+                        start.X + radius + 8,
+                        start.Y - text.Height / 2);
+                }
+            }
+            else
+            {
+                textPosition = new Point(
+                    end.X + 12,
+                    end.Y - text.Height / 2);
+            }
 
             context.DrawText(
                 text,
                 textPosition);
         }
-
-        const double radius = 12;
 
         context.DrawEllipse(
             Brushes.White,
@@ -2171,6 +2221,26 @@ public sealed class DrawingCanvas : Control
                 stroke.CalloutGroupId ==
                     _presentationCalloutGroupId.Value);
         }
+    }
+
+    public void FlipSelectedCalloutLabel()
+    {
+        var selected =
+            _selection.SelectedStroke;
+
+        if (selected is null ||
+            selected.Kind != StrokeKind.Callout)
+        {
+            return;
+        }
+
+        selected.CalloutLabelPosition =
+            selected.CalloutLabelPosition ==
+            CalloutLabelPosition.Target
+                ? CalloutLabelPosition.Anchor
+                : CalloutLabelPosition.Target;
+
+        InvalidateVisual();
     }
 
     public void Undo()

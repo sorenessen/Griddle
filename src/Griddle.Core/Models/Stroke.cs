@@ -26,6 +26,10 @@ public sealed class Stroke
     public StrokeKind Kind { get; }
     public int? CalloutNumber { get; set; }
     public Guid? CalloutGroupId { get; set; }
+
+    public CalloutLabelPosition CalloutLabelPosition { get; set; } =
+        CalloutLabelPosition.Target;
+    
     public string Text { get; set; } = string.Empty;
     public List<Point2D> Points { get; } = new();
     public bool IsVisible { get; set; } = true;

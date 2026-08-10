@@ -482,6 +482,11 @@ public partial class MainWindow : Window
                 break;
             }
 
+            case Key.F:
+                DrawingSurface.FlipSelectedCalloutLabel();
+                e.Handled = true;
+                break;
+
             case Key.G:
             {
                 var commandPressed =
