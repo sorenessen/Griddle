@@ -251,10 +251,32 @@ public partial class ToolbarWindow : Window
         var savedPosition =
             ToolbarPositionStore.Load();
 
-        if (savedPosition is not null)
+        if (savedPosition is null)
+        {
+            return;
+        }
+
+        var savedScreen =
+            Screens.ScreenFromPoint(
+                savedPosition.Value);
+
+        if (savedScreen is not null)
         {
             Position = savedPosition.Value;
+            return;
         }
+
+        var primaryScreen =
+            Screens.Primary;
+
+        if (primaryScreen is null)
+        {
+            return;
+        }
+
+        Position = new PixelPoint(
+            primaryScreen.WorkingArea.X + 20,
+            primaryScreen.WorkingArea.Y + 20);
     }
 
     private void ToolbarWindow_PositionChanged(
