@@ -7,6 +7,13 @@ public sealed class CalloutTool : ITool
 {
     private Point2D? _startPoint;
     private Stroke? _current;
+    private readonly AnnotationStyle _style;
+
+    public CalloutTool(
+        AnnotationStyle style)
+    {
+        _style = style;
+    }
 
     public string Name => "Callout";
 
@@ -15,7 +22,7 @@ public sealed class CalloutTool : ITool
         _startPoint = point;
 
         _current = new Stroke(
-            StrokeColor.Red,
+            _style.Color,
             thickness: 2,
             opacity: 1.0,
             kind: StrokeKind.Callout);

@@ -7,6 +7,13 @@ public sealed class RectangleTool : ITool
 {
     private Point2D? _startPoint;
     private Stroke? _current;
+    private readonly AnnotationStyle _style;
+
+    public RectangleTool(
+        AnnotationStyle style)
+    {
+        _style = style;
+    }
 
     public string Name => "Rectangle";
 
@@ -15,7 +22,7 @@ public sealed class RectangleTool : ITool
         _startPoint = point;
 
         _current = new Stroke(
-            StrokeColor.Red,
+            _style.Color,
             thickness: 4,
             opacity: 1.0,
             kind: StrokeKind.Rectangle);

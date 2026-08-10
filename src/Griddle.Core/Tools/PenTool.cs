@@ -8,14 +8,14 @@ public sealed class PenTool : ITool
 {
     private readonly StrokeBuilder _strokeBuilder = new();
 
-    public PenTool(PenSettings settings)
+    public PenTool(AnnotationStyle settings)
     {
         Settings = settings;
     }
 
     public string Name => "Pen";
 
-    public PenSettings Settings { get; }
+    public AnnotationStyle Settings { get; }
 
     public Stroke Begin(Point2D point)
     {

@@ -1,6 +1,6 @@
 namespace Griddle.Core.Models;
 
-public sealed class PenSettings
+public sealed class AnnotationStyle
 {
     public PenPreset Preset { get; set; } = PenPreset.Pen;
 

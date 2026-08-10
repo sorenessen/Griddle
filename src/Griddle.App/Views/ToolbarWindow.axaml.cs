@@ -17,7 +17,7 @@ public partial class ToolbarWindow : Window
         : this(
             new ToolbarViewModel(
                 new PenTool(
-                    new PenSettings())))
+                    new AnnotationStyle())))
     {
     }
 

@@ -7,6 +7,13 @@ public sealed class ArrowTool : ITool
 {
     private Point2D? _startPoint;
     private Stroke? _current;
+    private readonly AnnotationStyle _style;
+
+    public ArrowTool(
+        AnnotationStyle style)
+    {
+        _style = style;
+    }
 
     public string Name => "Arrow";
 
@@ -15,7 +22,7 @@ public sealed class ArrowTool : ITool
         _startPoint = point;
 
         _current = new Stroke(
-            StrokeColor.Red,
+            _style.Color,
             thickness: 4,
             opacity: 1.0,
             kind: StrokeKind.Arrow);

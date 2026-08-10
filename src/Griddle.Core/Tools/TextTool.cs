@@ -5,12 +5,20 @@ namespace Griddle.Core.Tools;
 
 public sealed class TextTool : ITool
 {
+    private readonly AnnotationStyle _style;
+
+    public TextTool(
+        AnnotationStyle style)
+    {
+        _style = style;
+    }
+    
     public string Name => "Text";
 
     public Stroke? Begin(Point2D point)
     {
         return new Stroke(
-            StrokeColor.Red,
+            _style.Color,
             thickness: 1,
             opacity: 1,
             StrokeKind.Text)

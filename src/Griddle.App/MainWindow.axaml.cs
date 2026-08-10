@@ -38,12 +38,15 @@ public partial class MainWindow : Window
 // TODO:
 // Introduce a ToolRegistry/ToolFactory so toolbar and drawing
 // surface share the same tool instances.
+        var annotationStyle =
+            DrawingSurface.Pen.Settings;
+
         _toolbarViewModel = new ToolbarViewModel(
             DrawingSurface.Pen,
-            new ArrowTool(),
-            new RectangleTool(),
-            new TextTool(),
-            new CalloutTool(),
+            new ArrowTool(annotationStyle),
+            new RectangleTool(annotationStyle),
+            new TextTool(annotationStyle),
+            new CalloutTool(annotationStyle),
             new SelectionTool(DrawingSurface.Selection),
             DrawingSurface.ActiveTool);
 

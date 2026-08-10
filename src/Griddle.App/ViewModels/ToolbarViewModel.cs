@@ -12,10 +12,10 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public ToolbarViewModel(PenTool pen)
         : this(
             pen,
-            new ArrowTool(),
-            new RectangleTool(),
-            new TextTool(),
-            new CalloutTool(),
+            new ArrowTool(pen.Settings),
+            new RectangleTool(pen.Settings),
+            new TextTool(pen.Settings),
+            new CalloutTool(pen.Settings),
             new SelectionTool(new SelectionService()),
             new ActiveToolService(pen))
     {

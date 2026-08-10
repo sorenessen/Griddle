@@ -61,7 +61,7 @@ public sealed class DrawingCanvas : Control
 
     public DrawingCanvas()
         : this(
-            new PenTool(new PenSettings()),
+            new PenTool(new AnnotationStyle()),
             null,
             null)
     {
