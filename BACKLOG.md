@@ -421,11 +421,13 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 - [x] Toolbar Movement Between Displays
 - [x] Active Display Indicator
 - [x] Live Display Selection State Updates
+- [X] Toolbar Position Persistence
+	- [x] Validate saved toolbar position against currently connected displays
+	- [x] Fallback to active display if saved position is off-screen
 
 ### Next
 
 - [ ] Toolbar Control Organization
-- [ ] Toolbar Position Persistence
 - [ ] Color Palette Popup
 - [ ] General Multi-select
 
