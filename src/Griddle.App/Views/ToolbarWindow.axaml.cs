@@ -225,6 +225,20 @@ public partial class ToolbarWindow : Window
         _viewModel.ToggleTint();
     }
 
+    private void DisplayOptionButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        if (sender is not Button button ||
+            button.DataContext is not DisplayOption display)
+        {
+            return;
+        }
+
+        _viewModel.RequestDisplay(
+            display.Index);
+    }
+
     private void ToolbarBackground_PointerPressed(
         object? sender,
         PointerPressedEventArgs e)

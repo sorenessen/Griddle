@@ -152,6 +152,15 @@ public partial class MainWindow : Window
                 workingArea.Y + 40);
         }
 
+        _toolbarViewModel.SetDisplays(
+            Screens.All.Count);
+
+        _toolbarViewModel.SetActiveDisplay(
+            GetOverlayScreenIndex());
+
+        _toolbarViewModel.DisplayRequested +=
+            MoveOverlayToScreenIndex;
+
         _toolbar.Show(this);
     }
 
@@ -206,6 +215,52 @@ public partial class MainWindow : Window
 
         MoveOverlayToScreen(
             _overlayScreen);
+
+        _toolbarViewModel?.SetActiveDisplay(
+            nextIndex);
+    }
+
+    private void MoveOverlayToScreenIndex(
+        int index)
+    {
+        var screens = Screens.All;
+
+        if (index < 0 ||
+            index >= screens.Count)
+        {
+            return;
+        }
+
+        _overlayScreen =
+            screens[index];
+
+        MoveOverlayToScreen(
+            _overlayScreen);
+
+        _toolbarViewModel?.SetActiveDisplay(
+            index);
+    }
+
+    private int GetOverlayScreenIndex()
+    {
+        var screens = Screens.All;
+
+        if (_overlayScreen is null)
+        {
+            return -1;
+        }
+
+        for (var index = 0; index < screens.Count; index++)
+        {
+            if (ReferenceEquals(
+                screens[index],
+                _overlayScreen))
+            {
+                return index;
+            }
+        }
+
+        return -1;
     }
 
     private void Overlay_PointerPressed(
@@ -294,7 +349,7 @@ public partial class MainWindow : Window
             e.Handled = true;
             return;
         }
-        
+
         if (DrawingSurface.IsEditingText)
         {
             switch (e.Key)

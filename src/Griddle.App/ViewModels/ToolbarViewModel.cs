@@ -78,6 +78,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public event Action? ToggleTintRequested;
 
+    public event Action<int>? DisplayRequested;
+
     public SelectionTool Selection { get; }
 
     public ActiveToolService ActiveTool { get; }
@@ -86,8 +88,12 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public int PresentationTotalCount { get; private set; }
 
+    public int ActiveDisplayIndex { get; private set; } = -1;
+
     public string PresentationProgressText =>
         $"{PresentationRevealCount} / {PresentationTotalCount}";
+
+    public ObservableCollection<DisplayOption> Displays { get; } = [];
 
     public ObservableCollection<ColorPreset> Colors { get; } =
     [
@@ -329,6 +335,41 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public void ToggleOverlayInteraction()
     {
         ToggleOverlayInteractionRequested?.Invoke();
+    }
+
+    public void SetDisplays(
+        int count)
+    {
+        Displays.Clear();
+
+        for (var index = 0; index < count; index++)
+        {
+            Displays.Add(
+                new DisplayOption(
+                    index,
+                    $"Display {index + 1}"));
+        }
+    }
+
+    public void RequestDisplay(
+            int index)
+        {
+            DisplayRequested?.Invoke(index);
+        }
+
+    public void SetActiveDisplay(
+        int index)
+    {
+        ActiveDisplayIndex = index;
+
+        foreach (var display in Displays)
+        {
+            display.IsActive =
+                display.Index == index;
+        }
+
+        OnPropertyChanged(
+            nameof(ActiveDisplayIndex));
     }
 
     public void SelectSelection()

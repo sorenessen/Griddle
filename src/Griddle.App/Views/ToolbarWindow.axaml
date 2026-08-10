@@ -76,6 +76,20 @@
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
+        <Style Selector="Button.display-option">
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="Button.display-option:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#35393D"/>
+        </Style>
+
     </Window.Styles>
 
     <Border
@@ -710,6 +724,99 @@
                         Margin="4,0,0,0"/>
 
                 </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                ToolTip.Tip="Move overlay to display">
+
+                <Grid Width="22" Height="22">
+
+                    <Border
+                        Width="17"
+                        Height="12"
+                        BorderBrush="White"
+                        BorderThickness="2"
+                        CornerRadius="2"
+                        VerticalAlignment="Top"
+                        Margin="0,2,0,0"/>
+
+                    <Line
+                        StartPoint="11,14"
+                        EndPoint="11,18"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+
+                    <Line
+                        StartPoint="7,18"
+                        EndPoint="15,18"
+                        Stroke="White"
+                        StrokeThickness="2"
+                        StrokeLineCap="Round"/>
+
+                </Grid>
+
+                <Button.Flyout>
+                    <Flyout Placement="Bottom">
+
+                        <Border
+                            Background="#1B1D1F"
+                            BorderBrush="#73787D"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="8">
+
+                            <StackPanel Spacing="4">
+
+                                <TextBlock
+                                    Text="Move Canvas"
+                                    Foreground="#AAAAAA"
+                                    FontSize="11"
+                                    Margin="4,2,4,4"/>
+
+                                <ItemsControl
+                                    ItemsSource="{Binding Displays}">
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate
+                                            x:DataType="vm:DisplayOption">
+
+                                            <Button
+                                                Classes="display-option"
+                                                Click="DisplayOptionButton_Click"
+                                                HorizontalContentAlignment="Left">
+
+                                                <Grid
+                                                    ColumnDefinitions="22,*"
+                                                    Width="120">
+
+                                                    <TextBlock
+                                                        Grid.Column="0"
+                                                        Text="✓"
+                                                        Foreground="#F28C28"
+                                                        FontWeight="Bold"
+                                                        IsVisible="{Binding IsActive}"/>
+
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Text="{Binding Name}"/>
+
+                                                </Grid>
+
+                                            </Button>
+
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+
+                                </ItemsControl>
+
+                            </StackPanel>
+
+                        </Border>
+
+                    </Flyout>
+                </Button.Flyout>
 
             </Button>
 
