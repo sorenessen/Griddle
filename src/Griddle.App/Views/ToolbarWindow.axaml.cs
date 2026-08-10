@@ -1,8 +1,10 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Griddle.App.Services;
 using Griddle.App.ViewModels;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
@@ -27,6 +29,9 @@ public partial class ToolbarWindow : Window
 
         _viewModel = viewModel;
         DataContext = viewModel;
+
+        Opened += ToolbarWindow_Opened;
+        PositionChanged += ToolbarWindow_PositionChanged;
     }
 
     private void SelectionButton_Click(
@@ -237,6 +242,27 @@ public partial class ToolbarWindow : Window
 
         _viewModel.RequestDisplay(
             display.Index);
+    }
+
+    private void ToolbarWindow_Opened(
+        object? sender,
+        EventArgs e)
+    {
+        var savedPosition =
+            ToolbarPositionStore.Load();
+
+        if (savedPosition is not null)
+        {
+            Position = savedPosition.Value;
+        }
+    }
+
+    private void ToolbarWindow_PositionChanged(
+        object? sender,
+        PixelPointEventArgs e)
+    {
+        ToolbarPositionStore.Save(
+            Position);
     }
 
     private void ToolbarBackground_PointerPressed(
