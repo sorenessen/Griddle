@@ -135,11 +135,11 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 - [x] Undo/Redo Rectangle Resize
 - [x] Undo/Redo Group Movement
 - [x] Multi-selection State Cleanup Across Undo/Redo
+- [x] General Multi-select
 
 ### Planned
 
 - [ ] Select Freehand Strokes
-- [ ] General Multi-select
 - [ ] Group/Ungroup Arbitrary Shapes
 - [ ] Duplicate Shape
 - [ ] Layer Ordering
@@ -190,12 +190,12 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 - [x] Live Display Selection Checkmark Update
 - [x] Correct Display Selection After Menu Reopen
 - [x] Multi-Display Overlay Bounds Management
+- [X] Remember Preferred Display
+- [x] Handle Display Disconnect Gracefully
+- [x] Handle Display Connect While Running
 
 ### Planned
 
-- [ ] Remember Preferred Display
-- [x] Handle Display Disconnect Gracefully
-- [x] Handle Display Connect While Running
 - [ ] Identify Displays by Friendly Name
 - [ ] Annotate Multiple Displays Simultaneously
 
@@ -253,12 +253,12 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 - [x] Master Overlay Engagement Control
 - [x] Tint Toggle
 - [x] Industrial Griddle Branding
+- [x] Remember Toolbar Position
 
 ### Planned
 
 - [ ] Improve Callout Sequence Control Icons
 - [ ] Reorganize / Group Toolbar Controls
-- [ ] Remember Toolbar Position
 - [ ] Dock to Screen Edge
 - [ ] Compact Mode
 - [ ] Horizontal / Vertical Layout
@@ -422,12 +422,9 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 - [X] Toolbar Position Persistence
 	- [x] Validate saved toolbar position against currently connected displays
 	- [x] Fallback to active display if saved position is off-screen
-
-### Next
-
-- [ ] Toolbar Control Organization
+- [x] Toolbar Control Organization
 - [x] Color Palette Popup
-- [ ] General Multi-select
+- [x] General Multi-select
 
 ---
 
