@@ -158,7 +158,7 @@
                 Width="1"
                 Height="30"
                 Background="#5A5A5A"
-                Margin="0,0,4,0"/>
+                Margin="2,0,2,0"/>
 
             <Button
                 Classes="toolbar"
@@ -196,6 +196,40 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Margin="0,2,2,0"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Classes.active="{Binding IsHighlighterSelected}"
+                Click="HighlighterButton_Click"
+                ToolTip.Tip="Highlighter">
+
+                <Grid Width="22" Height="22">
+                    <Rectangle
+                        Width="8"
+                        Height="16"
+                        Fill="#FFF3C400"
+                        RadiusX="2"
+                        RadiusY="2"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        RenderTransformOrigin="0.5,0.5">
+
+                        <Rectangle.RenderTransform>
+                            <RotateTransform Angle="-35"/>
+                        </Rectangle.RenderTransform>
+
+                    </Rectangle>
+
+                    <Rectangle
+                        Width="14"
+                        Height="3"
+                        Fill="#FFF3C400"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,0,1"/>
                 </Grid>
 
             </Button>
@@ -290,172 +324,11 @@
 
             </Button>
 
-            <Button
-                Classes="toolbar"
-                Click="NewCalloutGroupButton_Click"
-                ToolTip.Tip="Start new callout sequence">
-
-                <Grid Width="22" Height="22">
-                    <Ellipse
-                        Width="16"
-                        Height="16"
-                        Stroke="White"
-                        StrokeThickness="2"/>
-
-                    <TextBlock
-                        Text="1↺"
-                        Foreground="White"
-                        FontSize="8"
-                        FontWeight="Bold"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"/>
-                </Grid>
-
-            </Button>
-
-            <Button
-                Classes="toolbar"
-                Click="SelectCalloutGroupButton_Click"
-                ToolTip.Tip="Select callout sequence">
-
-                <Grid Width="22" Height="22">
-                    <Ellipse
-                        Width="14"
-                        Height="14"
-                        Stroke="White"
-                        StrokeThickness="1.5"
-                        HorizontalAlignment="Left"/>
-
-                    <Ellipse
-                        Width="14"
-                        Height="14"
-                        Stroke="White"
-                        StrokeThickness="1.5"
-                        HorizontalAlignment="Right"/>
-
-                    <TextBlock
-                        Text="•••"
-                        Foreground="White"
-                        FontSize="8"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"/>
-                </Grid>
-
-            </Button>
-
-            <Button
-                Classes="toolbar"
-                Click="HideCalloutGroupButton_Click"
-                ToolTip.Tip="Hide selected callout sequence">
-
-                <Grid Width="22" Height="22">
-                    <TextBlock
-                        Text="◉"
-                        Foreground="White"
-                        FontSize="14"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"/>
-
-                    <Line
-                        StartPoint="4,18"
-                        EndPoint="18,4"
-                        Stroke="White"
-                        StrokeThickness="2"/>
-                </Grid>
-
-            </Button>
-
-            <Button
-                Classes="toolbar"
-                Click="ShowLastHiddenCalloutGroupButton_Click"
-                ToolTip.Tip="Show last hidden callout sequence">
-
-                <Grid Width="22" Height="22">
-                    <TextBlock
-                        Text="◉"
-                        Foreground="White"
-                        FontSize="14"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"/>
-                </Grid>
-
-            </Button>
-
-            <Button
-                Classes="toolbar"
-                Classes.active="{Binding IsCalloutPresentationActive}"
-                Click="StartCalloutPresentationButton_Click"
-                ToolTip.Tip="Present selected callout sequence">
-
-                <Grid Width="22" Height="22">
-
-                    <Path
-                        Fill="White"
-                        Data="M7,4 L18,11 L7,18 Z"/>
-
-                </Grid>
-
-            </Button>
-
             <Border
-                IsVisible="{Binding IsCalloutPresentationActive}"
-                Height="40"
-                MinWidth="52"
-                Padding="8,0"
-                CornerRadius="8"
-                Background="#333333"
-                BorderBrush="#F28C28"
-                BorderThickness="1">
-
-                <TextBlock
-                    Text="{Binding PresentationProgressText}"
-                    Foreground="White"
-                    FontSize="13"
-                    FontWeight="SemiBold"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"/>
-
-            </Border>
-
-            <Button
-                Classes="toolbar"
-                Click="ContinueCalloutGroupButton_Click"
-                ToolTip.Tip="Continue selected callout sequence">
-
-                <Grid Width="22" Height="22">
-                    <Ellipse
-                        Width="16"
-                        Height="16"
-                        Stroke="White"
-                        StrokeThickness="2"/>
-
-                    <TextBlock
-                        Text="↺"
-                        Foreground="White"
-                        FontSize="12"
-                        FontWeight="Bold"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"/>
-                </Grid>
-
-            </Button>
-
-            <Button
-                Classes="toolbar"
-                Click="RenumberCalloutGroupButton_Click"
-                ToolTip.Tip="Compact selected callout sequence">
-
-                <Grid Width="22" Height="22">
-                    <TextBlock
-                        Text="123"
-                        Foreground="White"
-                        FontSize="9"
-                        FontWeight="Bold"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"/>
-                </Grid>
-
-            </Button>
+                Width="1"
+                Height="30"
+                Background="#5A5A5A"
+                Margin="2,0,2,0"/>
 
             <Button
                 Classes="toolbar"
@@ -575,39 +448,7 @@
 
             </Button>
 
-            <Button
-                Classes="toolbar"
-                Classes.active="{Binding IsHighlighterSelected}"
-                Click="HighlighterButton_Click"
-                ToolTip.Tip="Highlighter">
-
-                <Grid Width="22" Height="22">
-                    <Rectangle
-                        Width="8"
-                        Height="16"
-                        Fill="#FFF3C400"
-                        RadiusX="2"
-                        RadiusY="2"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        RenderTransformOrigin="0.5,0.5">
-
-                        <Rectangle.RenderTransform>
-                            <RotateTransform Angle="-35"/>
-                        </Rectangle.RenderTransform>
-
-                    </Rectangle>
-
-                    <Rectangle
-                        Width="14"
-                        Height="3"
-                        Fill="#FFF3C400"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Bottom"
-                        Margin="0,0,0,1"/>
-                </Grid>
-
-            </Button>
+            
 
             <Button
                 Classes="toolbar"
@@ -699,6 +540,187 @@
                 </Button.Flyout>
 
             </Button>
+
+            <Border
+                Width="1"
+                Height="30"
+                Background="#5A5A5A"
+                Margin="2,0,2,0"/>
+
+            <Button
+                Classes="toolbar"
+                Click="NewCalloutGroupButton_Click"
+                ToolTip.Tip="Start new callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <Ellipse
+                        Width="16"
+                        Height="16"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+
+                    <TextBlock
+                        Text="1↺"
+                        Foreground="White"
+                        FontSize="8"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Click="ContinueCalloutGroupButton_Click"
+                ToolTip.Tip="Continue selected callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <Ellipse
+                        Width="16"
+                        Height="16"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+
+                    <TextBlock
+                        Text="↺"
+                        Foreground="White"
+                        FontSize="12"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Click="SelectCalloutGroupButton_Click"
+                ToolTip.Tip="Select callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <Ellipse
+                        Width="14"
+                        Height="14"
+                        Stroke="White"
+                        StrokeThickness="1.5"
+                        HorizontalAlignment="Left"/>
+
+                    <Ellipse
+                        Width="14"
+                        Height="14"
+                        Stroke="White"
+                        StrokeThickness="1.5"
+                        HorizontalAlignment="Right"/>
+
+                    <TextBlock
+                        Text="•••"
+                        Foreground="White"
+                        FontSize="8"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Click="HideCalloutGroupButton_Click"
+                ToolTip.Tip="Hide selected callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <TextBlock
+                        Text="◉"
+                        Foreground="White"
+                        FontSize="14"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+
+                    <Line
+                        StartPoint="4,18"
+                        EndPoint="18,4"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Click="ShowLastHiddenCalloutGroupButton_Click"
+                ToolTip.Tip="Show last hidden callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <TextBlock
+                        Text="◉"
+                        Foreground="White"
+                        FontSize="14"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Classes.active="{Binding IsCalloutPresentationActive}"
+                Click="StartCalloutPresentationButton_Click"
+                ToolTip.Tip="Present selected callout sequence">
+
+                <Grid Width="22" Height="22">
+
+                    <Path
+                        Fill="White"
+                        Data="M7,4 L18,11 L7,18 Z"/>
+
+                </Grid>
+
+            </Button>
+
+            <Border
+                IsVisible="{Binding IsCalloutPresentationActive}"
+                Height="40"
+                MinWidth="52"
+                Padding="8,0"
+                CornerRadius="8"
+                Background="#333333"
+                BorderBrush="#F28C28"
+                BorderThickness="1">
+
+                <TextBlock
+                    Text="{Binding PresentationProgressText}"
+                    Foreground="White"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+
+            </Border>
+
+            
+
+            <Button
+                Classes="toolbar"
+                Click="RenumberCalloutGroupButton_Click"
+                ToolTip.Tip="Compact selected callout sequence">
+
+                <Grid Width="22" Height="22">
+                    <TextBlock
+                        Text="123"
+                        Foreground="White"
+                        FontSize="9"
+                        FontWeight="Bold"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+            </Button>
+
+            <Border
+                Width="1"
+                Height="30"
+                Background="#5A5A5A"
+                Margin="2,0,2,0"/>
 
             <Button
                 Classes="toolbar"
