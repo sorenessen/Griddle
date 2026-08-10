@@ -10,6 +10,7 @@ using Griddle.Core.Models;
 using Griddle.Core.Tools;
 using Griddle.App.Views;
 using Griddle.App.ViewModels;
+using Griddle.App.Services;
 
 namespace Griddle.App;
 
@@ -36,7 +37,28 @@ public partial class MainWindow : Window
 
     private void OnOpened(object? sender, EventArgs e)
     {
-        _overlayScreen =
+        var preferredDisplayName =
+            DisplayPreferenceStore.Load();
+
+        _overlayScreen = null;
+
+        if (!string.IsNullOrWhiteSpace(
+                preferredDisplayName))
+        {
+            foreach (var screen in Screens.All)
+            {
+                if (string.Equals(
+                        screen.DisplayName,
+                        preferredDisplayName,
+                        StringComparison.Ordinal))
+                {
+                    _overlayScreen = screen;
+                    break;
+                }
+            }
+        }
+
+        _overlayScreen ??=
             Screens.ScreenFromTopLevel(this)
             ?? Screens.Primary;
 
@@ -215,6 +237,9 @@ public partial class MainWindow : Window
         _overlayScreen =
             screens[nextIndex];
 
+        DisplayPreferenceStore.Save(
+            _overlayScreen.DisplayName);
+
         MoveOverlayToScreen(
             _overlayScreen);
 
@@ -235,6 +260,9 @@ public partial class MainWindow : Window
 
         _overlayScreen =
             screens[index];
+
+        DisplayPreferenceStore.Save(
+            _overlayScreen.DisplayName);        
 
         MoveOverlayToScreen(
             _overlayScreen);
