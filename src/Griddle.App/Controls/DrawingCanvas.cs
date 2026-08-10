@@ -263,7 +263,8 @@ public sealed class DrawingCanvas : Control
 
     public void BeginInteraction(
         Point point,
-        int clickCount = 1)
+        int clickCount = 1,
+        bool additiveSelection = false)
     {
 
         FinishCalloutTextEditing();
@@ -322,12 +323,20 @@ public sealed class DrawingCanvas : Control
 
             if (hit is null)
             {
-                _selection.Clear();
+                if (!additiveSelection)
+                {
+                    _selection.Clear();
+                }
+
                 ResetDragState();
             }
             else
             {
-                if (!_selection.IsSelected(hit))
+                if (additiveSelection)
+                {
+                    _selection.Toggle(hit);
+                }
+                else if (!_selection.IsSelected(hit))
                 {
                     _selection.Select(hit);
                 }

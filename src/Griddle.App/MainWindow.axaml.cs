@@ -297,7 +297,8 @@ public partial class MainWindow : Window
         object? sender,
         PointerPressedEventArgs e)
     {
-        var currentPoint = e.GetCurrentPoint(DrawingSurface);
+        var currentPoint =
+            e.GetCurrentPoint(DrawingSurface);
 
         if (!currentPoint.Properties.IsLeftButtonPressed)
         {
@@ -306,10 +307,16 @@ public partial class MainWindow : Window
 
         Focus();
 
+        var additiveSelection =
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Shift);
+
         _isDrawing = true;
+
         DrawingSurface.BeginInteraction(
             currentPoint.Position,
-            e.ClickCount);
+            e.ClickCount,
+            additiveSelection);
 
         e.Pointer.Capture(DrawingSurface);
         e.Handled = true;

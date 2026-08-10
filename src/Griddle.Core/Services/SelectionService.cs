@@ -37,6 +37,29 @@ public sealed class SelectionService
         return _selectedStrokes.Contains(stroke);
     }
 
+    public void Toggle(Stroke stroke)
+    {
+        if (_selectedStrokes.Contains(stroke))
+        {
+            _selectedStrokes.Remove(stroke);
+
+            if (ReferenceEquals(
+                    SelectedStroke,
+                    stroke))
+            {
+                SelectedStroke =
+                    _selectedStrokes.Count > 0
+                        ? _selectedStrokes[^1]
+                        : null;
+            }
+
+            return;
+        }
+
+        _selectedStrokes.Add(stroke);
+        SelectedStroke = stroke;
+    }
+
     public void Clear()
     {
         _selectedStrokes.Clear();
