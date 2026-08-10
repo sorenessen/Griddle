@@ -181,8 +181,26 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
         ReferenceEquals(ActiveTool.Current, Pen) &&
         Pen.Preset == PenPreset.Pen;
 
+    public bool IsRedSelected =>
+        Pen.Settings.Color == StrokeColor.Red;
+
+    public bool IsOrangeSelected =>
+        Pen.Settings.Color == StrokeColor.Orange;
+
+    public bool IsYellowSelected =>
+        Pen.Settings.Color == StrokeColor.Yellow;
+
+    public bool IsGreenSelected =>
+        Pen.Settings.Color == StrokeColor.Green;
+
     public bool IsBlueSelected =>
         Pen.Settings.Color == StrokeColor.Blue;
+
+    public bool IsPurpleSelected =>
+        Pen.Settings.Color == StrokeColor.Purple;
+
+    public bool IsWhiteSelected =>
+        Pen.Settings.Color == StrokeColor.White;
 
     public bool IsBlackSelected =>
         Pen.Settings.Color == StrokeColor.Black;
@@ -389,8 +407,16 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     {
         OnPropertyChanged(nameof(IsPenSelected));
         OnPropertyChanged(nameof(IsHighlighterSelected));
+
+        OnPropertyChanged(nameof(IsRedSelected));
+        OnPropertyChanged(nameof(IsOrangeSelected));
+        OnPropertyChanged(nameof(IsYellowSelected));
+        OnPropertyChanged(nameof(IsGreenSelected));
         OnPropertyChanged(nameof(IsBlueSelected));
+        OnPropertyChanged(nameof(IsPurpleSelected));
+        OnPropertyChanged(nameof(IsWhiteSelected));
         OnPropertyChanged(nameof(IsBlackSelected));
+        
         OnPropertyChanged(nameof(IsArrowSelected));
         OnPropertyChanged(nameof(IsRectangleSelected));
         OnPropertyChanged(nameof(IsTextSelected));

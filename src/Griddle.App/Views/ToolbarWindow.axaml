@@ -60,6 +60,12 @@
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
+        <Style Selector="Button.color-swatch.active /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#35393D"/>
+            <Setter Property="BorderBrush" Value="#F28C28"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
         <Style Selector="Button.thickness-swatch">
             <Setter Property="Width" Value="34"/>
             <Setter Property="Height" Value="30"/>
@@ -365,6 +371,7 @@
                                     Grid.Row="0"
                                     Grid.Column="0"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsRedSelected}"
                                     Click="RedColorButton_Click"
                                     ToolTip.Tip="Red">
                                     <Ellipse Fill="Red"/>
@@ -374,6 +381,7 @@
                                     Grid.Row="0"
                                     Grid.Column="1"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsOrangeSelected}"
                                     Click="OrangeColorButton_Click"
                                     ToolTip.Tip="Orange">
                                     <Ellipse Fill="Orange"/>
@@ -383,6 +391,7 @@
                                     Grid.Row="0"
                                     Grid.Column="2"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsYellowSelected}"
                                     Click="YellowColorButton_Click"
                                     ToolTip.Tip="Yellow">
                                     <Ellipse Fill="Yellow"/>
@@ -392,6 +401,7 @@
                                     Grid.Row="0"
                                     Grid.Column="3"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsGreenSelected}"
                                     Click="GreenColorButton_Click"
                                     ToolTip.Tip="Green">
                                     <Ellipse Fill="LimeGreen"/>
@@ -401,6 +411,7 @@
                                     Grid.Row="1"
                                     Grid.Column="0"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsBlueSelected}"
                                     Click="BlueColorButton_Click"
                                     ToolTip.Tip="Blue">
                                     <Ellipse Fill="DodgerBlue"/>
@@ -410,6 +421,7 @@
                                     Grid.Row="1"
                                     Grid.Column="1"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsPurpleSelected}"
                                     Click="PurpleColorButton_Click"
                                     ToolTip.Tip="Purple">
                                     <Ellipse Fill="MediumPurple"/>
@@ -419,6 +431,7 @@
                                     Grid.Row="1"
                                     Grid.Column="2"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsWhiteSelected}"
                                     Click="WhiteColorButton_Click"
                                     ToolTip.Tip="White">
                                     <Ellipse
@@ -431,6 +444,7 @@
                                     Grid.Row="1"
                                     Grid.Column="3"
                                     Classes="color-swatch"
+                                    Classes.active="{Binding IsBlackSelected}"
                                     Click="BlackColorButton_Click"
                                     ToolTip.Tip="Black">
                                     <Ellipse

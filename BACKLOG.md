@@ -215,16 +215,14 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ### Colors
 
-- [x] Red
-- [x] Blue
-- [x] Black
+- [x] Red, Orange, Yellow, Green, Blue, Purple, White, Black
+- [x] Color Palette Popup
 
 ### Planned
 
 - [ ] Toolbar Skin Selector
 - [ ] Industrial Red Skin
 - [ ] Electric Blue Skin
-- [ ] Color Palette Popup
 - [ ] Custom Colors
 - [ ] Recent Colors
 
@@ -428,7 +426,7 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 ### Next
 
 - [ ] Toolbar Control Organization
-- [ ] Color Palette Popup
+- [x] Color Palette Popup
 - [ ] General Multi-select
 
 ---
