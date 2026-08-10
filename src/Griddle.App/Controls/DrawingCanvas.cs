@@ -210,28 +210,19 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
-        var stroke = _editingTextStroke!;
+        var stroke =
+            _editingTextStroke!;
 
-        if (string.IsNullOrWhiteSpace(stroke.Text))
+        if (stroke.Kind == StrokeKind.Text &&
+            string.IsNullOrWhiteSpace(stroke.Text))
         {
             _strokes.Remove(stroke);
-        }
-        else
-        {
-            var index = _strokes.IndexOf(stroke);
-
-            _undoStack.Push(
-                new AddStrokeAction(
-                    _strokes,
-                    stroke,
-                    index));
-
-            _redoStack.Clear();
         }
 
         _editingTextStroke = null;
         _isEditingText = false;
         _isCaretVisible = false;
+
         _caretTimer.Stop();
 
         InvalidateVisual();
@@ -253,10 +244,29 @@ public sealed class DrawingCanvas : Control
         InvalidateVisual();
     }
 
+    private void FinishCalloutTextEditing()
+    {
+        if (!IsEditingText ||
+            _editingTextStroke is null ||
+            _editingTextStroke.Kind != StrokeKind.Callout)
+        {
+            return;
+        }
+
+        _editingTextStroke = null;
+        _isEditingText = false;
+        _isCaretVisible = false;
+
+        _caretTimer.Stop();
+    }
+
     public void BeginInteraction(
         Point point,
         int clickCount = 1)
     {
+
+        FinishCalloutTextEditing();
+
         if (_activeTool.Current is TextTool)
         {
             var textStroke =
@@ -1887,6 +1897,8 @@ public sealed class DrawingCanvas : Control
 
     public void SelectSelectedCalloutGroup()
     {
+        FinishCalloutTextEditing();
+
         var selected =
             _selection.SelectedStroke;
 

@@ -55,7 +55,7 @@
 
         <Border.Background>
             <ImageBrush
-                Source="avares://Griddle.App/Assets/griddle-industrial-red-tile.png"
+                Source="avares://Griddle.App/Assets/griddle-industrial-blue-tile.png"
                 Stretch="UniformToFill"
                 AlignmentX="Center"
                 AlignmentY="Center"/>
@@ -87,7 +87,7 @@
                     Margin="0,0,-8,0">
 
                     <Image
-                        Source="avares://Griddle.App/Assets/griddle-toolbar-on.png"
+                        Source="avares://Griddle.App/Assets/griddle-toolbar-on-orange.png"
                         Width="82"
                         Height="82"
                         Stretch="Uniform"
@@ -491,6 +491,33 @@
                         Stroke="White"
                         StrokeThickness="5"
                         StrokeLineCap="Round"/>
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
+                Classes.active="{Binding IsTintEnabled}"
+                Click="TintButton_Click"
+                ToolTip.Tip="Toggle overlay tint">
+
+                <Grid Width="22" Height="22">
+
+                    <Border
+                        Width="16"
+                        Height="13"
+                        BorderBrush="White"
+                        BorderThickness="2"
+                        Background="Transparent"
+                        CornerRadius="2"/>
+
+                    <Rectangle
+                        Width="8"
+                        Height="9"
+                        Fill="#66FF8C00"
+                        HorizontalAlignment="Left"
+                        Margin="4,0,0,0"/>
+
                 </Grid>
 
             </Button>

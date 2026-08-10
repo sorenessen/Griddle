@@ -5,7 +5,7 @@
     x:Class="Griddle.App.MainWindow"
     WindowDecorations="None"
     TransparencyLevelHint="Transparent"
-    Background="#14FF8C00"
+    Background="Transparent"
     Topmost="True"
     CanResize="False"
     ShowInTaskbar="False"

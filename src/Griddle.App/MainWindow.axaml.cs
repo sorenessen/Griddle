@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Griddle.Platform.MacOS;
 using Griddle.Core.Models;
@@ -19,6 +20,7 @@ public partial class MainWindow : Window
 
     private bool _isDrawing;
     private bool _isClickThrough;
+    private bool _isTintEnabled = false;
 
     public MainWindow()
     {
@@ -54,8 +56,16 @@ public partial class MainWindow : Window
         _toolbarViewModel.RenumberCalloutGroupRequested +=
             DrawingSurface.RenumberSelectedCalloutGroup;
 
-        _toolbarViewModel.SelectCalloutGroupRequested +=
-            DrawingSurface.SelectSelectedCalloutGroup;
+        _toolbarViewModel.SelectCalloutGroupRequested += () =>
+        {
+            DrawingSurface.SelectSelectedCalloutGroup();
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                Activate();
+                Focus();
+            });
+        };
 
         _toolbarViewModel.HideCalloutGroupRequested += () =>
         {
@@ -96,7 +106,7 @@ public partial class MainWindow : Window
         _toolbarViewModel.SetPresentationProgress(
             DrawingSurface.PresentationRevealCount,
             DrawingSurface.PresentationTotalCount);
-        
+
         _toolbarViewModel.ToggleOverlayInteractionRequested += () =>
         {
             SetClickThrough(
@@ -104,6 +114,15 @@ public partial class MainWindow : Window
 
             _toolbarViewModel.SetOverlayEngaged(
                 !_isClickThrough);
+        };
+
+        _toolbarViewModel.ToggleTintRequested += () =>
+        {
+            SetTintEnabled(
+                !_isTintEnabled);
+
+            _toolbarViewModel.SetTintEnabled(
+                _isTintEnabled);
         };
 
         _toolbar = new ToolbarWindow(_toolbarViewModel);
@@ -142,6 +161,17 @@ public partial class MainWindow : Window
 
         e.Pointer.Capture(DrawingSurface);
         e.Handled = true;
+    }
+
+    private void SetTintEnabled(
+        bool isEnabled)
+    {
+        _isTintEnabled = isEnabled;
+
+        Background = isEnabled
+            ? new SolidColorBrush(
+                Color.Parse("#14FF8C00"))
+            : Brushes.Transparent;
     }
 
     private void Overlay_PointerMoved(
@@ -240,6 +270,30 @@ public partial class MainWindow : Window
                     e.Handled = true;
                 }
 
+                break;
+            }
+
+            case Key.G:
+            {
+                var commandPressed =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Meta) ||
+                    e.KeyModifiers.HasFlag(KeyModifiers.Control);
+
+                var shiftPressed =
+                    e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+
+                if (!commandPressed || !shiftPressed)
+                {
+                    break;
+                }
+
+                SetClickThrough(
+                    !_isClickThrough);
+
+                _toolbarViewModel?.SetOverlayEngaged(
+                    !_isClickThrough);
+
+                e.Handled = true;
                 break;
             }
 

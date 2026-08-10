@@ -55,6 +55,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public bool IsCalloutPresentationActive { get; private set; }
 
+    public bool IsTintEnabled { get; private set; }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public event Action? NewCalloutGroupRequested;
@@ -72,6 +74,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public event Action? StartCalloutPresentationRequested;
 
     public event Action? ToggleOverlayInteractionRequested;
+
+    public event Action? ToggleTintRequested;
 
     public SelectionTool Selection { get; }
 
@@ -97,6 +101,20 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public bool IsOverlayDisengaged =>
         !IsOverlayEngaged;
 
+    public void SetTintEnabled(
+        bool isEnabled)
+    {
+        if (IsTintEnabled == isEnabled)
+        {
+            return;
+        }
+
+        IsTintEnabled = isEnabled;
+
+        OnPropertyChanged(
+            nameof(IsTintEnabled));
+    }
+
     public void SetOverlayEngaged(
         bool isEngaged)
     {
@@ -112,6 +130,11 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(
             nameof(IsOverlayDisengaged));
+    }
+
+    public void ToggleTint()
+    {
+        ToggleTintRequested?.Invoke();
     }
 
     public bool IsPenSelected =>

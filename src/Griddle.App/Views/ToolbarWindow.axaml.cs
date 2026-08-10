@@ -148,6 +148,13 @@ public partial class ToolbarWindow : Window
         _viewModel.ToggleOverlayInteraction();
     }
 
+    private void TintButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.ToggleTint();
+    }
+
     private void ToolbarBackground_PointerPressed(
         object? sender,
         PointerPressedEventArgs e)
