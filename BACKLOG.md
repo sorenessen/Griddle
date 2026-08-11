@@ -55,6 +55,13 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 - [x] Undo/Redo Sequence Visibility
 - [x] Empty Callouts Remain Valid Sequence Members
 - [x] Sequence Selection Restores Canvas Keyboard Focus
+- [x] Callout Label at Target or Anchor
+- [x] Spatially Aware Callout Label Placement
+- [x] Keep Callout Labels Within Display Bounds
+- [x] Callout Label Position Toolbar Control
+- [x] Undo/Redo Callout Label Position
+- [x] Callout Label Hit Testing at Either Endpoint
+- [x] Reliable Canvas Keyboard Focus During Callout Text Entry
 
 ### Planned
 
@@ -292,20 +299,114 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ---
 
-## Export
+## Capture & Export
 
-- [ ] Copy to Clipboard
+### Screenshot Capture
+
+- [ ] Capture Active Griddle Display
+- [ ] Capture Display With Annotations
+- [ ] Capture Display Without Annotations
+- [ ] Save Screenshot to Session
+- [ ] Screenshot Metadata
+- [ ] Copy Screenshot to Clipboard
+- [ ] Save Screenshot as PNG
+
+### Screen Recording
+
+- [ ] Screen Recording Architecture
+- [ ] Record Active Griddle Display
+- [ ] Record Annotations During Presentation
+- [ ] Recording Start / Stop Controls
+- [ ] Recording Status Indicator
+- [ ] Save Recording to Session
+- [ ] Recording Metadata
+- [ ] System Audio Capture
+- [ ] Microphone Capture
+- [ ] Combined System + Microphone Audio
+- [ ] Audio Input Selection
+
+### Export
+
 - [ ] Save PNG
 - [ ] Save SVG
 - [ ] Save PDF
+- [ ] Export Recording
+- [ ] Export Presentation Video
 
 ---
 
-## Sessions
+## Presentations
+
+### Foundations
+
+- [ ] Presentation Model
+- [ ] Create Presentation From Session
+- [ ] Presentation Scenes
+- [ ] Add Captures to Presentation
+- [ ] Reorder Presentation Scenes
+- [ ] Presentation Playback
+- [ ] Full-Screen Presentation Mode
+
+### Audio
+
+- [ ] Presentation Audio Tracks
+- [ ] Add Narration
+- [ ] Record Narration
+- [ ] Add Music / Audio Files
+- [ ] Audio Playback
+- [ ] Audio Volume Controls
+- [ ] Mute / Unmute Tracks
+
+### Future Editing
+
+- [ ] Presentation Timeline
+- [ ] Scene Duration
+- [ ] Recording Trimming
+- [ ] Audio Trimming
+- [ ] Audio Fades
+- [ ] Scene Transitions
+- [ ] Annotation Animation
+- [ ] Presentation Export
+
+## Sessions & Documents
+
+### Planned
 
 - [ ] Save Annotation Session
 - [ ] Load Annotation Session
 - [ ] Auto Recovery
+- [ ] Griddle Session Model
+- [ ] Versioned Griddle Document Format
+- [ ] New Session
+- [ ] Save Session
+- [ ] Save Session As
+- [ ] Load Session
+- [ ] Restore Annotations
+- [ ] Restore Callout Sequences
+- [ ] Restore Annotation Styles
+- [ ] Restore Session Metadata
+- [ ] Dirty / Unsaved State Tracking
+- [ ] Recent Sessions
+- [ ] Auto Recovery
+- [ ] Document Version Migration
+- [ ] Graceful Handling of Unsupported Document Versions
+
+---
+
+## Collaboration
+
+### Future
+
+- [ ] Shared Griddle Sessions
+- [ ] Collaborative Annotation
+- [ ] Participant Identity
+- [ ] Annotation Ownership
+- [ ] Live Session Synchronization
+- [ ] Shared Callout Sequences
+- [ ] Shared Presentation Control
+- [ ] Session Invitations
+- [ ] Collaboration Permissions
+- [ ] Conflict Resolution
 
 ---
 
@@ -391,8 +492,6 @@ Evolve Griddle's annotations from independent shapes into structured presentatio
 
 ---
 
-# Current Milestone
-
 ## v0.8.0-alpha — Overlay & Multi-Display UX
 
 ### Goal
@@ -428,11 +527,72 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 
 ---
 
+# Current Milestone
+
+## v0.9.0-alpha — Sessions & Capture Foundations
+
+### Goal
+
+Transform Griddle from an ephemeral annotation overlay into a persistent workspace that can save, restore, and capture annotated work. Establish the document and capture architecture that future presentations, recordings, and collaboration features can build upon.
+
+### Phase 1 — Session Foundation
+
+- [ ] Define Griddle Session Model
+- [ ] Define Versioned Griddle Document Format
+- [ ] Serialize Annotation Data
+- [ ] Serialize Callout Sequence Data
+- [ ] Serialize Annotation Styles
+- [ ] Save Session
+- [ ] Load Session
+- [ ] Restore Session to Canvas
+- [ ] New Session
+- [ ] Dirty / Unsaved State Tracking
+
+### Phase 2 — Screenshot Foundation
+
+- [ ] Define Capture Model
+- [ ] Capture Active Display
+- [ ] Capture Display With Griddle Annotations
+- [ ] Save Screenshot
+- [ ] Associate Screenshot With Current Session
+- [ ] Store Screenshot Metadata
+- [ ] Copy Screenshot to Clipboard
+
+### Phase 3 — Session UX
+
+- [ ] Save / Save As Controls
+- [ ] Open Session
+- [ ] Recent Sessions
+- [ ] Unsaved Changes Prompt
+- [ ] Session Name / Metadata
+- [ ] Auto Recovery Foundation
+
+### Architecture / Research
+
+- [ ] Keep Session Model Platform-Agnostic
+- [ ] Keep Capture Abstractions Platform-Agnostic
+- [ ] Define macOS Screen Capture Implementation Boundary
+- [ ] Define Windows Screen Capture Implementation Boundary
+- [ ] Investigate Screen Recording APIs
+- [ ] Investigate System Audio Capture
+- [ ] Investigate Microphone Capture
+- [ ] Define Future Media Asset Model
+
+### Exit Criteria
+
+v0.9.0-alpha is complete when a user can:
+
+1. Create annotations and callout sequences.
+2. Save the current Griddle session.
+3. Quit Griddle.
+4. Reopen the saved session and recover the annotations accurately.
+5. Capture the active display with Griddle annotations visible.
+6. Save that capture as part of the session.
+
 # Icebox
 
 Interesting ideas that should not distract current development.
 
-- [ ] Collaborative Annotation
 - [ ] Cloud Sync
 - [ ] Plugin System
 - [ ] Animation Support
