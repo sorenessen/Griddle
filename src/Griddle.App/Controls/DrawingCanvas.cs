@@ -661,7 +661,8 @@ public sealed class DrawingCanvas : Control
         {
             DrawTextCaret(
                 context,
-                _editingTextStroke);
+                _editingTextStroke,
+                Bounds.Size);
         }
 
         foreach (var selectedStroke in _selection.SelectedStrokes)
@@ -838,6 +839,112 @@ public sealed class DrawingCanvas : Control
             right);
     }
 
+    private static Point GetCalloutTextPosition(
+        Stroke stroke,
+        FormattedText text,
+        Size canvasSize)
+    {
+        var start =
+            ToAvaloniaPoint(stroke.Points[0]);
+
+        var end =
+            ToAvaloniaPoint(stroke.Points[1]);
+
+        const double radius = 12;
+        const double gap = 12;
+        const double edgePadding = 8;
+
+        double textX;
+        double textY;
+
+        if (stroke.CalloutLabelPosition ==
+            CalloutLabelPosition.Anchor)
+        {
+            var deltaX =
+                end.X - start.X;
+
+            var deltaY =
+                end.Y - start.Y;
+
+            var length =
+                Math.Sqrt(
+                    deltaX * deltaX +
+                    deltaY * deltaY);
+
+            if (length > 0.001)
+            {
+                var directionX =
+                    deltaX / length;
+
+                var directionY =
+                    deltaY / length;
+
+                var textCenterX =
+                    start.X -
+                    directionX *
+                    (radius + gap + text.Width / 2);
+
+                var textCenterY =
+                    start.Y -
+                    directionY *
+                    (radius + gap + text.Height / 2);
+
+                textX =
+                    textCenterX - text.Width / 2;
+
+                textY =
+                    textCenterY - text.Height / 2;
+            }
+            else
+            {
+                textX =
+                    start.X + radius + gap;
+
+                textY =
+                    start.Y - text.Height / 2;
+            }
+        }
+        else
+        {
+            var preferredX =
+                end.X + gap;
+
+            var fitsRight =
+                preferredX + text.Width <=
+                canvasSize.Width - edgePadding;
+
+            textX =
+                fitsRight
+                    ? preferredX
+                    : end.X - gap - text.Width;
+
+            textY =
+                end.Y - text.Height / 2;
+        }
+
+        textX = Math.Clamp(
+            textX,
+            edgePadding,
+            Math.Max(
+                edgePadding,
+                canvasSize.Width -
+                text.Width -
+                edgePadding));
+
+        textY = Math.Clamp(
+            textY,
+            edgePadding,
+            Math.Max(
+                edgePadding,
+                canvasSize.Height -
+                text.Height -
+                edgePadding));
+
+        return new Point(
+            textX,
+            textY);
+    }
+
     private static void DrawCallout(
         DrawingContext context,
         Stroke stroke,
@@ -879,91 +986,11 @@ public sealed class DrawingCanvas : Control
                 20,
                 Brushes.White);
 
-            Point textPosition;
-
-            if (stroke.CalloutLabelPosition ==
-                CalloutLabelPosition.Anchor)
-            {
-                var deltaX =
-                    end.X - start.X;
-
-                var deltaY =
-                    end.Y - start.Y;
-
-                var length =
-                    Math.Sqrt(
-                        deltaX * deltaX +
-                        deltaY * deltaY);
-
-                if (length > 0.001)
-                {
-                    var directionX =
-                        deltaX / length;
-
-                    var directionY =
-                        deltaY / length;
-
-                    const double gap = 8;
-
-                    var textCenterX =
-                        start.X -
-                        directionX *
-                        (radius + gap + text.Width / 2);
-
-                    var textCenterY =
-                        start.Y -
-                        directionY *
-                        (radius + gap + text.Height / 2);
-
-                    textPosition = new Point(
-                        textCenterX - text.Width / 2,
-                        textCenterY - text.Height / 2);
-                }
-                else
-                {
-                    textPosition = new Point(
-                        start.X + radius + 8,
-                        start.Y - text.Height / 2);
-                }
-            }
-            else
-            {
-                const double gap = 12;
-                const double edgePadding = 8;
-
-                var preferredX =
-                    end.X + gap;
-
-                var fitsRight =
-                    preferredX + text.Width <=
-                    canvasSize.Width - edgePadding;
-
-                var textX =
-                    fitsRight
-                        ? preferredX
-                        : end.X - gap - text.Width;
-
-                var textY =
-                    end.Y - text.Height / 2;
-
-                textX = Math.Clamp(
-                    textX,
-                    edgePadding,
-                    Math.Max(
-                        edgePadding,
-                        canvasSize.Width - text.Width - edgePadding));
-
-                textY = Math.Clamp(
-                    textY,
-                    edgePadding,
-                    Math.Max(
-                        edgePadding,
-                        canvasSize.Height - text.Height - edgePadding));
-
-                textPosition = new Point(
-                    textX,
-                    textY);
-            }
+            var textPosition =
+                GetCalloutTextPosition(
+                    stroke,
+                    text,
+                    canvasSize);
 
             context.DrawText(
                 text,
@@ -1088,7 +1115,8 @@ public sealed class DrawingCanvas : Control
 
     private static void DrawTextCaret(
         DrawingContext context,
-        Stroke stroke)
+        Stroke stroke,
+        Size canvasSize)
     {
         if (stroke.Points.Count == 0)
         {
@@ -1102,13 +1130,6 @@ public sealed class DrawingCanvas : Control
         var fontSize =
             isCallout ? 20.0 : 24.0;
 
-        var position =
-            isCallout
-                ? new Point(
-                    stroke.Points[1].X + 12,
-                    stroke.Points[1].Y)
-                : ToAvaloniaPoint(stroke.Points[0]);
-
         var formattedText = new FormattedText(
             stroke.Text,
             CultureInfo.CurrentCulture,
@@ -1116,6 +1137,23 @@ public sealed class DrawingCanvas : Control
             new Typeface("Arial"),
             fontSize,
             Brushes.White);
+
+        Point position;
+
+        if (isCallout)
+        {
+            position =
+                GetCalloutTextPosition(
+                    stroke,
+                    formattedText,
+                    canvasSize);
+        }
+        else
+        {
+            position =
+                ToAvaloniaPoint(
+                    stroke.Points[0]);
+        }
 
         var textWidth =
             formattedText.WidthIncludingTrailingWhitespace;
@@ -1129,9 +1167,7 @@ public sealed class DrawingCanvas : Control
             position.X + textWidth;
 
         var caretTop =
-            isCallout
-                ? position.Y - caretHeight / 2
-                : position.Y;
+            position.Y;
 
         context.DrawLine(
             new Pen(
