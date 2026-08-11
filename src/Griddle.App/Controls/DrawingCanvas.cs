@@ -854,72 +854,79 @@ public sealed class DrawingCanvas : Control
         const double gap = 12;
         const double edgePadding = 8;
 
+        var deltaX =
+            end.X - start.X;
+
+        var deltaY =
+            end.Y - start.Y;
+
+        var isMostlyHorizontal =
+            Math.Abs(deltaX) >=
+            Math.Abs(deltaY);
+
+        var labelAtAnchor =
+            stroke.CalloutLabelPosition ==
+            CalloutLabelPosition.Anchor;
+
+        var labelPoint =
+            labelAtAnchor
+                ? start
+                : end;
+
         double textX;
         double textY;
 
-        if (stroke.CalloutLabelPosition ==
-            CalloutLabelPosition.Anchor)
+        if (isMostlyHorizontal)
         {
-            var deltaX =
-                end.X - start.X;
+            var pointsRight =
+                deltaX >= 0;
 
-            var deltaY =
-                end.Y - start.Y;
+            var placeRight =
+                labelAtAnchor
+                    ? !pointsRight
+                    : pointsRight;
 
-            var length =
-                Math.Sqrt(
-                    deltaX * deltaX +
-                    deltaY * deltaY);
+            var endpointGap =
+                labelAtAnchor
+                    ? radius + gap
+                    : gap;
 
-            if (length > 0.001)
-            {
-                var directionX =
-                    deltaX / length;
+            textX =
+                placeRight
+                    ? labelPoint.X + endpointGap
+                    : labelPoint.X -
+                      endpointGap -
+                      text.Width;
 
-                var directionY =
-                    deltaY / length;
-
-                var textCenterX =
-                    start.X -
-                    directionX *
-                    (radius + gap + text.Width / 2);
-
-                var textCenterY =
-                    start.Y -
-                    directionY *
-                    (radius + gap + text.Height / 2);
-
-                textX =
-                    textCenterX - text.Width / 2;
-
-                textY =
-                    textCenterY - text.Height / 2;
-            }
-            else
-            {
-                textX =
-                    start.X + radius + gap;
-
-                textY =
-                    start.Y - text.Height / 2;
-            }
+            textY =
+                labelPoint.Y -
+                text.Height / 2;
         }
         else
         {
-            var preferredX =
-                end.X + gap;
+            var pointsDown =
+                deltaY >= 0;
 
-            var fitsRight =
-                preferredX + text.Width <=
-                canvasSize.Width - edgePadding;
+            var placeBelow =
+                labelAtAnchor
+                    ? !pointsDown
+                    : pointsDown;
+
+            var endpointGap =
+                labelAtAnchor
+                    ? radius + gap
+                    : gap;
 
             textX =
-                fitsRight
-                    ? preferredX
-                    : end.X - gap - text.Width;
+                labelPoint.X -
+                text.Width / 2;
 
             textY =
-                end.Y - text.Height / 2;
+                placeBelow
+                    ? labelPoint.Y + endpointGap
+                    : labelPoint.Y -
+                      endpointGap -
+                      text.Height;
         }
 
         textX = Math.Clamp(
