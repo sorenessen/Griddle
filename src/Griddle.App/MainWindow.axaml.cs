@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -8,6 +10,8 @@ using Avalonia.Threading;
 using Griddle.Platform.MacOS;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
+using Griddle.Core.Documents;
+using Griddle.Core.Sessions;
 using Griddle.App.Views;
 using Griddle.App.ViewModels;
 using Griddle.App.Services;
@@ -190,6 +194,52 @@ public partial class MainWindow : Window
 
         _toolbar.Show(this);
     }
+
+    // private void SaveTestSession()
+    // {
+    //     var session = new GriddleSession
+    //     {
+    //         Name = "Griddle Test Session",
+    //         Strokes = DrawingSurface
+    //             .GetStrokesSnapshot()
+    //             .ToList()
+    //     };
+
+    //     var filePath =
+    //         Path.Combine(
+    //             Environment.GetFolderPath(
+    //                 Environment.SpecialFolder.Desktop),
+    //             "griddle-test.griddle");
+
+    //     GriddleSessionFileService.Save(
+    //         session,
+    //         filePath);
+
+    //     Console.WriteLine(
+    //         $"Saved session to: {filePath}");
+    // }
+
+    // private void LoadTestSession()
+    // {
+    //     var filePath =
+    //         Path.Combine(
+    //             Environment.GetFolderPath(
+    //                 Environment.SpecialFolder.Desktop),
+    //             "griddle-test.griddle");
+
+    //     var session =
+    //         GriddleSessionFileService.Load(
+    //             filePath);
+
+    //     DrawingSurface.LoadStrokes(
+    //         session.Strokes);
+
+    //     Console.WriteLine(
+    //         $"Loaded session: {session.Name}");
+
+    //     Console.WriteLine(
+    //         $"Loaded strokes: {session.Strokes.Count}");
+    // }
 
     private void MoveOverlayToScreen(
         Screen screen)
@@ -524,6 +574,16 @@ public partial class MainWindow : Window
                 e.Handled = true;
                 break;
             }
+
+            // case Key.S:
+            //     SaveTestSession();
+            //     e.Handled = true;
+            //     break;
+
+            // case Key.L:
+            //     LoadTestSession();
+            //     e.Handled = true;
+            //     break;
 
             case Key.Z:
             {

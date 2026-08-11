@@ -1946,17 +1946,52 @@ public sealed class DrawingCanvas : Control
             primary);
     }
 
-    public void Clear()
+    private void ResetDocumentState()
     {
         _strokes.Clear();
+
         _undoStack.Clear();
         _redoStack.Clear();
 
         _activeStroke = null;
         _isToolInteractionActive = false;
 
+        _editingTextStroke = null;
+        _isEditingText = false;
+        _isCaretVisible = false;
+        _caretTimer.Stop();
+
+        _lastHiddenCalloutGroupId = null;
+
+        _presentationCalloutGroupId = null;
+        _presentationRevealCount = 0;
+
+        _activeCalloutGroupId =
+            Guid.NewGuid();
+
         ResetDragState();
         _selection.Clear();
+    }
+
+    public void LoadStrokes(
+        IEnumerable<Stroke> strokes)
+    {
+        ResetDocumentState();
+
+        foreach (var stroke in strokes)
+        {
+            stroke.IsPresentationVisible = true;
+            stroke.PresentationOpacity = 1.0;
+
+            _strokes.Add(stroke);
+        }
+
+        InvalidateVisual();
+    }
+
+    public void Clear()
+    {
+        ResetDocumentState();
 
         InvalidateVisual();
     }
@@ -2354,6 +2389,11 @@ public sealed class DrawingCanvas : Control
         _redoStack.Clear();
 
         InvalidateVisual();
+    }
+
+    public IReadOnlyList<Stroke> GetStrokesSnapshot()
+    {
+        return _strokes.ToList();
     }
 
     public void Undo()
