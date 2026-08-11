@@ -141,6 +141,9 @@ public partial class MainWindow : Window
             });
         };
 
+        _toolbarViewModel.FlipCalloutLabelRequested +=
+            DrawingSurface.FlipSelectedCalloutLabel;
+
         _toolbarViewModel.SetPresentationProgress(
             DrawingSurface.PresentationRevealCount,
             DrawingSurface.PresentationTotalCount);
@@ -305,7 +308,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        Focus();
+        DrawingSurface.Focus();
 
         var additiveSelection =
             e.KeyModifiers.HasFlag(
@@ -361,8 +364,19 @@ public partial class MainWindow : Window
             e.GetPosition(DrawingSurface));
 
         _isDrawing = false;
+
         e.Pointer.Capture(null);
+
         e.Handled = true;
+
+        if (DrawingSurface.IsEditingText)
+        {
+            Dispatcher.UIThread.Post(
+                () =>
+                {
+                    DrawingSurface.Focus();
+                });
+        }
     }
 
     private void Screens_Changed(

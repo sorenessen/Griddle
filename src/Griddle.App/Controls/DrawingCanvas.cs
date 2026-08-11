@@ -74,8 +74,13 @@ public sealed class DrawingCanvas : Control
         SelectionService? selection)
     {
         _pen = pen;
-        _activeTool = activeTool ?? new ActiveToolService(pen);
-        _selection = selection ?? new SelectionService();
+        _activeTool =
+            activeTool ?? new ActiveToolService(pen);
+        _selection =
+            selection ?? new SelectionService();
+
+        Focusable = true;
+
         _caretTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromMilliseconds(500)
@@ -88,7 +93,9 @@ public sealed class DrawingCanvas : Control
                 return;
             }
 
-            _isCaretVisible = !_isCaretVisible;
+            _isCaretVisible =
+                !_isCaretVisible;
+
             InvalidateVisual();
         };
     }
@@ -1623,7 +1630,8 @@ public sealed class DrawingCanvas : Control
             if (IsHit(
                 stroke,
                 point,
-                tolerance))
+                tolerance,
+                Bounds.Size))
             {
                 return stroke;
             }
@@ -1635,7 +1643,8 @@ public sealed class DrawingCanvas : Control
     private static bool IsHit(
         Stroke stroke,
         Point point,
-        double tolerance)
+        double tolerance,
+        Size canvasSize)
     {
         return stroke.Kind switch
         {
@@ -1661,7 +1670,8 @@ public sealed class DrawingCanvas : Control
                 IsCalloutHit(
                     stroke,
                     point,
-                    tolerance),
+                    tolerance,
+                    canvasSize),
 
             _ => false
         };
@@ -1796,7 +1806,8 @@ public sealed class DrawingCanvas : Control
     private static bool IsCalloutHit(
         Stroke stroke,
         Point point,
-        double tolerance)
+        double tolerance,
+        Size canvasSize)
     {
         if (stroke.Points.Count < 2)
         {
@@ -1816,8 +1827,6 @@ public sealed class DrawingCanvas : Control
             return false;
         }
 
-        var end =
-            ToAvaloniaPoint(stroke.Points[1]);
 
         var formattedText = new FormattedText(
             stroke.Text,
@@ -1827,9 +1836,15 @@ public sealed class DrawingCanvas : Control
             20,
             Brushes.White);
 
+        var textPosition =
+            GetCalloutTextPosition(
+                stroke,
+                formattedText,
+                canvasSize);
+
         var textBounds = new Rect(
-            end.X + 12,
-            end.Y - formattedText.Height / 2,
+            textPosition.X,
+            textPosition.Y,
             formattedText.Width,
             formattedText.Height);
 
@@ -2320,11 +2335,23 @@ public sealed class DrawingCanvas : Control
             return;
         }
 
-        selected.CalloutLabelPosition =
-            selected.CalloutLabelPosition ==
-            CalloutLabelPosition.Target
+        var before =
+            selected.CalloutLabelPosition;
+
+        var after =
+            before == CalloutLabelPosition.Target
                 ? CalloutLabelPosition.Anchor
                 : CalloutLabelPosition.Target;
+
+        selected.CalloutLabelPosition = after;
+
+        _undoStack.Push(
+            new SetCalloutLabelPositionAction(
+                selected,
+                before,
+                after));
+
+        _redoStack.Clear();
 
         InvalidateVisual();
     }

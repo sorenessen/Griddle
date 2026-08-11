@@ -78,6 +78,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public event Action? ToggleTintRequested;
 
+    public event Action? FlipCalloutLabelRequested;
+
     public event Action<int>? DisplayRequested;
 
     public SelectionTool Selection { get; }
@@ -276,6 +278,11 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     {
         ActiveTool.Current = Callout;
         NotifySelectionChanged();
+    }
+
+    public void FlipCalloutLabel()
+    {
+        FlipCalloutLabelRequested?.Invoke();
     }
 
     public void StartNewCalloutGroup()

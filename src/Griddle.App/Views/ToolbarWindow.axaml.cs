@@ -132,6 +132,13 @@ public partial class ToolbarWindow : Window
         _viewModel.SelectCallout();
     }
 
+    private void FlipCalloutLabelButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.FlipCalloutLabel();
+    }
+
     private void NewCalloutGroupButton_Click(
         object? sender,
         RoutedEventArgs e)
