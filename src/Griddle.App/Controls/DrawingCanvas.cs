@@ -641,12 +641,18 @@ public sealed class DrawingCanvas : Control
                 continue;
             }
 
-            DrawStroke(context, stroke);
+            DrawStroke(
+                context,
+                stroke,
+                Bounds.Size);
         }
 
         if (_activeStroke is not null)
         {
-            DrawStroke(context, _activeStroke);
+            DrawStroke(
+                context,
+                _activeStroke,
+                Bounds.Size);
         }
 
         if (IsEditingText &&
@@ -674,7 +680,8 @@ public sealed class DrawingCanvas : Control
 
     private static void DrawStroke(
         DrawingContext context,
-        Stroke stroke)
+        Stroke stroke,
+        Size canvasSize)
     {
         using (context.PushOpacity(
             stroke.PresentationOpacity))
@@ -698,7 +705,10 @@ public sealed class DrawingCanvas : Control
                     break;
 
                 case StrokeKind.Callout:
-                    DrawCallout(context, stroke);
+                    DrawCallout(
+                        context,
+                        stroke,
+                        canvasSize);
                     break;
 
                 default:
@@ -830,7 +840,8 @@ public sealed class DrawingCanvas : Control
 
     private static void DrawCallout(
         DrawingContext context,
-        Stroke stroke)
+        Stroke stroke,
+        Size canvasSize)
     {
         if (stroke.Points.Count < 2)
         {
@@ -917,9 +928,41 @@ public sealed class DrawingCanvas : Control
             }
             else
             {
+                const double gap = 12;
+                const double edgePadding = 8;
+
+                var preferredX =
+                    end.X + gap;
+
+                var fitsRight =
+                    preferredX + text.Width <=
+                    canvasSize.Width - edgePadding;
+
+                var textX =
+                    fitsRight
+                        ? preferredX
+                        : end.X - gap - text.Width;
+
+                var textY =
+                    end.Y - text.Height / 2;
+
+                textX = Math.Clamp(
+                    textX,
+                    edgePadding,
+                    Math.Max(
+                        edgePadding,
+                        canvasSize.Width - text.Width - edgePadding));
+
+                textY = Math.Clamp(
+                    textY,
+                    edgePadding,
+                    Math.Max(
+                        edgePadding,
+                        canvasSize.Height - text.Height - edgePadding));
+
                 textPosition = new Point(
-                    end.X + 12,
-                    end.Y - text.Height / 2);
+                    textX,
+                    textY);
             }
 
             context.DrawText(
