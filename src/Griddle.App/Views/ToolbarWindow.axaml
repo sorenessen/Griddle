@@ -107,7 +107,7 @@
 
         <Border.Background>
             <ImageBrush
-                Source="avares://Griddle.App/Assets/griddle-shock-blue-tile.png"
+                Source="avares://Griddle.App/Assets/griddle-industrial-red-tile.png"
                 Stretch="UniformToFill"
                 AlignmentX="Center"
                 AlignmentY="Center"/>
@@ -139,7 +139,7 @@
                     Margin="0,0,-8,0">
 
                     <Image
-                        Source="avares://Griddle.App/Assets/griddle-toolbar-on-orange.png"
+                        Source="avares://Griddle.App/Assets/griddle-toolbar-on.png"
                         Width="82"
                         Height="82"
                         Stretch="Uniform"
