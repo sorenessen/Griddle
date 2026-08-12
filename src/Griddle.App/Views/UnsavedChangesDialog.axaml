@@ -1,0 +1,43 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Griddle.App.Views.UnsavedChangesDialog"
+    Title="Unsaved Changes"
+    Width="420"
+    Height="180"
+    CanResize="False"
+    Topmost="True"
+    ShowActivated="True"
+    WindowStartupLocation="CenterOwner">
+
+    <StackPanel
+        Margin="24"
+        Spacing="18">
+
+        <TextBlock
+            Text="Save changes to the current Griddle session?"
+            FontSize="16"
+            TextWrapping="Wrap"/>
+
+        <StackPanel
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            Spacing="10">
+
+            <Button
+                Content="Cancel"
+                Click="CancelButton_Click"/>
+
+            <Button
+                Content="Don't Save"
+                Click="DontSaveButton_Click"/>
+
+            <Button
+                Content="Save"
+                Click="SaveButton_Click"/>
+
+        </StackPanel>
+
+    </StackPanel>
+
+</Window>

@@ -21,6 +21,6 @@ public sealed class GriddleSession
     public DateTime ModifiedAt { get; set; } =
         DateTime.UtcNow;
 
-    public List<Stroke> Strokes { get; init; } =
+    public List<Stroke> Strokes { get; set; } =
         new();
 }

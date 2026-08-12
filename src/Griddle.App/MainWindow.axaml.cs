@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -26,6 +28,13 @@ public partial class MainWindow : Window
 
     private Screen? _overlayScreen;
 
+    private GriddleSession _currentSession =
+        new();
+
+    private string? _savedSessionSnapshot;
+
+    private string? _currentSessionFilePath;
+
     private bool _isDrawing;
     private bool _isClickThrough;
     private bool _isTintEnabled = false;
@@ -34,9 +43,15 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        NativeMenu.SetMenu(
+            this,
+            CreateSessionNativeMenu());
+
         Opened += OnOpened;
         KeyDown += OnKeyDown;
         TextInput += OnTextInput;
+
+
     }
 
     private void OnOpened(object? sender, EventArgs e)
@@ -172,6 +187,10 @@ public partial class MainWindow : Window
 
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
+        NativeMenu.SetMenu(
+            _toolbar,
+            CreateSessionNativeMenu());
+
         if (_overlayScreen is not null)
         {
             var workingArea = _overlayScreen.WorkingArea;
@@ -240,6 +259,266 @@ public partial class MainWindow : Window
     //     Console.WriteLine(
     //         $"Loaded strokes: {session.Strokes.Count}");
     // }
+
+    public async void NewSession()
+    {
+        if (HasUnsavedChanges())
+        {
+            var dialog =
+                new UnsavedChangesDialog();
+
+            var choice =
+                await dialog.ShowDialog<UnsavedChangesChoice>(
+                    this);
+
+            if (choice ==
+                UnsavedChangesChoice.Cancel)
+            {
+                return;
+            }
+
+            if (choice ==
+                UnsavedChangesChoice.Save)
+            {
+                var saved =
+                    await SaveSessionAsync();
+
+                if (!saved)
+                {
+                    return;
+                }
+            }
+        }
+
+        _currentSession =
+            new GriddleSession();
+
+        _currentSessionFilePath =
+            null;
+
+        _savedSessionSnapshot =
+            null;
+
+        DrawingSurface.Clear();
+    }
+
+    public async void OpenSession()
+        {
+        var files =
+            await StorageProvider.OpenFilePickerAsync(
+                new FilePickerOpenOptions
+                {
+                    Title = "Open Griddle Session",
+                    AllowMultiple = false,
+
+                    FileTypeFilter =
+                    [
+                        new FilePickerFileType(
+                            "Griddle Session")
+                        {
+                            Patterns =
+                            [
+                                "*.griddle"
+                            ]
+                        }
+                    ]
+                });
+
+        if (files.Count == 0)
+        {
+            return;
+        }
+
+        var file =
+            files[0];
+
+        var session =
+            GriddleSessionFileService.Load(
+                file.Path.LocalPath);
+
+        _currentSession =
+            session;
+
+        _currentSessionFilePath =
+            file.Path.LocalPath;
+
+        DrawingSurface.LoadStrokes(
+            session.Strokes);
+
+        _savedSessionSnapshot =
+            GetCurrentSessionSnapshot();
+    }
+
+    public async Task<bool> SaveSessionAsync()
+    {
+        if (string.IsNullOrWhiteSpace(
+                _currentSessionFilePath))
+        {
+            return await SaveSessionAsAsync();
+        }
+
+        _currentSession.Strokes =
+            DrawingSurface
+                .GetStrokesSnapshot()
+                .ToList();
+
+        GriddleSessionFileService.Save(
+            _currentSession,
+            _currentSessionFilePath);
+
+        _savedSessionSnapshot =
+            GetCurrentSessionSnapshot();
+
+        return true;
+    }
+
+    public async Task<bool> SaveSessionAsAsync()
+    {
+        var file =
+            await StorageProvider.SaveFilePickerAsync(
+                new FilePickerSaveOptions
+                {
+                    Title = "Save Griddle Session",
+                    SuggestedFileName =
+                        $"{_currentSession.Name}.griddle",
+
+                    FileTypeChoices =
+                    [
+                        new FilePickerFileType(
+                            "Griddle Session")
+                        {
+                            Patterns =
+                            [
+                                "*.griddle"
+                            ]
+                        }
+                    ],
+
+                    DefaultExtension =
+                        "griddle"
+                });
+
+        if (file is null)
+        {
+            return false;
+        }
+        _currentSession.Strokes =
+            DrawingSurface
+                .GetStrokesSnapshot()
+                .ToList();
+
+        _currentSessionFilePath =
+            file.Path.LocalPath;
+
+        GriddleSessionFileService.Save(
+            _currentSession,
+            _currentSessionFilePath);
+
+        _savedSessionSnapshot =
+            GetCurrentSessionSnapshot();
+
+        return true;
+    }
+
+    private NativeMenu CreateSessionNativeMenu()
+    {
+        var fileMenu = new NativeMenu();
+
+        var newSession =
+            new NativeMenuItem("New Session")
+            {
+                Gesture = new KeyGesture(
+                    Key.N,
+                    KeyModifiers.Meta)
+            };
+
+        newSession.Click +=
+            (_, _) => NewSession();
+
+        var openSession =
+            new NativeMenuItem("Open Session...")
+            {
+                Gesture = new KeyGesture(
+                    Key.O,
+                    KeyModifiers.Meta)
+            };
+
+        openSession.Click +=
+            (_, _) => OpenSession();
+
+        var saveSession =
+            new NativeMenuItem("Save")
+            {
+                Gesture = new KeyGesture(
+                    Key.S,
+                    KeyModifiers.Meta)
+            };
+
+        saveSession.Click +=
+            async (_, _) =>
+                await SaveSessionAsync();
+
+        var saveSessionAs =
+            new NativeMenuItem("Save As...")
+            {
+                Gesture = new KeyGesture(
+                    Key.S,
+                    KeyModifiers.Meta |
+                    KeyModifiers.Shift)
+            };
+
+        saveSessionAs.Click +=
+            async (_, _) =>
+                await SaveSessionAsAsync();
+
+        fileMenu.Add(newSession);
+        fileMenu.Add(openSession);
+        fileMenu.Add(
+            new NativeMenuItemSeparator());
+        fileMenu.Add(saveSession);
+        fileMenu.Add(saveSessionAs);
+
+        var rootMenu = new NativeMenu();
+
+        rootMenu.Add(
+            new NativeMenuItem("File")
+            {
+                Menu = fileMenu
+            });
+
+        return rootMenu;
+    }
+
+    private string GetCurrentSessionSnapshot()
+    {
+        _currentSession.Strokes =
+            DrawingSurface
+                .GetStrokesSnapshot()
+                .ToList();
+
+        var document =
+            GriddleDocumentMapper.ToDocument(
+                _currentSession);
+
+        return GriddleDocumentSerializer.Serialize(
+            document);
+    }
+
+    private bool HasUnsavedChanges()
+    {
+        var currentSnapshot =
+            GetCurrentSessionSnapshot();
+
+        if (_savedSessionSnapshot is null)
+        {
+            return _currentSession.Strokes.Count > 0;
+        }
+
+        return !string.Equals(
+            currentSnapshot,
+            _savedSessionSnapshot,
+            StringComparison.Ordinal);
+    }
 
     private void MoveOverlayToScreen(
         Screen screen)
@@ -315,7 +594,7 @@ public partial class MainWindow : Window
             screens[index];
 
         DisplayPreferenceStore.Save(
-            _overlayScreen.DisplayName);        
+            _overlayScreen.DisplayName);
 
         MoveOverlayToScreen(
             _overlayScreen);
@@ -513,7 +792,7 @@ public partial class MainWindow : Window
 
             return;
         }
-        
+
         switch (e.Key)
         {
             case Key.C:
