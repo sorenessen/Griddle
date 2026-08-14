@@ -38,6 +38,8 @@ public partial class MainWindow : Window
     private bool _isDrawing;
     private bool _isClickThrough;
     private bool _isTintEnabled = false;
+    private bool _allowClose;
+    private bool _isClosePromptOpen;
 
     public MainWindow()
     {
@@ -303,7 +305,35 @@ public partial class MainWindow : Window
     }
 
     public async void OpenSession()
+    {
+        if (HasUnsavedChanges())
         {
+            var dialog =
+                new UnsavedChangesDialog();
+
+            var choice =
+                await dialog.ShowDialog<UnsavedChangesChoice>(
+                    this);
+
+            if (choice ==
+                UnsavedChangesChoice.Cancel)
+            {
+                return;
+            }
+
+            if (choice ==
+                UnsavedChangesChoice.Save)
+            {
+                var saved =
+                    await SaveSessionAsync();
+
+                if (!saved)
+                {
+                    return;
+                }
+            }
+        }
+
         var files =
             await StorageProvider.OpenFilePickerAsync(
                 new FilePickerOpenOptions
@@ -487,6 +517,68 @@ public partial class MainWindow : Window
             });
 
         return rootMenu;
+    }
+
+    protected override void OnClosing(
+        WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+
+        if (_allowClose ||
+            !HasUnsavedChanges())
+        {
+            return;
+        }
+
+        e.Cancel = true;
+
+        if (_isClosePromptOpen)
+        {
+            return;
+        }
+
+        _isClosePromptOpen = true;
+
+        _ = ConfirmCloseAsync();
+    }
+
+    private async Task ConfirmCloseAsync()
+    {
+        try
+        {
+            var dialog =
+                new UnsavedChangesDialog();
+
+            var choice =
+                await dialog.ShowDialog<UnsavedChangesChoice>(
+                    this);
+
+            if (choice ==
+                UnsavedChangesChoice.Cancel)
+            {
+                return;
+            }
+
+            if (choice ==
+                UnsavedChangesChoice.Save)
+            {
+                var saved =
+                    await SaveSessionAsync();
+
+                if (!saved)
+                {
+                    return;
+                }
+            }
+
+            _allowClose = true;
+
+            Close();
+        }
+        finally
+        {
+            _isClosePromptOpen = false;
+        }
     }
 
     private string GetCurrentSessionSnapshot()
