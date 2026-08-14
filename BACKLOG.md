@@ -578,6 +578,13 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 - [ ] Investigate Microphone Capture
 - [ ] Define Future Media Asset Model
 
+# Bugz
+- [ ] macOS native File menu may not appear immediately after launch
+  - [ ] Reproduces intermittently on multi-display startup
+  - [ ] Menu appears after clicking another display / changing window context
+  - [ ] Session commands remain functional once menu appears
+  - [ ] Investigate Avalonia native menu synchronization with transparent/topmost multi-window setup
+
 ### Exit Criteria
 
 v0.9.0-alpha is complete when a user can:
