@@ -10,4 +10,14 @@
     <PackageReference Include="Avalonia" Version="12.1.0" />
   </ItemGroup>
 
+  <Target
+    Name="BuildMacOSCaptureBridge"
+    BeforeTargets="Build"
+    Condition="$([System.OperatingSystem]::IsMacOS())">
+
+    <Exec
+      Command="clang -fobjc-arc -fblocks -dynamiclib -framework AppKit -framework ScreenCaptureKit -o &quot;$(OutputPath)libGriddleCaptureBridge.dylib&quot; &quot;$(MSBuildProjectDirectory)/MacOS/Native/GriddleCaptureBridge.m&quot;" />
+
+  </Target>
+
 </Project>

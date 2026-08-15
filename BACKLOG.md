@@ -550,13 +550,13 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 
 ### Phase 2 — Screenshot Foundation
 
-- [ ] Define Capture Model
-- [ ] Capture Active Display
-- [ ] Capture Display With Griddle Annotations
-- [ ] Save Screenshot
-- [ ] Associate Screenshot With Current Session
-- [ ] Store Screenshot Metadata
-- [ ] Copy Screenshot to Clipboard
+- [x] Define Capture Model
+- [x] Capture Active Display
+- [x] Capture Display With Griddle Annotations
+- [x] Save Screenshot
+- [x] Associate Screenshot With Current Session
+- [x] Store Screenshot Metadata
+- [x] Copy Screenshot to Clipboard
 
 ### Phase 3 — Session UX
 

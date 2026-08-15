@@ -10,10 +10,12 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using Griddle.Platform.MacOS;
+using Griddle.Platform.Capture;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
 using Griddle.Core.Documents;
 using Griddle.Core.Sessions;
+using Griddle.Core.Captures;
 using Griddle.App.Views;
 using Griddle.App.ViewModels;
 using Griddle.App.Services;
@@ -410,7 +412,7 @@ public partial class MainWindow : Window
                 {
                     Title = "Save Griddle Session",
                     SuggestedFileName =
-                        $"{_currentSession.Name}.griddle",
+                        _currentSession.Name,
 
                     FileTypeChoices =
                     [
@@ -517,6 +519,174 @@ public partial class MainWindow : Window
             });
 
         return rootMenu;
+    }
+
+    // private void TestCaptureRoundTrip()
+    // {
+    //     var session = new GriddleSession
+    //     {
+    //         Name = "Capture Round Trip Test",
+    //         Strokes = DrawingSurface
+    //             .GetStrokesSnapshot()
+    //             .ToList(),
+
+    //         Captures =
+    //         [
+    //             new GriddleCapture
+    //             {
+    //                 Kind = CaptureKind.Screenshot,
+    //                 FileName = "capture-001.png",
+    //                 Width = 1920,
+    //                 Height = 1080,
+    //                 DisplayName = "Test Display",
+    //                 IncludesAnnotations = true
+    //             }
+    //         ]
+    //     };
+
+    //     var document =
+    //         GriddleDocumentMapper.ToDocument(
+    //             session);
+
+    //     var json =
+    //         GriddleDocumentSerializer.Serialize(
+    //             document);
+
+    //     Console.WriteLine(json);
+
+    //     var restoredDocument =
+    //         GriddleDocumentSerializer.Deserialize(
+    //             json);
+
+    //     var restoredSession =
+    //         GriddleDocumentMapper.ToSession(
+    //             restoredDocument);
+
+    //     var restoredCapture =
+    //         restoredSession.Captures.Single();
+
+    //     Console.WriteLine(
+    //         $"Restored captures: " +
+    //         $"{restoredSession.Captures.Count}");
+
+    //     Console.WriteLine(
+    //         $"Kind: {restoredCapture.Kind}");
+
+    //     Console.WriteLine(
+    //         $"File: {restoredCapture.FileName}");
+
+    //     Console.WriteLine(
+    //         $"Size: " +
+    //         $"{restoredCapture.Width}x" +
+    //         $"{restoredCapture.Height}");
+
+    //     Console.WriteLine(
+    //         $"Display: " +
+    //         $"{restoredCapture.DisplayName}");
+
+    //     Console.WriteLine(
+    //         $"Annotations: " +
+    //         $"{restoredCapture.IncludesAnnotations}");
+    // }
+
+    private async Task CaptureActiveDisplayAsync()
+    {
+        if (_overlayScreen is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                _currentSessionFilePath))
+        {
+            var saved =
+                await SaveSessionAsAsync();
+
+            if (!saved ||
+                string.IsNullOrWhiteSpace(
+                    _currentSessionFilePath))
+            {
+                return;
+            }
+        }
+
+        var captureService =
+            new MacOSScreenCaptureService();
+
+        var bounds =
+            _overlayScreen.Bounds;
+
+        var region =
+            new CaptureRegion(
+                bounds.X,
+                bounds.Y,
+                bounds.Width,
+                bounds.Height);
+
+        var result =
+            await captureService.CaptureAsync(
+                region);
+
+        await ClipboardImageService.CopyPngAsync(
+            this,
+            result.ImageData);
+
+        var sessionDirectory =
+            Path.GetDirectoryName(
+                _currentSessionFilePath)!;
+
+        var sessionName =
+            Path.GetFileNameWithoutExtension(
+                _currentSessionFilePath);
+
+        var mediaFolderName =
+            $"{sessionName}.media";
+
+        var mediaDirectory =
+            Path.Combine(
+                sessionDirectory,
+                mediaFolderName);
+
+        Directory.CreateDirectory(
+            mediaDirectory);
+
+        var captureId =
+            Guid.NewGuid();
+
+        var fileName =
+            $"capture-{captureId:N}.png";
+
+        var filePath =
+            Path.Combine(
+                mediaDirectory,
+                fileName);
+
+        await File.WriteAllBytesAsync(
+            filePath,
+            result.ImageData);
+
+        var capture =
+            new GriddleCapture
+            {
+                Id = captureId,
+                Kind = CaptureKind.Screenshot,
+                CreatedAt = DateTime.UtcNow,
+                FileName = fileName,
+                Width = result.Width,
+                Height = result.Height,
+                DisplayName =
+                    _overlayScreen.DisplayName,
+                IncludesAnnotations = true
+            };
+
+        _currentSession.Captures.Add(
+            capture);
+
+        Console.WriteLine(
+            $"Captured {_overlayScreen.DisplayName}");
+
+        Console.WriteLine(
+            $"Saved capture: {filePath}");
     }
 
     protected override void OnClosing(
@@ -862,6 +1032,18 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (e.Key == Key.C &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Meta) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Shift))
+        {
+            _ = CaptureActiveDisplayAsync();
+
+            e.Handled = true;
+            return;
+        }
+
         if (DrawingSurface.IsEditingText)
         {
             switch (e.Key)
@@ -946,13 +1128,8 @@ public partial class MainWindow : Window
                 break;
             }
 
-            // case Key.S:
-            //     SaveTestSession();
-            //     e.Handled = true;
-            //     break;
-
-            // case Key.L:
-            //     LoadTestSession();
+            // case Key.R:
+            //     _ = TestScreenCaptureAsync();
             //     e.Handled = true;
             //     break;
 

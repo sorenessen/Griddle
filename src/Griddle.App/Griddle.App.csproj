@@ -21,8 +21,21 @@
     <ProjectReference Include="..\Griddle.Core\Griddle.Core.csproj" />
     <ProjectReference Include="..\Griddle.Platform\Griddle.Platform.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <AvaloniaResource Include="Assets/**" />
   </ItemGroup>
+
+  <Target
+    Name="CopyMacOSCaptureBridge"
+    AfterTargets="Build"
+    Condition="$([System.OperatingSystem]::IsMacOS())">
+
+    <Copy
+      SourceFiles="..\Griddle.Platform\$(OutputPath)libGriddleCaptureBridge.dylib"
+      DestinationFolder="$(OutputPath)"
+      SkipUnchangedFiles="true" />
+
+  </Target>
+
 </Project>
