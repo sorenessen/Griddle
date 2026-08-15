@@ -18,4 +18,7 @@ public sealed class GriddleDocument
 
     public List<StrokeDocument> Strokes { get; set; } =
         new();
+
+    public List<CaptureDocument> Captures { get; set; } =
+        new();
 }

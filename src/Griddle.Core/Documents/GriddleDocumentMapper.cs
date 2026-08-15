@@ -1,6 +1,7 @@
 using Griddle.Core.Geometry;
 using Griddle.Core.Models;
 using Griddle.Core.Sessions;
+using Griddle.Core.Captures;
 
 namespace Griddle.Core.Documents;
 
@@ -18,7 +19,12 @@ public static class GriddleDocumentMapper
             ModifiedAt = session.ModifiedAt,
             Strokes = session.Strokes
                 .Select(ToDocument)
+                .ToList(),
+
+            Captures = session.Captures
+                .Select(ToDocument)
                 .ToList()
+
         };
     }
 
@@ -33,6 +39,10 @@ public static class GriddleDocumentMapper
             ModifiedAt = document.ModifiedAt,
             Strokes = document.Strokes
                 .Select(ToStroke)
+                .ToList(),
+
+            Captures = document.Captures
+                .Select(ToCapture)
                 .ToList()
         };
     }
@@ -99,5 +109,39 @@ public static class GriddleDocumentMapper
         }
 
         return stroke;
+    }
+
+    private static CaptureDocument ToDocument(
+        GriddleCapture capture)
+    {
+        return new CaptureDocument
+        {
+            Id = capture.Id,
+            Kind = capture.Kind,
+            CreatedAt = capture.CreatedAt,
+            FileName = capture.FileName,
+            Width = capture.Width,
+            Height = capture.Height,
+            DisplayName = capture.DisplayName,
+            IncludesAnnotations =
+                capture.IncludesAnnotations
+        };
+    }
+
+    private static GriddleCapture ToCapture(
+        CaptureDocument document)
+    {
+        return new GriddleCapture
+        {
+            Id = document.Id,
+            Kind = document.Kind,
+            CreatedAt = document.CreatedAt,
+            FileName = document.FileName,
+            Width = document.Width,
+            Height = document.Height,
+            DisplayName = document.DisplayName,
+            IncludesAnnotations =
+                document.IncludesAnnotations
+        };
     }
 }

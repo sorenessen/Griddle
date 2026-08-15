@@ -1,4 +1,5 @@
 using Griddle.Core.Models;
+using Griddle.Core.Captures;
 
 namespace Griddle.Core.Sessions;
 
@@ -22,5 +23,8 @@ public sealed class GriddleSession
         DateTime.UtcNow;
 
     public List<Stroke> Strokes { get; set; } =
+        new();
+
+    public List<GriddleCapture> Captures { get; set; } =
         new();
 }
