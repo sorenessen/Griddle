@@ -374,6 +374,18 @@ public partial class MainWindow : Window
             GriddleSessionFileService.Load(
                 file.Path.LocalPath);
 
+        if (string.IsNullOrWhiteSpace(
+                session.Name) ||
+            string.Equals(
+                session.Name,
+                "Untitled",
+                StringComparison.Ordinal))
+        {
+            session.Name =
+                Path.GetFileNameWithoutExtension(
+                    file.Path.LocalPath);
+        }
+
         _currentSession =
             session;
 
@@ -629,6 +641,18 @@ public partial class MainWindow : Window
         var session =
             GriddleSessionFileService.Load(
                 filePath);
+
+        if (string.IsNullOrWhiteSpace(
+                session.Name) ||
+            string.Equals(
+                session.Name,
+                "Untitled",
+                StringComparison.Ordinal))
+        {
+            session.Name =
+                Path.GetFileNameWithoutExtension(
+                    filePath);
+        }
 
         _currentSession =
             session;
