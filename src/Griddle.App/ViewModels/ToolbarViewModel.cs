@@ -92,6 +92,9 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public int ActiveDisplayIndex { get; private set; } = -1;
 
+    public string SessionName { get; private set; } =
+        "Untitled";
+
     public string PresentationProgressText =>
         $"{PresentationRevealCount} / {PresentationTotalCount}";
 
@@ -146,6 +149,23 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(
             nameof(IsTintEnabled));
+    }
+
+    public void SetSessionName(
+        string sessionName)
+    {
+        if (string.Equals(
+                SessionName,
+                sessionName,
+                StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        SessionName = sessionName;
+
+        OnPropertyChanged(
+            nameof(SessionName));
     }
 
     public void SetOverlayEngaged(

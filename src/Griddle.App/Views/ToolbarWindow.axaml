@@ -4,10 +4,9 @@
     xmlns:vm="using:Griddle.App.ViewModels"
     x:Class="Griddle.App.Views.ToolbarWindow"
     x:DataType="vm:ToolbarViewModel"
-    Width="1000"
     Height="55"
-    CanResize="False"
-    WindowDecorations="None"
+    SizeToContent="Width"
+    CanResize="False"    WindowDecorations="None"
     Topmost="True">
 
     <Window.Styles>
@@ -888,6 +887,33 @@
                 </Button.Flyout>
 
             </Button>
+
+            <Border
+                Width="1"
+                Height="30"
+                Background="#5A5A5A"
+                Margin="2,0,2,0"/>
+
+            <Border
+                MinWidth="110"
+                MaxWidth="180"
+                Height="32"
+                Background="#17191B"
+                BorderBrush="#73787D"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="10,0">
+
+                <TextBlock
+                    Text="{Binding SessionName}"
+                    Foreground="#D7D7D7"
+                    FontSize="11"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center"
+                    TextTrimming="CharacterEllipsis"
+                    ToolTip.Tip="{Binding SessionName}"/>
+
+            </Border>
 
         </StackPanel>
 

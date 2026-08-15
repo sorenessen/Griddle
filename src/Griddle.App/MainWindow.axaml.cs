@@ -108,6 +108,9 @@ public partial class MainWindow : Window
             new SelectionTool(DrawingSurface.Selection),
             DrawingSurface.ActiveTool);
 
+        _toolbarViewModel.SetSessionName(
+            _currentSession.Name);
+
         _toolbarViewModel.NewCalloutGroupRequested +=
             DrawingSurface.StartNewCalloutGroup;
 
@@ -297,6 +300,9 @@ public partial class MainWindow : Window
         _currentSession =
             new GriddleSession();
 
+        _toolbarViewModel?.SetSessionName(
+            _currentSession.Name);
+
         _currentSessionFilePath =
             null;
 
@@ -371,6 +377,9 @@ public partial class MainWindow : Window
         _currentSession =
             session;
 
+        _toolbarViewModel?.SetSessionName(
+            _currentSession.Name);
+
         _currentSessionFilePath =
             file.Path.LocalPath;
 
@@ -444,6 +453,13 @@ public partial class MainWindow : Window
 
         _currentSessionFilePath =
             file.Path.LocalPath;
+
+        _currentSession.Name =
+            Path.GetFileNameWithoutExtension(
+                _currentSessionFilePath);
+
+        _toolbarViewModel?.SetSessionName(
+            _currentSession.Name);
 
         GriddleSessionFileService.Save(
             _currentSession,
@@ -616,6 +632,9 @@ public partial class MainWindow : Window
 
         _currentSession =
             session;
+
+        _toolbarViewModel?.SetSessionName(
+            _currentSession.Name);
 
         _currentSessionFilePath =
             filePath;

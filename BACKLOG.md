@@ -564,7 +564,7 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 - [x] Open Session
 - [x] Recent Sessions
 - [x] Unsaved Changes Prompt
-- [ ] Session Name / Metadata
+- [x] Session Name / Metadata
 - [ ] Auto Recovery Foundation
 
 ### Architecture / Research
