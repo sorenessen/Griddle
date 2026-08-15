@@ -537,16 +537,16 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 
 ### Phase 1 — Session Foundation
 
-- [ ] Define Griddle Session Model
-- [ ] Define Versioned Griddle Document Format
-- [ ] Serialize Annotation Data
-- [ ] Serialize Callout Sequence Data
-- [ ] Serialize Annotation Styles
-- [ ] Save Session
-- [ ] Load Session
-- [ ] Restore Session to Canvas
-- [ ] New Session
-- [ ] Dirty / Unsaved State Tracking
+- [x] Define Griddle Session Model
+- [x] Define Versioned Griddle Document Format
+- [x] Serialize Annotation Data
+- [x] Serialize Callout Sequence Data
+- [x] Serialize Annotation Styles
+- [x] Save Session
+- [x] Load Session
+- [x] Restore Session to Canvas
+- [x] New Session
+- [x] Dirty / Unsaved State Tracking
 
 ### Phase 2 — Screenshot Foundation
 
@@ -560,18 +560,18 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 
 ### Phase 3 — Session UX
 
-- [ ] Save / Save As Controls
-- [ ] Open Session
+- [x] Save / Save As Controls
+- [x] Open Session
 - [ ] Recent Sessions
-- [ ] Unsaved Changes Prompt
+- [x] Unsaved Changes Prompt
 - [ ] Session Name / Metadata
 - [ ] Auto Recovery Foundation
 
 ### Architecture / Research
 
-- [ ] Keep Session Model Platform-Agnostic
-- [ ] Keep Capture Abstractions Platform-Agnostic
-- [ ] Define macOS Screen Capture Implementation Boundary
+- [x] Keep Session Model Platform-Agnostic
+- [x] Keep Capture Abstractions Platform-Agnostic
+- [x] Define macOS Screen Capture Implementation Boundary
 - [ ] Define Windows Screen Capture Implementation Boundary
 - [ ] Investigate Screen Recording APIs
 - [ ] Investigate System Audio Capture
