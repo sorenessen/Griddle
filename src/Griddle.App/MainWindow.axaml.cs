@@ -627,6 +627,10 @@ public partial class MainWindow : Window
             await captureService.CaptureAsync(
                 region);
 
+        await ClipboardImageService.CopyPngAsync(
+            this,
+            result.ImageData);
+
         var sessionDirectory =
             Path.GetDirectoryName(
                 _currentSessionFilePath)!;
