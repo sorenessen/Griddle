@@ -562,7 +562,7 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 
 - [x] Save / Save As Controls
 - [x] Open Session
-- [ ] Recent Sessions
+- [x] Recent Sessions
 - [x] Unsaved Changes Prompt
 - [ ] Session Name / Metadata
 - [ ] Auto Recovery Foundation

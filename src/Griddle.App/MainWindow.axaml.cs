@@ -374,6 +374,9 @@ public partial class MainWindow : Window
         _currentSessionFilePath =
             file.Path.LocalPath;
 
+        RecentSessionStore.Add(
+            _currentSessionFilePath);
+
         DrawingSurface.LoadStrokes(
             session.Strokes);
 
@@ -446,6 +449,9 @@ public partial class MainWindow : Window
             _currentSession,
             _currentSessionFilePath);
 
+        RecentSessionStore.Add(
+            _currentSessionFilePath);
+
         _savedSessionSnapshot =
             GetCurrentSessionSnapshot();
 
@@ -505,8 +511,55 @@ public partial class MainWindow : Window
 
         fileMenu.Add(newSession);
         fileMenu.Add(openSession);
+
+        var recentSessionsMenu =
+            new NativeMenu();
+
+        var recentSessions =
+            RecentSessionStore.Load();
+
+        if (recentSessions.Count == 0)
+        {
+            recentSessionsMenu.Add(
+                new NativeMenuItem(
+                    "No Recent Sessions")
+                {
+                    IsEnabled = false
+                });
+        }
+        else
+        {
+            foreach (var recentSessionPath
+                in recentSessions)
+            {
+                var path =
+                    recentSessionPath;
+
+                var recentSessionItem =
+                    new NativeMenuItem(
+                        Path.GetFileName(path));
+
+                recentSessionItem.Click +=
+                    async (_, _) =>
+                        await OpenRecentSessionAsync(
+                            path);
+
+                recentSessionsMenu.Add(
+                    recentSessionItem);
+            }
+        }
+
+        fileMenu.Add(
+            new NativeMenuItem(
+                "Recent Sessions")
+            {
+                Menu =
+                    recentSessionsMenu
+            });
+
         fileMenu.Add(
             new NativeMenuItemSeparator());
+
         fileMenu.Add(saveSession);
         fileMenu.Add(saveSessionAs);
 
@@ -519,6 +572,62 @@ public partial class MainWindow : Window
             });
 
         return rootMenu;
+    }
+
+    private async Task OpenRecentSessionAsync(
+        string filePath)
+    {
+        if (HasUnsavedChanges())
+        {
+            var dialog =
+                new UnsavedChangesDialog();
+
+            var choice =
+                await dialog.ShowDialog<UnsavedChangesChoice>(
+                    this);
+
+            if (choice ==
+                UnsavedChangesChoice.Cancel)
+            {
+                return;
+            }
+
+            if (choice ==
+                UnsavedChangesChoice.Save)
+            {
+                var saved =
+                    await SaveSessionAsync();
+
+                if (!saved)
+                {
+                    return;
+                }
+            }
+        }
+
+        if (!File.Exists(filePath))
+        {
+            return;
+        }
+
+        var session =
+            GriddleSessionFileService.Load(
+                filePath);
+
+        _currentSession =
+            session;
+
+        _currentSessionFilePath =
+            filePath;
+
+        DrawingSurface.LoadStrokes(
+            session.Strokes);
+
+        RecentSessionStore.Add(
+            _currentSessionFilePath);
+
+        _savedSessionSnapshot =
+            GetCurrentSessionSnapshot();
     }
 
     // private void TestCaptureRoundTrip()
