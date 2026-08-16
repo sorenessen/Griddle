@@ -609,7 +609,7 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 
 ### Phase 1 — Recording Foundation
 
-- [ ] Define Screen Recording Service Contract
+- [x] Define Screen Recording Service Contract
 - [ ] Implement macOS Screen Recording Service
 - [ ] Record Active Griddle Display
 - [ ] Record Griddle Annotations
