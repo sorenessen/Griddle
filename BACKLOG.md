@@ -588,7 +588,7 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 - [x] Investigate Microphone Capture
 - [x] Define Future Media Asset Model
 
-### Exit Criteria
+### Exit Criteria - DONE
 
 v0.9.0-alpha is complete when a user can:
 
@@ -598,6 +598,66 @@ v0.9.0-alpha is complete when a user can:
 4. Reopen the saved session and recover the annotations accurately.
 5. Capture the active display with Griddle annotations visible.
 6. Save that capture as part of the session.
+
+---
+
+## v0.10.0-alpha — Screen Recording Foundations
+
+### Goal
+
+Extend Griddle's capture system from static screenshots to recorded demonstrations, allowing users to record the active Griddle display and preserve recordings as part of a session.
+
+### Phase 1 — Recording Foundation
+
+- [ ] Define Screen Recording Service Contract
+- [ ] Implement macOS Screen Recording Service
+- [ ] Record Active Griddle Display
+- [ ] Record Griddle Annotations
+- [ ] Start Recording
+- [ ] Stop Recording
+- [ ] Recording Status Indicator
+
+### Phase 2 — Session Integration
+
+- [ ] Save Recording to Session Media
+- [ ] Define Recording Metadata
+- [ ] Associate Recording With Current Session
+- [ ] Restore Recording Metadata When Session Loads
+- [ ] Handle Missing Recording Media Gracefully
+
+### Phase 3 — Audio
+
+- [ ] Capture System Audio
+- [ ] Capture Microphone Audio
+- [ ] Record System Audio With Video
+- [ ] Record Microphone With Video
+- [ ] Record Combined System + Microphone Audio
+- [ ] Enable / Disable System Audio
+- [ ] Enable / Disable Microphone
+- [ ] Select Microphone Input
+
+### Phase 4 — Recording UX & Hardening
+
+- [ ] Recording Start / Stop Toolbar Control
+- [ ] Persistent Recording Indicator
+- [ ] Prevent Accidental Session Close While Recording
+- [ ] Handle Recording Permission Failures
+- [ ] Handle Recording Failure Gracefully
+- [ ] Verify Multi-Display Recording
+- [ ] Verify Recording With Griddle Excluded
+- [ ] Verify Recording With Griddle Included
+
+### Exit Criteria
+
+v0.10.0-alpha is complete when a user can:
+
+1. Start recording the active Griddle display.
+2. Continue annotating normally while recording.
+3. Stop the recording from Griddle.
+4. Record system audio and/or microphone audio when enabled.
+5. Save the resulting recording as part of the current session.
+6. Reopen the session with the recording metadata intact.
+7. Clearly see when Griddle is actively recording.
 
 # Icebox
 
