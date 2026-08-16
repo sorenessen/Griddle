@@ -42,6 +42,7 @@ public partial class MainWindow : Window
     private bool _isTintEnabled = false;
     private bool _allowClose;
     private bool _isClosePromptOpen;
+    private readonly DispatcherTimer _autoRecoveryTimer;
 
     public MainWindow()
     {
@@ -55,10 +56,23 @@ public partial class MainWindow : Window
         KeyDown += OnKeyDown;
         TextInput += OnTextInput;
 
+        _autoRecoveryTimer =
+            new DispatcherTimer
+            {
+                Interval =
+                    TimeSpan.FromSeconds(30)
+            };
+
+        _autoRecoveryTimer.Tick +=
+            AutoRecoveryTimer_Tick;
+
+        _autoRecoveryTimer.Start();
 
     }
 
-    private void OnOpened(object? sender, EventArgs e)
+    private async void OnOpened(
+        object? sender,
+        EventArgs e)
     {
         var preferredDisplayName =
             DisplayPreferenceStore.Load();
@@ -219,6 +233,99 @@ public partial class MainWindow : Window
         Screens.Changed += Screens_Changed;
 
         _toolbar.Show(this);
+
+        if (AutoRecoveryStore.Exists())
+        {
+            var dialog =
+                new RecoveryDialog();
+
+            var choice =
+                await dialog.ShowDialog<RecoveryChoice>(
+                    this);
+
+            if (choice ==
+                RecoveryChoice.Discard)
+            {
+                AutoRecoveryStore.Clear();
+            }
+            else if (choice ==
+                RecoveryChoice.Restore)
+            {
+                RestoreAutoRecoveredSession();
+            }
+        }
+    }
+
+    private void RestoreAutoRecoveredSession()
+    {
+        var documentJson =
+            AutoRecoveryStore.LoadDocument();
+
+        if (string.IsNullOrWhiteSpace(
+                documentJson))
+        {
+            return;
+        }
+
+        var document =
+            GriddleDocumentSerializer.Deserialize(
+                documentJson);
+
+        var session =
+            GriddleDocumentMapper.ToSession(
+                document);
+
+        var recoveryState =
+            AutoRecoveryStore.LoadState();
+
+        _currentSession =
+            session;
+
+        _currentSessionFilePath =
+            recoveryState?.OriginalFilePath;
+
+        if (!string.IsNullOrWhiteSpace(
+                _currentSessionFilePath) &&
+            (string.IsNullOrWhiteSpace(
+                 _currentSession.Name) ||
+             string.Equals(
+                 _currentSession.Name,
+                 "Untitled",
+                 StringComparison.Ordinal)))
+        {
+            _currentSession.Name =
+                Path.GetFileNameWithoutExtension(
+                    _currentSessionFilePath);
+        }
+
+        _toolbarViewModel?.SetSessionName(
+            _currentSession.Name);
+
+        DrawingSurface.LoadStrokes(
+            _currentSession.Strokes);
+
+        if (!string.IsNullOrWhiteSpace(
+                _currentSessionFilePath) &&
+            File.Exists(
+                _currentSessionFilePath))
+        {
+            var savedSession =
+                GriddleSessionFileService.Load(
+                    _currentSessionFilePath);
+
+            var savedDocument =
+                GriddleDocumentMapper.ToDocument(
+                    savedSession);
+
+            _savedSessionSnapshot =
+                GriddleDocumentSerializer.Serialize(
+                    savedDocument);
+        }
+        else
+        {
+            _savedSessionSnapshot =
+                null;
+        }
     }
 
     // private void SaveTestSession()
@@ -310,6 +417,8 @@ public partial class MainWindow : Window
             null;
 
         DrawingSurface.Clear();
+
+        AutoRecoveryStore.Clear();
     }
 
     public async void OpenSession()
@@ -403,6 +512,8 @@ public partial class MainWindow : Window
 
         _savedSessionSnapshot =
             GetCurrentSessionSnapshot();
+
+        AutoRecoveryStore.Clear();
     }
 
     public async Task<bool> SaveSessionAsync()
@@ -424,6 +535,8 @@ public partial class MainWindow : Window
 
         _savedSessionSnapshot =
             GetCurrentSessionSnapshot();
+
+        AutoRecoveryStore.Clear();
 
         return true;
     }
@@ -482,6 +595,10 @@ public partial class MainWindow : Window
 
         _savedSessionSnapshot =
             GetCurrentSessionSnapshot();
+
+        AutoRecoveryStore.Clear();
+
+        return true;
 
         return true;
     }
@@ -671,6 +788,8 @@ public partial class MainWindow : Window
 
         _savedSessionSnapshot =
             GetCurrentSessionSnapshot();
+
+        AutoRecoveryStore.Clear();
     }
 
     // private void TestCaptureRoundTrip()
@@ -892,6 +1011,11 @@ public partial class MainWindow : Window
                     return;
                 }
             }
+            else if (choice ==
+                UnsavedChangesChoice.DontSave)
+            {
+                AutoRecoveryStore.Clear();
+            }
 
             _allowClose = true;
 
@@ -925,7 +1049,9 @@ public partial class MainWindow : Window
 
         if (_savedSessionSnapshot is null)
         {
-            return _currentSession.Strokes.Count > 0;
+            return
+                _currentSession.Strokes.Count > 0 ||
+                _currentSession.Captures.Count > 0;
         }
 
         return !string.Equals(
@@ -1170,6 +1296,23 @@ public partial class MainWindow : Window
         MacOSWindowInterop.SetIgnoresMouseEvents(
             this,
             ignoresMouseEvents: isClickThrough);
+    }
+
+    private void AutoRecoveryTimer_Tick(
+        object? sender,
+        EventArgs e)
+    {
+        if (!HasUnsavedChanges())
+        {
+            return;
+        }
+
+        var documentJson =
+            GetCurrentSessionSnapshot();
+
+        AutoRecoveryStore.Save(
+            documentJson,
+            _currentSessionFilePath);
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
