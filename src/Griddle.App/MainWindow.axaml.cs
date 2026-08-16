@@ -48,10 +48,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        NativeMenu.SetMenu(
-            this,
-            CreateSessionNativeMenu());
-
         Opened += OnOpened;
         KeyDown += OnKeyDown;
         TextInput += OnTextInput;
@@ -74,6 +70,10 @@ public partial class MainWindow : Window
         object? sender,
         EventArgs e)
     {
+        NativeMenu.SetMenu(
+            this,
+            CreateSessionNativeMenu());
+
         var preferredDisplayName =
             DisplayPreferenceStore.Load();
 
