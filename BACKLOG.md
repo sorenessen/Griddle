@@ -303,13 +303,13 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ### Screenshot Capture
 
-- [ ] Capture Active Griddle Display
-- [ ] Capture Display With Annotations
+- [x] Capture Active Griddle Display
+- [x] Capture Display With Annotations
 - [ ] Capture Display Without Annotations
-- [ ] Save Screenshot to Session
-- [ ] Screenshot Metadata
-- [ ] Copy Screenshot to Clipboard
-- [ ] Save Screenshot as PNG
+- [x] Save Screenshot to Session
+- [x] Screenshot Metadata
+- [x] Copy Screenshot to Clipboard
+- [x] Save Screenshot as PNG
 
 ### Screen Recording
 
@@ -370,24 +370,21 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ## Sessions & Documents
 
-### Planned
-
-- [ ] Save Annotation Session
-- [ ] Load Annotation Session
-- [ ] Auto Recovery
-- [ ] Griddle Session Model
-- [ ] Versioned Griddle Document Format
-- [ ] New Session
-- [ ] Save Session
-- [ ] Save Session As
-- [ ] Load Session
-- [ ] Restore Annotations
-- [ ] Restore Callout Sequences
-- [ ] Restore Annotation Styles
-- [ ] Restore Session Metadata
-- [ ] Dirty / Unsaved State Tracking
-- [ ] Recent Sessions
-- [ ] Auto Recovery
+- [x] Save Annotation Session
+- [x] Load Annotation Session
+- [x] Auto Recovery
+- [x] Griddle Session Model
+- [x] Versioned Griddle Document Format
+- [x] New Session
+- [x] Save Session
+- [x] Save Session As
+- [x] Load Session
+- [x] Restore Annotations
+- [x] Restore Callout Sequences
+- [x] Restore Annotation Styles
+- [x] Restore Session Metadata
+- [x] Dirty / Unsaved State Tracking
+- [x] Recent Sessions
 - [ ] Document Version Migration
 - [ ] Graceful Handling of Unsupported Document Versions
 
