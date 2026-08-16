@@ -860,7 +860,7 @@ public partial class MainWindow : Window
     //         $"{restoredCapture.IncludesAnnotations}");
     // }
 
-    private async Task CaptureActiveDisplayAsync()
+    private async Task CaptureActiveDisplayAsync(bool includeAnnotations)
     {
         if (_overlayScreen is null)
         {
@@ -896,7 +896,12 @@ public partial class MainWindow : Window
 
         var result =
             await captureService.CaptureAsync(
-                region);
+                region,
+                new ScreenCaptureOptions
+                {
+                    IncludeApplicationWindows =
+                        includeAnnotations
+                });
 
         await ClipboardImageService.CopyPngAsync(
             this,
@@ -947,7 +952,8 @@ public partial class MainWindow : Window
                 Height = result.Height,
                 DisplayName =
                     _overlayScreen.DisplayName,
-                IncludesAnnotations = true
+                IncludesAnnotations =
+                    includeAnnotations
             };
 
         _currentSession.Captures.Add(
@@ -958,6 +964,12 @@ public partial class MainWindow : Window
 
         Console.WriteLine(
             $"Saved capture: {filePath}");
+    }
+
+    private Task CaptureActiveDisplayWithoutAnnotationsAsync()
+    {
+        return CaptureActiveDisplayAsync(
+            includeAnnotations: false);
     }
 
     protected override void OnClosing(
@@ -1331,9 +1343,25 @@ public partial class MainWindow : Window
             e.KeyModifiers.HasFlag(
                 KeyModifiers.Meta) &&
             e.KeyModifiers.HasFlag(
+                KeyModifiers.Shift) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Alt))
+        {
+            _ =
+                CaptureActiveDisplayWithoutAnnotationsAsync();
+
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.C &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Meta) &&
+            e.KeyModifiers.HasFlag(
                 KeyModifiers.Shift))
         {
-            _ = CaptureActiveDisplayAsync();
+            _ = CaptureActiveDisplayAsync(
+                includeAnnotations: true);
 
             e.Handled = true;
             return;

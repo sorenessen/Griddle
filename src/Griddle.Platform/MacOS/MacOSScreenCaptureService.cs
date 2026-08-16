@@ -11,8 +11,12 @@ public sealed class MacOSScreenCaptureService
         CaptureCallback = OnCaptureCompleted;
 
     public Task<ScreenCaptureResult> CaptureAsync(
-        CaptureRegion region)
+        CaptureRegion region,
+        ScreenCaptureOptions? options = null)
     {
+        options ??=
+            new ScreenCaptureOptions();
+
         if (!OperatingSystem.IsMacOS())
         {
             throw new PlatformNotSupportedException(
@@ -33,6 +37,9 @@ public sealed class MacOSScreenCaptureService
                 region.Y,
                 region.Width,
                 region.Height,
+                options.IncludeApplicationWindows
+                    ? 1
+                    : 0,
                 CaptureCallback,
                 GCHandle.ToIntPtr(handle));
         }

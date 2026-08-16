@@ -25,6 +25,7 @@ internal static class MacOSCaptureNative
         int y,
         int width,
         int height,
+        int includeApplicationWindows,
         CaptureCallback callback,
         IntPtr context);
 }

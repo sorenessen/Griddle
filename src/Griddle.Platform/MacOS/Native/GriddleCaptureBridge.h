@@ -20,6 +20,7 @@ void griddle_capture_region(
     int32_t y,
     int32_t width,
     int32_t height,
+    int32_t includeApplicationWindows,
     GriddleCaptureCallback callback,
     void *context);
 
