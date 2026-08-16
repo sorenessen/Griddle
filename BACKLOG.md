@@ -532,6 +532,8 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 
 Transform Griddle from an ephemeral annotation overlay into a persistent workspace that can save, restore, and capture annotated work. Establish the document and capture architecture that future presentations, recordings, and collaboration features can build upon.
 
+### Completed
+
 ### Phase 1 — Session Foundation
 
 - [x] Define Griddle Session Model
