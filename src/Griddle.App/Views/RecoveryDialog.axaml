@@ -8,8 +8,48 @@
     CanResize="False"
     Topmost="True"
     ShowActivated="True"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     Background="#121416">
+
+    <Window.Styles>
+
+        <Style Selector="Button.dialog-secondary">
+            <Setter Property="Background" Value="#25282B"/>
+            <Setter Property="Foreground" Value="#D7D7D7"/>
+            <Setter Property="BorderBrush" Value="#50555A"/>
+        </Style>
+
+        <Style Selector="Button.dialog-secondary:pointerover">
+            <Setter Property="Background" Value="#34383C"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#73787D"/>
+        </Style>
+
+        <Style Selector="Button.dialog-secondary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#1C1F21"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#F28C28"/>
+        </Style>
+
+        <Style Selector="Button.dialog-primary">
+            <Setter Property="Background" Value="#F28C28"/>
+            <Setter Property="Foreground" Value="#111111"/>
+            <Setter Property="BorderBrush" Value="#FFAD55"/>
+        </Style>
+
+        <Style Selector="Button.dialog-primary:pointerover">
+            <Setter Property="Background" Value="#FFA13D"/>
+            <Setter Property="Foreground" Value="#111111"/>
+            <Setter Property="BorderBrush" Value="#FFC078"/>
+        </Style>
+
+        <Style Selector="Button.dialog-primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#D97819"/>
+            <Setter Property="Foreground" Value="#111111"/>
+            <Setter Property="BorderBrush" Value="#F28C28"/>
+        </Style>
+
+    </Window.Styles>
 
     <Border
         Margin="1"
@@ -23,8 +63,6 @@
             ColumnDefinitions="*,190"
             RowDefinitions="Auto,Auto,Auto,*,Auto"
             ColumnSpacing="18">
-
-            <!-- AUTO RECOVERY -->
 
             <StackPanel
                 Grid.Row="0"
@@ -48,18 +86,16 @@
 
             </StackPanel>
 
-            <!-- HEADLINE -->
-
             <TextBlock
                 Grid.Row="1"
                 Grid.Column="0"
-                Text="...is something burning?"
+                Text="&quot;I kept it warm for you, Chef.&quot;"
                 Foreground="White"
-                FontSize="22"
-                FontWeight="Bold"
+                FontSize="24"
+                FontWeight="Normal"
+                FontStyle="Italic"
+                FontFamily="Arial"
                 Margin="0,7,0,0"/>
-
-            <!-- BODY -->
 
             <TextBlock
                 Grid.Row="2"
@@ -79,8 +115,6 @@
                 Margin="0,8,0,0"
                 VerticalAlignment="Top"/>
 
-            <!-- RECOVERY GRIDDLE -->
-
             <Image
                 Grid.Row="0"
                 Grid.RowSpan="4"
@@ -93,8 +127,6 @@
                 VerticalAlignment="Center"
                 IsHitTestVisible="False"/>
 
-            <!-- BUTTONS -->
-
             <StackPanel
                 Grid.Row="4"
                 Grid.Column="0"
@@ -105,28 +137,24 @@
                 Margin="0,16,0,0">
 
                 <Button
+                    Classes="dialog-secondary"
                     Content="Discard"
                     Click="DiscardButton_Click"
                     MinWidth="96"
                     Height="36"
                     Padding="16,0"
-                    Background="#25282B"
-                    Foreground="#D7D7D7"
-                    BorderBrush="#50555A"
                     BorderThickness="1"
                     CornerRadius="6"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center"/>
 
                 <Button
+                    Classes="dialog-primary"
                     Content="Restore Session"
                     Click="RestoreButton_Click"
                     MinWidth="145"
                     Height="36"
                     Padding="18,0"
-                    Background="#F28C28"
-                    Foreground="#111111"
-                    BorderBrush="#FFAD55"
                     BorderThickness="1"
                     CornerRadius="6"
                     FontWeight="Bold"
