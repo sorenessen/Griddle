@@ -571,7 +571,7 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 - [x] Define Future Media Asset Model
 - [x] Investigate Screen Recording APIs
 - [x] Investigate System Audio Capture
-- [ ] Investigate Microphone Capture
+- [x] Investigate Microphone Capture
 - [ ] Document Capture / Recording Architecture Decisions
 - [x] Fix macOS Native File Menu Startup Synchronization
 
