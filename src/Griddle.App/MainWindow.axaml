@@ -9,7 +9,6 @@
     Topmost="True"
     CanResize="False"
     ShowInTaskbar="False"
-    
     Title="Griddle Overlay"
     PointerPressed="Overlay_PointerPressed"
     PointerMoved="Overlay_PointerMoved"
