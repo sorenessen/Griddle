@@ -568,7 +568,7 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 
 - [x] Capture Display Without Annotations
 - [x] Define Windows Screen Capture Implementation Boundary
-- [ ] Define Future Media Asset Model
+- [x] Define Future Media Asset Model
 - [ ] Investigate Screen Recording APIs
 - [ ] Investigate System Audio Capture
 - [ ] Investigate Microphone Capture
