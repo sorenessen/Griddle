@@ -570,7 +570,7 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 - [x] Define Windows Screen Capture Implementation Boundary
 - [x] Define Future Media Asset Model
 - [x] Investigate Screen Recording APIs
-- [ ] Investigate System Audio Capture
+- [x] Investigate System Audio Capture
 - [ ] Investigate Microphone Capture
 - [ ] Document Capture / Recording Architecture Decisions
 - [x] Fix macOS Native File Menu Startup Synchronization
