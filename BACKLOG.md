@@ -580,18 +580,11 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 - [x] Keep Session Model Platform-Agnostic
 - [x] Keep Capture Abstractions Platform-Agnostic
 - [x] Define macOS Screen Capture Implementation Boundary
-- [ ] Define Windows Screen Capture Implementation Boundary
-- [ ] Investigate Screen Recording APIs
-- [ ] Investigate System Audio Capture
-- [ ] Investigate Microphone Capture
-- [ ] Define Future Media Asset Model
-
-# Bugz
-- [ ] macOS native File menu may not appear immediately after launch
-  - [ ] Reproduces intermittently on multi-display startup
-  - [ ] Menu appears after clicking another display / changing window context
-  - [ ] Session commands remain functional once menu appears
-  - [ ] Investigate Avalonia native menu synchronization with transparent/topmost multi-window setup
+- [x] Define Windows Screen Capture Implementation Boundary
+- [x] Investigate Screen Recording APIs
+- [x] Investigate System Audio Capture
+- [x] Investigate Microphone Capture
+- [x] Define Future Media Asset Model
 
 ### Exit Criteria
 
