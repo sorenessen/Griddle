@@ -305,7 +305,7 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 - [x] Capture Active Griddle Display
 - [x] Capture Display With Annotations
-- [ ] Capture Display Without Annotations
+- [x] Capture Display Without Annotations
 - [x] Save Screenshot to Session
 - [x] Screenshot Metadata
 - [x] Copy Screenshot to Clipboard
@@ -563,6 +563,17 @@ Transform Griddle from an ephemeral annotation overlay into a persistent workspa
 - [x] Unsaved Changes Prompt
 - [x] Session Name / Metadata
 - [x] Auto Recovery Foundation
+
+### Phase 4 — Architecture & Hardening
+
+- [x] Capture Display Without Annotations
+- [ ] Define Windows Screen Capture Implementation Boundary
+- [ ] Define Future Media Asset Model
+- [ ] Investigate Screen Recording APIs
+- [ ] Investigate System Audio Capture
+- [ ] Investigate Microphone Capture
+- [ ] Document Capture / Recording Architecture Decisions
+- [x] Fix macOS Native File Menu Startup Synchronization
 
 ### Architecture / Research
 
