@@ -4,6 +4,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
 #import <ScreenCaptureKit/ScreenCaptureKit.h>
+#import <math.h>
 #import <unistd.h>
 
 
@@ -19,7 +20,7 @@ static SCRecordingOutput *GriddleRecordingOutput = nil;
 
 static id GriddleRecordingOutputDelegate = nil;
 
-static GriddleRecordingCallback
+static GriddleRecordingStopCallback
     GriddlePendingStopCallback = NULL;
 
 static void *
@@ -91,7 +92,7 @@ static void clear_pending_stop(void)
         @"Griddle recording stream stopped with error: %@",
         error);
 
-    GriddleRecordingCallback callback =
+    GriddleRecordingStopCallback callback =
         GriddlePendingStopCallback;
 
     void *context =
@@ -104,6 +105,7 @@ static void clear_pending_stop(void)
     if (callback != NULL)
     {
         callback(
+            0.0,
             error.localizedDescription.UTF8String,
             context);
     }
@@ -124,9 +126,18 @@ static void clear_pending_stop(void)
 - (void)recordingOutputDidFinishRecording:
     (SCRecordingOutput *)recordingOutput
 {
-    (void)recordingOutput;
+    double durationSeconds =
+        CMTimeGetSeconds(
+            recordingOutput.recordedDuration);
 
-    GriddleRecordingCallback callback =
+    if (!isfinite(durationSeconds) ||
+        durationSeconds < 0.0)
+    {
+        durationSeconds =
+            0.0;
+    }
+
+    GriddleRecordingStopCallback callback =
         GriddlePendingStopCallback;
 
     void *context =
@@ -139,6 +150,7 @@ static void clear_pending_stop(void)
     if (callback != NULL)
     {
         callback(
+            durationSeconds,
             NULL,
             context);
     }
@@ -155,7 +167,7 @@ static void clear_pending_stop(void)
         @"Griddle recording output failed: %@",
         error);
 
-    GriddleRecordingCallback callback =
+    GriddleRecordingStopCallback callback =
         GriddlePendingStopCallback;
 
     void *context =
@@ -168,6 +180,7 @@ static void clear_pending_stop(void)
     if (callback != NULL)
     {
         callback(
+            0.0,
             error.localizedDescription.UTF8String,
             context);
     }
@@ -221,10 +234,8 @@ void griddle_recording_start(
     }
 
     /*
-     * Make a durable Objective-C copy before this
-     * native call returns. The original C string is
-     * owned by the .NET P/Invoke marshaler and cannot
-     * safely be referenced later from an async block.
+     * Copy the P/Invoke string before entering
+     * asynchronous native work.
      */
     NSString *requestedOutputPath =
         [[NSString alloc]
@@ -517,7 +528,7 @@ void griddle_recording_start(
 
 
 void griddle_recording_stop(
-    GriddleRecordingCallback callback,
+    GriddleRecordingStopCallback callback,
     void *context)
 {
     if (callback == NULL)
@@ -529,6 +540,7 @@ void griddle_recording_stop(
         GriddleRecordingStream == nil)
     {
         callback(
+            0.0,
             "No screen recording is active.",
             context);
 
@@ -538,6 +550,7 @@ void griddle_recording_stop(
     if (GriddlePendingStopCallback != NULL)
     {
         callback(
+            0.0,
             "Screen recording is already stopping.",
             context);
 
@@ -559,7 +572,7 @@ void griddle_recording_stop(
         {
             if (error != nil)
             {
-                GriddleRecordingCallback
+                GriddleRecordingStopCallback
                     pendingCallback =
                         GriddlePendingStopCallback;
 
@@ -573,6 +586,7 @@ void griddle_recording_stop(
                 if (pendingCallback != NULL)
                 {
                     pendingCallback(
+                        0.0,
                         error.localizedDescription.UTF8String,
                         pendingContext);
                 }
@@ -581,11 +595,11 @@ void griddle_recording_stop(
             }
 
             /*
-             * Do not release SCRecordingOutput here.
+             * Keep SCRecordingOutput alive until it
+             * finishes finalizing the MP4.
              *
-             * The recording output still needs to
-             * finalize the MP4. StopAsync completes
-             * from recordingOutputDidFinishRecording:.
+             * recordingOutputDidFinishRecording:
+             * returns the real duration to C#.
              */
             GriddleRecordingActive =
                 NO;

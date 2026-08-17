@@ -13,6 +13,13 @@ internal static class MacOSRecordingNative
         IntPtr errorMessage,
         IntPtr context);
 
+    [UnmanagedFunctionPointer(
+        CallingConvention.Cdecl)]
+    internal delegate void RecordingStopCallback(
+        double durationSeconds,
+        IntPtr errorMessage,
+        IntPtr context);
+
     [DllImport(
         LibraryName,
         CallingConvention = CallingConvention.Cdecl)]
@@ -33,7 +40,7 @@ internal static class MacOSRecordingNative
         LibraryName,
         CallingConvention = CallingConvention.Cdecl)]
     internal static extern void griddle_recording_stop(
-        RecordingCallback callback,
+        RecordingStopCallback callback,
         IntPtr context);
 
     [DllImport(

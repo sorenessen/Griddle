@@ -44,6 +44,9 @@ public partial class MainWindow : Window
     private bool _allowClose;
     private bool _isClosePromptOpen;
     private readonly DispatcherTimer _autoRecoveryTimer;
+    private readonly MacOSScreenRecordingService
+        _recordingService =
+            new();
 
     public MainWindow()
     {
@@ -991,10 +994,7 @@ public partial class MainWindow : Window
             var bounds =
                 _overlayScreen.Bounds;
 
-            var recordingService =
-                new MacOSScreenRecordingService();
-
-            await recordingService.StartAsync(
+            await _recordingService.StartAsync(
                 new ScreenRecordingOptions
                 {
                     Region =
@@ -1009,7 +1009,7 @@ public partial class MainWindow : Window
                 });
 
             Console.WriteLine(
-                $"Recording active: {recordingService.IsRecording}");
+                $"Recording active: {_recordingService.IsRecording}");
         }
         catch (Exception ex)
         {
@@ -1025,13 +1025,29 @@ public partial class MainWindow : Window
             Console.WriteLine(
                 "Stopping recording test...");
 
-            var recordingService =
-                new MacOSScreenRecordingService();
-
-            await recordingService.StopAsync();
+            var result =
+                await _recordingService.StopAsync();
 
             Console.WriteLine(
-                $"Recording active: {recordingService.IsRecording}");
+                $"Recording active: {_recordingService.IsRecording}");
+
+            Console.WriteLine(
+                $"File: {result.FilePath}");
+
+            Console.WriteLine(
+                $"Size: {result.Width}x{result.Height}");
+
+            Console.WriteLine(
+                $"Duration: {result.Duration.TotalSeconds:F2} seconds");
+
+            Console.WriteLine(
+                $"Includes Griddle: {result.IncludesApplicationWindows}");
+
+            Console.WriteLine(
+                $"System audio: {result.IncludesSystemAudio}");
+
+            Console.WriteLine(
+                $"Microphone: {result.IncludesMicrophone}");
         }
         catch (Exception ex)
         {

@@ -8,8 +8,16 @@ public sealed class MacOSScreenRecordingService
 {
     private static readonly
         MacOSRecordingNative.RecordingCallback
-        RecordingCallback =
-            OnRecordingCompleted;
+        StartCallback =
+            OnRecordingStarted;
+
+    private static readonly
+        MacOSRecordingNative.RecordingStopCallback
+        StopCallback =
+            OnRecordingStopped;
+
+    private ScreenRecordingOptions?
+        _activeOptions;
 
     public bool IsRecording =>
         OperatingSystem.IsMacOS() &&
@@ -23,6 +31,12 @@ public sealed class MacOSScreenRecordingService
         {
             throw new PlatformNotSupportedException(
                 "macOS screen recording is only available on macOS.");
+        }
+
+        if (_activeOptions is not null)
+        {
+            throw new InvalidOperationException(
+                "A screen recording is already active.");
         }
 
         var completionSource =
@@ -56,7 +70,7 @@ public sealed class MacOSScreenRecordingService
                         : 0,
                     framesPerSecond,
                     options.OutputFilePath,
-                    RecordingCallback,
+                    StartCallback,
                     GCHandle.ToIntPtr(
                         handle));
         }
@@ -66,7 +80,19 @@ public sealed class MacOSScreenRecordingService
             throw;
         }
 
-        return completionSource.Task;
+        return CompleteStartAsync(
+            completionSource.Task,
+            options);
+    }
+
+    private async Task CompleteStartAsync(
+        Task completionTask,
+        ScreenRecordingOptions options)
+    {
+        await completionTask;
+
+        _activeOptions =
+            options;
     }
 
     public async Task<ScreenRecordingResult>
@@ -78,8 +104,13 @@ public sealed class MacOSScreenRecordingService
                 "macOS screen recording is only available on macOS.");
         }
 
+        var activeOptions =
+            _activeOptions
+            ?? throw new InvalidOperationException(
+                "No screen recording is active.");
+
         var completionSource =
-            new TaskCompletionSource<bool>(
+            new TaskCompletionSource<double>(
                 TaskCreationOptions
                     .RunContinuationsAsynchronously);
 
@@ -91,7 +122,7 @@ public sealed class MacOSScreenRecordingService
         {
             MacOSRecordingNative
                 .griddle_recording_stop(
-                    RecordingCallback,
+                    StopCallback,
                     GCHandle.ToIntPtr(
                         handle));
         }
@@ -101,21 +132,42 @@ public sealed class MacOSScreenRecordingService
             throw;
         }
 
-        await completionSource.Task;
+        var durationSeconds =
+            await completionSource.Task;
 
-        return new ScreenRecordingResult
-        {
-            FilePath = string.Empty,
-            Width = 0,
-            Height = 0,
-            Duration = TimeSpan.Zero,
-            IncludesApplicationWindows = false,
-            IncludesSystemAudio = false,
-            IncludesMicrophone = false
-        };
+        var result =
+            new ScreenRecordingResult
+            {
+                FilePath =
+                    activeOptions.OutputFilePath,
+
+                Width =
+                    activeOptions.Region.Width,
+
+                Height =
+                    activeOptions.Region.Height,
+
+                Duration =
+                    TimeSpan.FromSeconds(
+                        durationSeconds),
+
+                IncludesApplicationWindows =
+                    activeOptions.IncludeApplicationWindows,
+
+                IncludesSystemAudio =
+                    activeOptions.CaptureSystemAudio,
+
+                IncludesMicrophone =
+                    activeOptions.CaptureMicrophone
+            };
+
+        _activeOptions =
+            null;
+
+        return result;
     }
 
-    private static void OnRecordingCompleted(
+    private static void OnRecordingStarted(
         IntPtr errorMessage,
         IntPtr context)
     {
@@ -134,7 +186,7 @@ public sealed class MacOSScreenRecordingService
                 var message =
                     Marshal.PtrToStringUTF8(
                         errorMessage)
-                    ?? "Screen recording failed.";
+                    ?? "Screen recording failed to start.";
 
                 completionSource.SetException(
                     new InvalidOperationException(
@@ -145,6 +197,44 @@ public sealed class MacOSScreenRecordingService
 
             completionSource.SetResult(
                 true);
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    private static void OnRecordingStopped(
+        double durationSeconds,
+        IntPtr errorMessage,
+        IntPtr context)
+    {
+        var handle =
+            GCHandle.FromIntPtr(
+                context);
+
+        try
+        {
+            var completionSource =
+                (TaskCompletionSource<double>)
+                    handle.Target!;
+
+            if (errorMessage != IntPtr.Zero)
+            {
+                var message =
+                    Marshal.PtrToStringUTF8(
+                        errorMessage)
+                    ?? "Screen recording failed to stop.";
+
+                completionSource.SetException(
+                    new InvalidOperationException(
+                        message));
+
+                return;
+            }
+
+            completionSource.SetResult(
+                durationSeconds);
         }
         finally
         {

@@ -11,6 +11,11 @@ typedef void (*GriddleRecordingCallback)(
     const char *errorMessage,
     void *context);
 
+typedef void (*GriddleRecordingStopCallback)(
+    double durationSeconds,
+    const char *errorMessage,
+    void *context);
+
 void griddle_recording_start(
     int32_t x,
     int32_t y,
@@ -25,7 +30,7 @@ void griddle_recording_start(
     void *context);
 
 void griddle_recording_stop(
-    GriddleRecordingCallback callback,
+    GriddleRecordingStopCallback callback,
     void *context);
 
 int32_t griddle_recording_is_active(void);
