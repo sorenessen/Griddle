@@ -47,6 +47,8 @@ public partial class MainWindow : Window
     private readonly MacOSScreenRecordingService
         _recordingService =
             new();
+    private Guid? _activeRecordingId;
+    private string? _activeRecordingFileName;
 
     public MainWindow()
     {
@@ -985,11 +987,49 @@ public partial class MainWindow : Window
 
             if (_overlayScreen is null)
             {
-                Console.WriteLine(
-                    "Recording test aborted: overlay screen is null.");
-
                 return;
             }
+
+            if (string.IsNullOrWhiteSpace(
+                    _currentSessionFilePath))
+            {
+                var saved =
+                    await SaveSessionAsAsync();
+
+                if (!saved ||
+                    string.IsNullOrWhiteSpace(
+                        _currentSessionFilePath))
+                {
+                    return;
+                }
+            }
+
+            var sessionDirectory =
+                Path.GetDirectoryName(
+                    _currentSessionFilePath)!;
+
+            var sessionName =
+                Path.GetFileNameWithoutExtension(
+                    _currentSessionFilePath);
+
+            var mediaDirectory =
+                Path.Combine(
+                    sessionDirectory,
+                    $"{sessionName}.media");
+
+            Directory.CreateDirectory(
+                mediaDirectory);
+
+            var recordingId =
+                Guid.NewGuid();
+
+            var fileName =
+                $"recording-{recordingId:N}.mp4";
+
+            var filePath =
+                Path.Combine(
+                    mediaDirectory,
+                    fileName);
 
             var bounds =
                 _overlayScreen.Bounds;
@@ -1005,8 +1045,14 @@ public partial class MainWindow : Window
                             bounds.Height),
 
                     OutputFilePath =
-                        "/tmp/griddle-recording-test.mp4"
+                        filePath
                 });
+
+            _activeRecordingId =
+                recordingId;
+
+            _activeRecordingFileName =
+                fileName;
 
             Console.WriteLine(
                 $"Recording active: {_recordingService.IsRecording}");
@@ -1027,6 +1073,54 @@ public partial class MainWindow : Window
 
             var result =
                 await _recordingService.StopAsync();
+
+            if (_activeRecordingId is null ||
+                string.IsNullOrWhiteSpace(
+                    _activeRecordingFileName))
+            {
+                throw new InvalidOperationException(
+                    "Recording session metadata is missing.");
+            }
+
+            var capture =
+                new GriddleCapture
+                {
+                    Id =
+                        _activeRecordingId.Value,
+
+                    Kind =
+                        CaptureKind.Recording,
+
+                    CreatedAt =
+                        DateTime.UtcNow,
+
+                    FileName =
+                        _activeRecordingFileName,
+
+                    Width =
+                        result.Width,
+
+                    Height =
+                        result.Height,
+
+                    DisplayName =
+                        _overlayScreen?.DisplayName,
+
+                    IncludesAnnotations =
+                        result.IncludesApplicationWindows,
+
+                    Duration =
+                        result.Duration
+                };
+
+            _currentSession.Captures.Add(
+                capture);
+
+            _activeRecordingId =
+                null;
+
+            _activeRecordingFileName =
+                null;
 
             Console.WriteLine(
                 $"Recording active: {_recordingService.IsRecording}");
