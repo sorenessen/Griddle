@@ -610,18 +610,18 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 ### Phase 1 — Recording Foundation
 
 - [x] Define Screen Recording Service Contract
-- [ ] Implement macOS Screen Recording Service
-- [ ] Record Active Griddle Display
-- [ ] Record Griddle Annotations
-- [ ] Start Recording
-- [ ] Stop Recording
-- [ ] Recording Status Indicator
+- [x] Implement macOS Screen Recording Service
+- [x] Record Active Griddle Display
+- [x] Record Griddle Annotations
+- [x] Start Recording
+- [x] Stop Recording
+- [x] Recording Status Indicator
 
 ### Phase 2 — Session Integration
 
-- [ ] Save Recording to Session Media
-- [ ] Define Recording Metadata
-- [ ] Associate Recording With Current Session
+- [x] Save Recording to Session Media
+- [x] Define Recording Metadata
+- [x] Associate Recording With Current Session
 - [ ] Restore Recording Metadata When Session Loads
 - [ ] Handle Missing Recording Media Gracefully
 
