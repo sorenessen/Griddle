@@ -647,6 +647,13 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 - [ ] Verify Recording With Griddle Excluded
 - [ ] Verify Recording With Griddle Included
 
+### Discovered Issues
+
+- [ ] Global system hotkeys for capture / recording controls
+  - [ ] Screenshot with annotations
+  - [ ] Screenshot without annotations
+  - [ ] Start / stop recording
+
 ### Exit Criteria
 
 v0.10.0-alpha is complete when a user can:

@@ -11,6 +11,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Griddle.Platform.MacOS;
 using Griddle.Platform.Capture;
+using Griddle.Platform.Recording;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
 using Griddle.Core.Documents;
@@ -972,6 +973,73 @@ public partial class MainWindow : Window
             includeAnnotations: false);
     }
 
+    private async Task TestStartRecordingAsync()
+    {
+        try
+        {
+            Console.WriteLine(
+                "Starting recording test...");
+
+            if (_overlayScreen is null)
+            {
+                Console.WriteLine(
+                    "Recording test aborted: overlay screen is null.");
+
+                return;
+            }
+
+            var bounds =
+                _overlayScreen.Bounds;
+
+            var recordingService =
+                new MacOSScreenRecordingService();
+
+            await recordingService.StartAsync(
+                new ScreenRecordingOptions
+                {
+                    Region =
+                        new CaptureRegion(
+                            bounds.X,
+                            bounds.Y,
+                            bounds.Width,
+                            bounds.Height),
+
+                    OutputFilePath =
+                        "/tmp/griddle-recording-test.mp4"
+                });
+
+            Console.WriteLine(
+                $"Recording active: {recordingService.IsRecording}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Recording start failed: {ex}");
+        }
+    }
+
+    private async Task TestStopRecordingAsync()
+    {
+        try
+        {
+            Console.WriteLine(
+                "Stopping recording test...");
+
+            var recordingService =
+                new MacOSScreenRecordingService();
+
+            await recordingService.StopAsync();
+
+            Console.WriteLine(
+                $"Recording active: {recordingService.IsRecording}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Recording stop failed: {ex}");
+        }
+    }
+
     protected override void OnClosing(
         WindowClosingEventArgs e)
     {
@@ -1334,6 +1402,32 @@ public partial class MainWindow : Window
             e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
             MoveOverlayToNextScreen();
+
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.R &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Meta) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Shift) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Alt))
+        {
+            _ = TestStopRecordingAsync();
+
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.R &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Meta) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Shift))
+        {
+            _ = TestStartRecordingAsync();
 
             e.Handled = true;
             return;
