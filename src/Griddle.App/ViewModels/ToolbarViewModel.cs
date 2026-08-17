@@ -58,6 +58,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public bool IsTintEnabled { get; private set; }
 
+    public bool IsRecording { get; private set; }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public event Action? NewCalloutGroupRequested;
@@ -166,6 +168,21 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(
             nameof(SessionName));
+    }
+
+    public void SetRecording(
+        bool isRecording)
+    {
+        if (IsRecording == isRecording)
+        {
+            return;
+        }
+
+        IsRecording =
+            isRecording;
+
+        OnPropertyChanged(
+            nameof(IsRecording));
     }
 
     public void SetOverlayEngaged(

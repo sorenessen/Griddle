@@ -1048,6 +1048,9 @@ public partial class MainWindow : Window
                         filePath
                 });
 
+            _toolbarViewModel?.SetRecording(
+                true);
+
             _activeRecordingId =
                 recordingId;
 
@@ -1073,6 +1076,9 @@ public partial class MainWindow : Window
 
             var result =
                 await _recordingService.StopAsync();
+
+            _toolbarViewModel?.SetRecording(
+                false);
 
             if (_activeRecordingId is null ||
                 string.IsNullOrWhiteSpace(

@@ -95,6 +95,30 @@
             <Setter Property="Background" Value="#35393D"/>
         </Style>
 
+        <Style Selector="Image.recording-knob">
+            <Style.Animations>
+                <Animation
+                    Duration="0:0:1"
+                    IterationCount="INFINITE"
+                    PlaybackDirection="Alternate"
+                    Easing="SineEaseInOut">
+
+                    <KeyFrame Cue="0%">
+                        <Setter
+                            Property="Opacity"
+                            Value="1"/>
+                    </KeyFrame>
+
+                    <KeyFrame Cue="100%">
+                        <Setter
+                            Property="Opacity"
+                            Value="0.25"/>
+                    </KeyFrame>
+
+                </Animation>
+            </Style.Animations>
+        </Style>
+
     </Window.Styles>
 
     <Border
@@ -154,6 +178,16 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         IsVisible="{Binding IsOverlayDisengaged}"/>
+
+                    <Image
+                        Classes="recording-knob"
+                        Source="avares://Griddle.App/Assets/griddle-toolbar-recording.png"
+                        Width="82"
+                        Height="82"
+                        Stretch="Uniform"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding IsRecording}"/>
 
                 </Grid>
 
