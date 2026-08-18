@@ -622,8 +622,8 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 - [x] Save Recording to Session Media
 - [x] Define Recording Metadata
 - [x] Associate Recording With Current Session
-- [ ] Restore Recording Metadata When Session Loads
-- [ ] Handle Missing Recording Media Gracefully
+- [x] Restore Recording Metadata When Session Loads
+- [x] Handle Missing Recording Media Gracefully
 
 ### Phase 3 — Audio
 

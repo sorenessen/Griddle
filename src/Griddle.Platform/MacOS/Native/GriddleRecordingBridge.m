@@ -188,6 +188,111 @@ static void clear_pending_stop(void)
 
 @end
 
+void griddle_request_screen_access(
+    GriddleScreenPermissionCallback callback,
+    void *context)
+{
+    if (callback == NULL)
+    {
+        return;
+    }
+
+    if (CGPreflightScreenCaptureAccess())
+    {
+        callback(
+            1,
+            context);
+
+        return;
+    }
+
+    BOOL granted =
+        CGRequestScreenCaptureAccess();
+
+    callback(
+        granted ? 1 : 0,
+        context);
+}
+
+void griddle_request_microphone_access(
+    GriddleMicrophonePermissionCallback callback,
+    void *context)
+{
+    if (callback == NULL)
+    {
+        return;
+    }
+
+    AVAuthorizationStatus status =
+        [AVCaptureDevice
+            authorizationStatusForMediaType:
+                AVMediaTypeAudio];
+
+    switch (status)
+    {
+        case AVAuthorizationStatusAuthorized:
+        {
+            callback(
+                1,
+                NULL,
+                context);
+
+            return;
+        }
+
+        case AVAuthorizationStatusDenied:
+        {
+            callback(
+                0,
+                "Microphone access was denied.",
+                context);
+
+            return;
+        }
+
+        case AVAuthorizationStatusRestricted:
+        {
+            callback(
+                0,
+                "Microphone access is restricted.",
+                context);
+
+            return;
+        }
+
+        case AVAuthorizationStatusNotDetermined:
+        {
+            [AVCaptureDevice
+                requestAccessForMediaType:
+                    AVMediaTypeAudio
+                completionHandler:^(
+                    BOOL granted)
+                {
+                    if (granted)
+                    {
+                        callback(
+                            1,
+                            NULL,
+                            context);
+                    }
+                    else
+                    {
+                        callback(
+                            0,
+                            "Microphone access was denied.",
+                            context);
+                    }
+                }];
+
+            return;
+        }
+    }
+
+    callback(
+        0,
+        "Unable to determine microphone permission status.",
+        context);
+}
 
 void griddle_recording_start(
     int32_t x,
@@ -220,8 +325,8 @@ void griddle_recording_start(
     /*
      * Audio wiring is intentionally deferred until
      * the basic video-file recording path is complete.
+     * Microphone capture will be wired separately.
      */
-    (void)captureSystemAudio;
     (void)captureMicrophone;
 
     if (outputFilePath == NULL)
@@ -376,6 +481,12 @@ void griddle_recording_start(
 
                 configuration.showsCursor =
                     YES;
+
+                configuration.capturesAudio =
+                    captureSystemAudio != 0;
+
+                configuration.captureMicrophone =
+                    captureMicrophone != 0;
 
                 int32_t effectiveFramesPerSecond =
                     framesPerSecond > 0

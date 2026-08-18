@@ -606,7 +606,6 @@ public partial class MainWindow : Window
 
         return true;
 
-        return true;
     }
 
     private NativeMenu CreateSessionNativeMenu()
@@ -1043,6 +1042,12 @@ public partial class MainWindow : Window
                             bounds.Y,
                             bounds.Width,
                             bounds.Height),
+
+                    CaptureSystemAudio =
+                        true,
+
+                    CaptureMicrophone =
+                        true,
 
                     OutputFilePath =
                         filePath

@@ -16,6 +16,23 @@ typedef void (*GriddleRecordingStopCallback)(
     const char *errorMessage,
     void *context);
 
+typedef void (*GriddleMicrophonePermissionCallback)(
+    int32_t granted,
+    const char *errorMessage,
+    void *context);
+
+typedef void (*GriddleScreenPermissionCallback)(
+    int32_t granted,
+    void *context);
+
+void griddle_request_screen_access(
+    GriddleScreenPermissionCallback callback,
+    void *context);
+
+void griddle_request_microphone_access(
+    GriddleMicrophonePermissionCallback callback,
+    void *context);
+
 void griddle_recording_start(
     int32_t x,
     int32_t y,

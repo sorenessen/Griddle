@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Griddle</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>Griddle</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>com.calypso.griddle</string>
+
+    <key>CFBundleExecutable</key>
+    <string>Griddle.App</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>0.10.0</string>
+
+    <key>CFBundleVersion</key>
+    <string>10</string>
+
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>Griddle records your screen when you choose to create a screen recording.</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Griddle uses the microphone when you choose to include narration in a screen recording.</string>
+</dict>
+</plist>

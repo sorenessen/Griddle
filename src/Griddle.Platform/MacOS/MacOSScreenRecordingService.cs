@@ -16,6 +16,16 @@ public sealed class MacOSScreenRecordingService
         StopCallback =
             OnRecordingStopped;
 
+    private static readonly
+        MacOSRecordingNative.MicrophonePermissionCallback
+        MicrophonePermissionCallback =
+            OnMicrophonePermissionCompleted;
+
+    private static readonly
+        MacOSRecordingNative.ScreenPermissionCallback
+        ScreenPermissionCallback =
+            OnScreenPermissionCompleted;
+
     private ScreenRecordingOptions?
         _activeOptions;
 
@@ -24,7 +34,7 @@ public sealed class MacOSScreenRecordingService
         MacOSRecordingNative
             .griddle_recording_is_active() != 0;
 
-    public Task StartAsync(
+    public async Task StartAsync(
         ScreenRecordingOptions options)
     {
         if (!OperatingSystem.IsMacOS())
@@ -37,6 +47,13 @@ public sealed class MacOSScreenRecordingService
         {
             throw new InvalidOperationException(
                 "A screen recording is already active.");
+        }
+
+        await RequestScreenAccessAsync();
+
+        if (options.CaptureMicrophone)
+        {
+            await RequestMicrophoneAccessAsync();
         }
 
         var completionSource =
@@ -80,7 +97,7 @@ public sealed class MacOSScreenRecordingService
             throw;
         }
 
-        return CompleteStartAsync(
+        await CompleteStartAsync(
             completionSource.Task,
             options);
     }
@@ -165,6 +182,134 @@ public sealed class MacOSScreenRecordingService
             null;
 
         return result;
+    }
+
+    private static Task RequestMicrophoneAccessAsync()
+    {
+        var completionSource =
+            new TaskCompletionSource<bool>(
+                TaskCreationOptions
+                    .RunContinuationsAsynchronously);
+
+        var handle =
+            GCHandle.Alloc(
+                completionSource);
+
+        try
+        {
+            MacOSRecordingNative
+                .griddle_request_microphone_access(
+                    MicrophonePermissionCallback,
+                    GCHandle.ToIntPtr(
+                        handle));
+        }
+        catch
+        {
+            handle.Free();
+            throw;
+        }
+
+        return completionSource.Task;
+    }
+
+    private static Task RequestScreenAccessAsync()
+    {
+        var completionSource =
+            new TaskCompletionSource<bool>(
+                TaskCreationOptions
+                    .RunContinuationsAsynchronously);
+
+        var handle =
+            GCHandle.Alloc(
+                completionSource);
+
+        try
+        {
+            MacOSRecordingNative
+                .griddle_request_screen_access(
+                    ScreenPermissionCallback,
+                    GCHandle.ToIntPtr(
+                        handle));
+        }
+        catch
+        {
+            handle.Free();
+            throw;
+        }
+
+        return completionSource.Task;
+    }
+
+    private static void OnScreenPermissionCompleted(
+        int granted,
+        IntPtr context)
+    {
+        var handle =
+            GCHandle.FromIntPtr(
+                context);
+
+        try
+        {
+            var completionSource =
+                (TaskCompletionSource<bool>)
+                    handle.Target!;
+
+            if (granted != 0)
+            {
+                completionSource.SetResult(
+                    true);
+
+                return;
+            }
+
+            completionSource.SetException(
+                new InvalidOperationException(
+                    "Screen recording access was not granted."));
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    private static void OnMicrophonePermissionCompleted(
+        int granted,
+        IntPtr errorMessage,
+        IntPtr context)
+    {
+        var handle =
+            GCHandle.FromIntPtr(
+                context);
+
+        try
+        {
+            var completionSource =
+                (TaskCompletionSource<bool>)
+                    handle.Target!;
+
+            if (granted != 0)
+            {
+                completionSource.SetResult(
+                    true);
+
+                return;
+            }
+
+            var message =
+                errorMessage != IntPtr.Zero
+                    ? Marshal.PtrToStringUTF8(
+                        errorMessage)
+                    : null;
+
+            completionSource.SetException(
+                new InvalidOperationException(
+                    message
+                    ?? "Microphone access was not granted."));
+        }
+        finally
+        {
+            handle.Free();
+        }
     }
 
     private static void OnRecordingStarted(

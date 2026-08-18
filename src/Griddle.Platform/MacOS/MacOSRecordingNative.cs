@@ -20,6 +20,33 @@ internal static class MacOSRecordingNative
         IntPtr errorMessage,
         IntPtr context);
 
+    [UnmanagedFunctionPointer(
+        CallingConvention.Cdecl)]
+    internal delegate void MicrophonePermissionCallback(
+        int granted,
+        IntPtr errorMessage,
+        IntPtr context);
+
+    [UnmanagedFunctionPointer(
+        CallingConvention.Cdecl)]
+    internal delegate void ScreenPermissionCallback(
+        int granted,
+        IntPtr context);
+
+    [DllImport(
+        LibraryName,
+        CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void griddle_request_screen_access(
+        ScreenPermissionCallback callback,
+        IntPtr context);
+
+    [DllImport(
+        LibraryName,
+        CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void griddle_request_microphone_access(
+        MicrophonePermissionCallback callback,
+        IntPtr context);
+
     [DllImport(
         LibraryName,
         CallingConvention = CallingConvention.Cdecl)]
