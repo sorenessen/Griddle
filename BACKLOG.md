@@ -627,11 +627,11 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 
 ### Phase 3 — Audio
 
-- [ ] Capture System Audio
-- [ ] Capture Microphone Audio
-- [ ] Record System Audio With Video
-- [ ] Record Microphone With Video
-- [ ] Record Combined System + Microphone Audio
+- [x] Capture System Audio
+- [x] Capture Microphone Audio
+- [x] Record System Audio With Video
+- [x] Record Microphone With Video
+- [x] Record Combined System + Microphone Audio
 - [ ] Enable / Disable System Audio
 - [ ] Enable / Disable Microphone
 - [ ] Select Microphone Input
