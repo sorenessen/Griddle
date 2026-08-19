@@ -632,9 +632,9 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 - [x] Record System Audio With Video
 - [x] Record Microphone With Video
 - [x] Record Combined System + Microphone Audio
-- [ ] Enable / Disable System Audio
-- [ ] Enable / Disable Microphone
-- [ ] Select Microphone Input
+- [x] Enable / Disable System Audio
+- [x] Enable / Disable Microphone
+- [x] Select Microphone Input
 
 ### Phase 4 — Recording UX & Hardening
 

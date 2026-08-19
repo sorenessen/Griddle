@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Griddle.Platform.Recording;
+using System.Text.Json;
 
 namespace Griddle.Platform.MacOS;
 
@@ -26,6 +27,11 @@ public sealed class MacOSScreenRecordingService
         ScreenPermissionCallback =
             OnScreenPermissionCompleted;
 
+    private static readonly
+        MacOSRecordingNative.MicrophoneDevicesCallback
+        MicrophoneDevicesCallback =
+            OnMicrophoneDevicesReceived;
+
     private ScreenRecordingOptions?
         _activeOptions;
 
@@ -33,6 +39,93 @@ public sealed class MacOSScreenRecordingService
         OperatingSystem.IsMacOS() &&
         MacOSRecordingNative
             .griddle_recording_is_active() != 0;
+
+    public Task<IReadOnlyList<MicrophoneDevice>>
+        GetMicrophoneDevicesAsync()
+    {
+        if (!OperatingSystem.IsMacOS())
+        {
+            throw new PlatformNotSupportedException(
+                "Microphone enumeration is only available on macOS.");
+        }
+
+        var completionSource =
+            new TaskCompletionSource<IReadOnlyList<MicrophoneDevice>>(
+                TaskCreationOptions
+                    .RunContinuationsAsynchronously);
+
+        var handle =
+            GCHandle.Alloc(
+                completionSource);
+
+        try
+        {
+            MacOSRecordingNative
+                .griddle_get_microphone_devices(
+                    MicrophoneDevicesCallback,
+                    GCHandle.ToIntPtr(
+                        handle));
+        }
+        catch
+        {
+            handle.Free();
+            throw;
+        }
+
+        return completionSource.Task;
+    }
+
+    private static void OnMicrophoneDevicesReceived(
+        IntPtr devicesJson,
+        IntPtr context)
+    {
+        var handle =
+            GCHandle.FromIntPtr(
+                context);
+
+        try
+        {
+            var completionSource =
+                (TaskCompletionSource<IReadOnlyList<MicrophoneDevice>>)
+                    handle.Target!;
+
+            var json =
+                devicesJson != IntPtr.Zero
+                    ? Marshal.PtrToStringUTF8(
+                        devicesJson)
+                    : null;
+
+            var devices =
+                string.IsNullOrWhiteSpace(
+                    json)
+                    ? []
+                    : JsonSerializer.Deserialize<
+                        List<MicrophoneDevice>>(
+                            json,
+                            new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive =
+                                    true
+                            })
+                        ?? [];
+
+            completionSource.SetResult(
+                devices);
+        }
+        catch (Exception ex)
+        {
+            var completionSource =
+                (TaskCompletionSource<IReadOnlyList<MicrophoneDevice>>)
+                    handle.Target!;
+
+            completionSource.SetException(
+                ex);
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
 
     public async Task StartAsync(
         ScreenRecordingOptions options)
@@ -85,6 +178,7 @@ public sealed class MacOSScreenRecordingService
                     options.CaptureMicrophone
                         ? 1
                         : 0,
+                    options.MicrophoneDeviceId,
                     framesPerSecond,
                     options.OutputFilePath,
                     StartCallback,

@@ -212,6 +212,14 @@ public partial class MainWindow : Window
                 _isTintEnabled);
         };
 
+        _toolbarViewModel.ToggleSystemAudioRequested += () =>
+        {
+            _toolbarViewModel.SetSystemAudioEnabled(
+                !_toolbarViewModel.IsSystemAudioEnabled);
+        };
+
+        _ = LoadMicrophoneDevicesAsync();
+
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
         NativeMenu.SetMenu(
@@ -977,6 +985,25 @@ public partial class MainWindow : Window
             includeAnnotations: false);
     }
 
+    private async Task LoadMicrophoneDevicesAsync()
+    {
+        try
+        {
+            var devices =
+                await _recordingService
+                    .GetMicrophoneDevicesAsync();
+
+            _toolbarViewModel?
+                .SetMicrophoneDevices(
+                    devices);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Microphone enumeration failed: {ex}");
+        }
+    }
+
     private async Task TestStartRecordingAsync()
     {
         try
@@ -1044,10 +1071,19 @@ public partial class MainWindow : Window
                             bounds.Height),
 
                     CaptureSystemAudio =
-                        true,
+                        _toolbarViewModel?
+                            .IsSystemAudioEnabled
+                        ?? true,
 
                     CaptureMicrophone =
-                        true,
+                        _toolbarViewModel?
+                            .IsMicrophoneEnabled
+                        ?? true,
+
+                    MicrophoneDeviceId =
+                        _toolbarViewModel?
+                            .SelectedMicrophoneDevice?
+                            .Id,
 
                     OutputFilePath =
                         filePath

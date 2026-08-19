@@ -294,6 +294,65 @@ void griddle_request_microphone_access(
         context);
 }
 
+void griddle_get_microphone_devices(
+    GriddleMicrophoneDevicesCallback callback,
+    void *context)
+{
+    if (callback == NULL)
+    {
+        return;
+    }
+
+    AVCaptureDeviceDiscoverySession *session =
+        [AVCaptureDeviceDiscoverySession
+            discoverySessionWithDeviceTypes:
+                @[AVCaptureDeviceTypeMicrophone]
+            mediaType:
+                AVMediaTypeAudio
+            position:
+                AVCaptureDevicePositionUnspecified];
+
+    NSMutableArray *devices =
+        [NSMutableArray array];
+
+    for (AVCaptureDevice *device in session.devices)
+    {
+        [devices addObject:
+            @{
+                @"id": device.uniqueID,
+                @"name": device.localizedName
+            }];
+    }
+
+    NSError *error =
+        nil;
+
+    NSData *jsonData =
+        [NSJSONSerialization
+            dataWithJSONObject:devices
+            options:0
+            error:&error];
+
+    if (error != nil ||
+        jsonData == nil)
+    {
+        callback(
+            "[]",
+            context);
+
+        return;
+    }
+
+    NSString *json =
+        [[NSString alloc]
+            initWithData:jsonData
+            encoding:NSUTF8StringEncoding];
+
+    callback(
+        json.UTF8String,
+        context);
+}
+
 void griddle_recording_start(
     int32_t x,
     int32_t y,
@@ -302,6 +361,7 @@ void griddle_recording_start(
     int32_t includeApplicationWindows,
     int32_t captureSystemAudio,
     int32_t captureMicrophone,
+    const char *microphoneDeviceId,
     int32_t framesPerSecond,
     const char *outputFilePath,
     GriddleRecordingCallback callback,
@@ -321,13 +381,6 @@ void griddle_recording_start(
 
         return;
     }
-
-    /*
-     * Audio wiring is intentionally deferred until
-     * the basic video-file recording path is complete.
-     * Microphone capture will be wired separately.
-     */
-    (void)captureMicrophone;
 
     if (outputFilePath == NULL)
     {
@@ -355,6 +408,18 @@ void griddle_recording_start(
             context);
 
         return;
+    }
+
+    NSString *requestedMicrophoneDeviceId =
+        nil;
+
+    if (microphoneDeviceId != NULL &&
+        microphoneDeviceId[0] != '\0')
+    {
+        requestedMicrophoneDeviceId =
+            [[NSString alloc]
+                initWithUTF8String:
+                    microphoneDeviceId];
     }
 
     if (@available(macOS 15.0, *))
@@ -488,6 +553,13 @@ void griddle_recording_start(
                 configuration.captureMicrophone =
                     captureMicrophone != 0;
 
+                if (requestedMicrophoneDeviceId != nil &&
+                    requestedMicrophoneDeviceId.length > 0)
+                {
+                    configuration.microphoneCaptureDeviceID =
+                        requestedMicrophoneDeviceId;
+                }
+
                 int32_t effectiveFramesPerSecond =
                     framesPerSecond > 0
                         ? framesPerSecond
@@ -535,6 +607,54 @@ void griddle_recording_start(
                         context);
 
                     return;
+                }
+
+                if (captureSystemAudio != 0)
+                {
+                    NSError *audioOutputError =
+                        nil;
+
+                    BOOL audioOutputAdded =
+                        [stream
+                            addStreamOutput:streamHandler
+                            type:SCStreamOutputTypeAudio
+                            sampleHandlerQueue:queue
+                            error:&audioOutputError];
+
+                    if (!audioOutputAdded)
+                    {
+                        callback(
+                            audioOutputError
+                                .localizedDescription
+                                .UTF8String,
+                            context);
+
+                        return;
+                    }
+                }
+
+                if (captureMicrophone != 0)
+                {
+                    NSError *microphoneOutputError =
+                        nil;
+
+                    BOOL microphoneOutputAdded =
+                        [stream
+                            addStreamOutput:streamHandler
+                            type:SCStreamOutputTypeMicrophone
+                            sampleHandlerQueue:queue
+                            error:&microphoneOutputError];
+
+                    if (!microphoneOutputAdded)
+                    {
+                        callback(
+                            microphoneOutputError
+                                .localizedDescription
+                                .UTF8String,
+                            context);
+
+                        return;
+                    }
                 }
 
                 NSURL *outputURL =

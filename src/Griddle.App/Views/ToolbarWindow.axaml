@@ -119,6 +119,14 @@
             </Style.Animations>
         </Style>
 
+        <Style Selector="CheckBox.recording-option">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="CheckBox.recording-option /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="TextElement.Foreground" Value="White"/>
+        </Style>
+
     </Window.Styles>
 
     <Border
@@ -198,6 +206,70 @@
                 Height="30"
                 Background="#5A5A5A"
                 Margin="2,0,2,0"/>
+
+            <Button
+                Classes="toolbar"
+                ToolTip.Tip="Recording settings">
+
+                <Grid Width="22" Height="22">
+
+                    <Ellipse
+                        Width="15"
+                        Height="15"
+                        Stroke="White"
+                        StrokeThickness="2"/>
+
+                    <Ellipse
+                        Width="7"
+                        Height="7"
+                        Fill="#E53935"/>
+
+                </Grid>
+
+                <Button.Flyout>
+                    <Flyout Placement="Bottom">
+
+                        <Border
+                            Background="#1B1D1F"
+                            BorderBrush="#73787D"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="10">
+
+                            <StackPanel
+                                Spacing="8"
+                                MinWidth="150">
+
+                                <TextBlock
+                                    Text="Recording"
+                                    Foreground="White"
+                                    FontWeight="Bold"/>
+
+                                <CheckBox
+                                    Classes="recording-option"
+                                    Content="System Audio"
+                                    IsChecked="{Binding IsSystemAudioEnabled, Mode=TwoWay}"/>
+
+                                <CheckBox
+                                    Classes="recording-option"
+                                    Content="Microphone"
+                                    IsChecked="{Binding IsMicrophoneEnabled, Mode=TwoWay}"/>
+
+                                <ComboBox
+                                    ItemsSource="{Binding MicrophoneDevices}"
+                                    SelectedItem="{Binding SelectedMicrophoneDevice, Mode=TwoWay}"
+                                    IsEnabled="{Binding IsMicrophoneEnabled}"
+                                    MinWidth="180"
+                                    ToolTip.Tip="Microphone input"/>
+
+                            </StackPanel>
+
+                        </Border>
+
+                    </Flyout>
+                </Button.Flyout>
+
+            </Button>
 
             <Button
                 Classes="toolbar"

@@ -33,6 +33,19 @@ internal static class MacOSRecordingNative
         int granted,
         IntPtr context);
 
+    [UnmanagedFunctionPointer(
+        CallingConvention.Cdecl)]
+    internal delegate void MicrophoneDevicesCallback(
+        IntPtr devicesJson,
+        IntPtr context);
+
+    [DllImport(
+        LibraryName,
+        CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void griddle_get_microphone_devices(
+        MicrophoneDevicesCallback callback,
+        IntPtr context);
+
     [DllImport(
         LibraryName,
         CallingConvention = CallingConvention.Cdecl)]
@@ -58,6 +71,7 @@ internal static class MacOSRecordingNative
         int includeApplicationWindows,
         int captureSystemAudio,
         int captureMicrophone,
+        string? microphoneDeviceId,
         int framesPerSecond,
         string outputFilePath,
         RecordingCallback callback,

@@ -25,12 +25,20 @@ typedef void (*GriddleScreenPermissionCallback)(
     int32_t granted,
     void *context);
 
+typedef void (*GriddleMicrophoneDevicesCallback)(
+    const char *devicesJson,
+    void *context);
+
 void griddle_request_screen_access(
     GriddleScreenPermissionCallback callback,
     void *context);
 
 void griddle_request_microphone_access(
     GriddleMicrophonePermissionCallback callback,
+    void *context);
+
+void griddle_get_microphone_devices(
+    GriddleMicrophoneDevicesCallback callback,
     void *context);
 
 void griddle_recording_start(
@@ -41,6 +49,7 @@ void griddle_recording_start(
     int32_t includeApplicationWindows,
     int32_t captureSystemAudio,
     int32_t captureMicrophone,
+    const char *microphoneDeviceId,
     int32_t framesPerSecond,
     const char *outputFilePath,
     GriddleRecordingCallback callback,
