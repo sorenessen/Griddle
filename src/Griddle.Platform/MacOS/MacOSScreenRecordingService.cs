@@ -32,8 +32,19 @@ public sealed class MacOSScreenRecordingService
         MicrophoneDevicesCallback =
             OnMicrophoneDevicesReceived;
 
+    private static readonly
+        MacOSRecordingNative.MicrophoneDisconnectedCallback
+        MicrophoneDisconnectedCallback =
+            OnMicrophoneDisconnected;
+
     private ScreenRecordingOptions?
         _activeOptions;
+
+    private GCHandle?
+        _microphoneDisconnectHandle;
+
+    public event Action<string?, string?>?
+        MicrophoneDisconnected;
 
     public bool IsRecording =>
         OperatingSystem.IsMacOS() &&
@@ -127,6 +138,43 @@ public sealed class MacOSScreenRecordingService
         }
     }
 
+    private static void OnMicrophoneDisconnected(
+        IntPtr deviceId,
+        IntPtr deviceName,
+        IntPtr context)
+    {
+        if (context == IntPtr.Zero)
+        {
+            return;
+        }
+
+        var handle =
+            GCHandle.FromIntPtr(
+                context);
+
+        if (handle.Target
+            is not MacOSScreenRecordingService service)
+        {
+            return;
+        }
+
+        var id =
+            deviceId != IntPtr.Zero
+                ? Marshal.PtrToStringUTF8(
+                    deviceId)
+                : null;
+
+        var name =
+            deviceName != IntPtr.Zero
+                ? Marshal.PtrToStringUTF8(
+                    deviceName)
+                : null;
+
+        service.MicrophoneDisconnected?.Invoke(
+            id,
+            name);
+    }
+
     public async Task StartAsync(
         ScreenRecordingOptions options)
     {
@@ -161,6 +209,20 @@ public sealed class MacOSScreenRecordingService
         var framesPerSecond =
             options.FramesPerSecond ?? 30;
 
+        var microphoneDisconnectContext =
+            IntPtr.Zero;
+
+        if (options.CaptureMicrophone)
+        {
+            _microphoneDisconnectHandle =
+                GCHandle.Alloc(
+                    this);
+
+            microphoneDisconnectContext =
+                GCHandle.ToIntPtr(
+                    _microphoneDisconnectHandle.Value);
+        }
+
         try
         {
             MacOSRecordingNative
@@ -183,11 +245,21 @@ public sealed class MacOSScreenRecordingService
                     options.OutputFilePath,
                     StartCallback,
                     GCHandle.ToIntPtr(
-                        handle));
+                        handle),
+                    MicrophoneDisconnectedCallback,
+                    microphoneDisconnectContext);
         }
         catch
         {
             handle.Free();
+
+            if (_microphoneDisconnectHandle is { } disconnectHandle)
+            {
+                disconnectHandle.Free();
+                _microphoneDisconnectHandle =
+                    null;
+            }
+
             throw;
         }
 
@@ -245,6 +317,14 @@ public sealed class MacOSScreenRecordingService
 
         var durationSeconds =
             await completionSource.Task;
+
+        if (_microphoneDisconnectHandle is { } disconnectHandle)
+        {
+            disconnectHandle.Free();
+
+            _microphoneDisconnectHandle =
+                null;
+        }
 
         var result =
             new ScreenRecordingResult

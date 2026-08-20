@@ -209,6 +209,39 @@
 
             <Button
                 Classes="toolbar"
+                Classes.active="{Binding IsRecording}"
+                Click="RecordingButton_Click"
+                ToolTip.Tip="Start / stop recording">
+
+                <Grid Width="22" Height="22">
+
+                    <Ellipse
+                        Width="15"
+                        Height="15"
+                        Stroke="White"
+                        StrokeThickness="2"
+                        IsVisible="{Binding !IsRecording}"/>
+
+                    <Ellipse
+                        Width="7"
+                        Height="7"
+                        Fill="#E53935"
+                        IsVisible="{Binding !IsRecording}"/>
+
+                    <Rectangle
+                        Width="10"
+                        Height="10"
+                        Fill="#E53935"
+                        RadiusX="2"
+                        RadiusY="2"
+                        IsVisible="{Binding IsRecording}"/>
+
+                </Grid>
+
+            </Button>
+
+            <Button
+                Classes="toolbar"
                 ToolTip.Tip="Recording settings">
 
                 <Grid Width="22" Height="22">

@@ -29,6 +29,11 @@ typedef void (*GriddleMicrophoneDevicesCallback)(
     const char *devicesJson,
     void *context);
 
+typedef void (*GriddleMicrophoneDisconnectedCallback)(
+    const char *deviceId,
+    const char *deviceName,
+    void *context);
+
 void griddle_request_screen_access(
     GriddleScreenPermissionCallback callback,
     void *context);
@@ -53,7 +58,9 @@ void griddle_recording_start(
     int32_t framesPerSecond,
     const char *outputFilePath,
     GriddleRecordingCallback callback,
-    void *context);
+    void *context,
+    GriddleMicrophoneDisconnectedCallback microphoneDisconnectedCallback,
+    void *microphoneDisconnectedContext);
 
 void griddle_recording_stop(
     GriddleRecordingStopCallback callback,

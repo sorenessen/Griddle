@@ -39,6 +39,13 @@ internal static class MacOSRecordingNative
         IntPtr devicesJson,
         IntPtr context);
 
+    [UnmanagedFunctionPointer(
+        CallingConvention.Cdecl)]
+    internal delegate void MicrophoneDisconnectedCallback(
+        IntPtr deviceId,
+        IntPtr deviceName,
+        IntPtr context);
+
     [DllImport(
         LibraryName,
         CallingConvention = CallingConvention.Cdecl)]
@@ -75,7 +82,9 @@ internal static class MacOSRecordingNative
         int framesPerSecond,
         string outputFilePath,
         RecordingCallback callback,
-        IntPtr context);
+        IntPtr context,
+        MicrophoneDisconnectedCallback microphoneDisconnectedCallback,
+        IntPtr microphoneDisconnectedContext);
 
     [DllImport(
         LibraryName,

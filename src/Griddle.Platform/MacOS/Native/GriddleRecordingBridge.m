@@ -3,12 +3,20 @@
 #import <AppKit/AppKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>
+#import <CoreVideo/CoreVideo.h>
 #import <ScreenCaptureKit/ScreenCaptureKit.h>
 #import <math.h>
 #import <unistd.h>
+#import <string.h>
 
 
 static BOOL GriddleRecordingActive = NO;
+
+static uint64_t
+    GriddleScreenFrameCount = 0;
+
+static BOOL
+    GriddleLoggedPixelBufferFormat = NO;
 
 static SCStream *GriddleRecordingStream = nil;
 
@@ -18,7 +26,28 @@ static dispatch_queue_t GriddleRecordingQueue = nil;
 
 static SCRecordingOutput *GriddleRecordingOutput = nil;
 
+static BOOL
+    GriddleDiagnosticRawStreamOnly = YES;
+
 static id GriddleRecordingOutputDelegate = nil;
+
+static AVAssetWriter *
+    GriddleAssetWriter = nil;
+
+static AVAssetWriterInput *
+    GriddleVideoWriterInput = nil;
+
+static AVAssetWriterInputPixelBufferAdaptor *
+    GriddleVideoPixelBufferAdaptor = nil;
+
+static BOOL
+    GriddleAssetWriterSessionStarted = NO;
+
+static CMTime
+    GriddleAssetWriterStartTime;
+
+static CMTime
+    GriddleAssetWriterLastVideoTime;
 
 static GriddleRecordingStopCallback
     GriddlePendingStopCallback = NULL;
@@ -26,10 +55,63 @@ static GriddleRecordingStopCallback
 static void *
     GriddlePendingStopContext = NULL;
 
+static id
+    GriddleMicrophoneDisconnectObserver = nil;
+
+static NSString *
+    GriddleActiveMicrophoneDeviceId = nil;
+
+static GriddleMicrophoneDisconnectedCallback
+    GriddleMicrophoneDisconnectedHandler = NULL;
+
+static void *
+    GriddleMicrophoneDisconnectedContext = NULL;
 
 static void clear_recording_state(void)
 {
+    if (GriddleMicrophoneDisconnectObserver != nil)
+    {
+        [[NSNotificationCenter defaultCenter]
+            removeObserver:
+                GriddleMicrophoneDisconnectObserver];
+
+        GriddleMicrophoneDisconnectObserver =
+            nil;
+    }
+
+    GriddleActiveMicrophoneDeviceId =
+        nil;
+
+    GriddleMicrophoneDisconnectedHandler =
+        NULL;
+
+    GriddleMicrophoneDisconnectedContext =
+        NULL;
+
+    GriddleAssetWriter =
+    nil;
+
+    GriddleVideoWriterInput =
+        nil;
+
+    GriddleVideoPixelBufferAdaptor =
+        nil;
+
+    GriddleAssetWriterSessionStarted =
+        NO;
+
+    GriddleAssetWriterStartTime =
+        kCMTimeInvalid;
+
+    GriddleAssetWriterLastVideoTime =
+        kCMTimeInvalid;
+
     GriddleRecordingActive = NO;
+
+    GriddleScreenFrameCount = 0;
+
+    GriddleLoggedPixelBufferFormat =
+        NO;
 
     GriddleRecordingStream = nil;
 
@@ -67,16 +149,363 @@ static void clear_pending_stop(void)
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     ofType:(SCStreamOutputType)type
 {
-    /*
-     * SCRecordingOutput writes the recording file.
-     * We retain the screen stream output so Griddle
-     * can process individual frames in the future.
-     */
     (void)stream;
-    (void)sampleBuffer;
-    (void)type;
-}
 
+    if (type != SCStreamOutputTypeScreen)
+    {
+        return;
+    }
+
+    GriddleScreenFrameCount++;
+
+    CFArrayRef attachmentsArray =
+        CMSampleBufferGetSampleAttachmentsArray(
+            sampleBuffer,
+            false);
+
+    NSInteger frameStatus =
+        -1;
+
+    if (attachmentsArray != NULL &&
+        CFArrayGetCount(attachmentsArray) > 0)
+    {
+        CFDictionaryRef attachments =
+            CFArrayGetValueAtIndex(
+                attachmentsArray,
+                0);
+
+        CFNumberRef statusNumber =
+            CFDictionaryGetValue(
+                attachments,
+                (__bridge const void *)
+                    SCStreamFrameInfoStatus);
+
+        if (statusNumber != NULL)
+        {
+            CFNumberGetValue(
+                statusNumber,
+                kCFNumberNSIntegerType,
+                &frameStatus);
+        }
+    }
+
+    CMTime presentationTime =
+        CMSampleBufferGetPresentationTimeStamp(
+            sampleBuffer);
+
+    NSLog(
+        @"Griddle screen frame #%llu status=%ld pts=%.3f",
+        GriddleScreenFrameCount,
+        (long)frameStatus,
+        CMTimeGetSeconds(
+            presentationTime));
+
+    if (frameStatus != SCFrameStatusComplete)
+    {
+        return;
+    }
+
+    if (!GriddleLoggedPixelBufferFormat)
+    {
+        CVImageBufferRef imageBuffer =
+            CMSampleBufferGetImageBuffer(
+                sampleBuffer);
+
+        if (imageBuffer != NULL)
+        {
+            OSType pixelFormat =
+                CVPixelBufferGetPixelFormatType(
+                    imageBuffer);
+
+            size_t pixelWidth =
+                CVPixelBufferGetWidth(
+                    imageBuffer);
+
+            size_t pixelHeight =
+                CVPixelBufferGetHeight(
+                    imageBuffer);
+
+            char formatString[5] =
+            {
+                (char)((pixelFormat >> 24) & 0xff),
+                (char)((pixelFormat >> 16) & 0xff),
+                (char)((pixelFormat >> 8) & 0xff),
+                (char)(pixelFormat & 0xff),
+                '\0'
+            };
+
+            NSLog(
+                @"Griddle source pixel buffer -- format=%s (%u) size=%zux%zu planes=%zu",
+                formatString,
+                (unsigned int)pixelFormat,
+                pixelWidth,
+                pixelHeight,
+                CVPixelBufferGetPlaneCount(
+                    imageBuffer));
+
+            GriddleLoggedPixelBufferFormat =
+                YES;
+        }
+    }
+
+    if (!GriddleAssetWriterSessionStarted)
+    {
+        if (![GriddleAssetWriter startWriting])
+        {
+            NSLog(
+                @"Griddle AVAssetWriter failed to start: %@",
+                GriddleAssetWriter.error);
+
+            return;
+        }
+
+        GriddleAssetWriterStartTime =
+            presentationTime;
+
+        [GriddleAssetWriter
+            startSessionAtSourceTime:
+                GriddleAssetWriterStartTime];
+
+        GriddleAssetWriterSessionStarted =
+            YES;
+
+        NSLog(
+            @"Griddle writer started -- status=%ld ready=%d pool=%p error=%@",
+            (long)GriddleAssetWriter.status,
+            GriddleVideoWriterInput.readyForMoreMediaData
+                ? 1
+                : 0,
+            GriddleVideoPixelBufferAdaptor.pixelBufferPool,
+            GriddleAssetWriter.error);
+    }
+
+    // if (GriddleVideoWriterInput.readyForMoreMediaData)
+    // {
+    //     if (![GriddleVideoWriterInput
+    //             appendSampleBuffer:
+    //                 sampleBuffer])
+    //     {
+    //         NSLog(
+    //             @"Griddle AVAssetWriter video append failed: %@",
+    //             GriddleAssetWriter.error);
+    //     }
+    //     else
+    //     {
+    //         GriddleAssetWriterLastVideoTime =
+    //             presentationTime;
+    //     }
+    // }
+
+    if (!GriddleVideoWriterInput.readyForMoreMediaData)
+    {
+        NSLog(
+            @"Griddle writer input not ready -- status=%ld error=%@",
+            (long)GriddleAssetWriter.status,
+            GriddleAssetWriter.error);
+
+        return;
+    }
+
+    CVPixelBufferPoolRef pixelBufferPool =
+        GriddleVideoPixelBufferAdaptor.pixelBufferPool;
+
+    if (pixelBufferPool == NULL)
+    {
+        NSLog(
+            @"Griddle writer pixel buffer pool is NULL -- status=%ld error=%@",
+            (long)GriddleAssetWriter.status,
+            GriddleAssetWriter.error);
+
+        return;
+    }
+
+    CVImageBufferRef sourceBuffer =
+        CMSampleBufferGetImageBuffer(
+            sampleBuffer);
+
+    if (sourceBuffer == NULL)
+    {
+        NSLog(
+            @"Griddle screen sample did not contain an image buffer.");
+
+        return;
+    }
+
+    CVPixelBufferRef destinationBuffer =
+        NULL;
+
+    CVReturn createResult =
+        CVPixelBufferPoolCreatePixelBuffer(
+            kCFAllocatorDefault,
+            pixelBufferPool,
+            &destinationBuffer);
+
+    if (createResult != kCVReturnSuccess ||
+        destinationBuffer == NULL)
+    {
+        NSLog(
+            @"Griddle could not allocate writer pixel buffer: %d",
+            createResult);
+
+        return;
+    }
+
+    CVReturn sourceLockResult =
+        CVPixelBufferLockBaseAddress(
+            sourceBuffer,
+            kCVPixelBufferLock_ReadOnly);
+
+    CVReturn destinationLockResult =
+        CVPixelBufferLockBaseAddress(
+            destinationBuffer,
+            0);
+
+    BOOL copySucceeded =
+        sourceLockResult == kCVReturnSuccess &&
+        destinationLockResult == kCVReturnSuccess;
+
+    if (copySucceeded)
+    {
+        size_t sourcePlaneCount =
+            CVPixelBufferGetPlaneCount(
+                sourceBuffer);
+
+        size_t destinationPlaneCount =
+            CVPixelBufferGetPlaneCount(
+                destinationBuffer);
+
+        copySucceeded =
+            sourcePlaneCount ==
+            destinationPlaneCount;
+
+        if (!copySucceeded)
+        {
+            NSLog(
+                @"Griddle pixel buffer plane mismatch -- source=%zu destination=%zu",
+                sourcePlaneCount,
+                destinationPlaneCount);
+        }
+        else
+        {
+            for (size_t plane = 0;
+                plane < sourcePlaneCount;
+                plane++)
+            {
+                uint8_t *source =
+                    CVPixelBufferGetBaseAddressOfPlane(
+                        sourceBuffer,
+                        plane);
+
+                uint8_t *destination =
+                    CVPixelBufferGetBaseAddressOfPlane(
+                        destinationBuffer,
+                        plane);
+
+                size_t sourceBytesPerRow =
+                    CVPixelBufferGetBytesPerRowOfPlane(
+                        sourceBuffer,
+                        plane);
+
+                size_t destinationBytesPerRow =
+                    CVPixelBufferGetBytesPerRowOfPlane(
+                        destinationBuffer,
+                        plane);
+
+                size_t sourceHeight =
+                    CVPixelBufferGetHeightOfPlane(
+                        sourceBuffer,
+                        plane);
+
+                size_t destinationHeight =
+                    CVPixelBufferGetHeightOfPlane(
+                        destinationBuffer,
+                        plane);
+
+                if (source == NULL ||
+                    destination == NULL ||
+                    sourceHeight != destinationHeight)
+                {
+                    copySucceeded =
+                        NO;
+
+                    NSLog(
+                        @"Griddle pixel buffer plane copy mismatch -- plane=%zu sourceHeight=%zu destinationHeight=%zu",
+                        plane,
+                        sourceHeight,
+                        destinationHeight);
+
+                    break;
+                }
+
+                size_t bytesToCopy =
+                    MIN(
+                        sourceBytesPerRow,
+                        destinationBytesPerRow);
+
+                for (size_t row = 0;
+                    row < sourceHeight;
+                    row++)
+                {
+                    memcpy(
+                        destination +
+                            (row *
+                                destinationBytesPerRow),
+                        source +
+                            (row *
+                                sourceBytesPerRow),
+                        bytesToCopy);
+                }
+            }
+        }
+    }
+    else
+    {
+        NSLog(
+            @"Griddle pixel buffer lock failed -- source=%d destination=%d",
+            sourceLockResult,
+            destinationLockResult);
+    }
+
+    if (destinationLockResult == kCVReturnSuccess)
+    {
+        CVPixelBufferUnlockBaseAddress(
+            destinationBuffer,
+            0);
+    }
+
+    if (sourceLockResult == kCVReturnSuccess)
+    {
+        CVPixelBufferUnlockBaseAddress(
+            sourceBuffer,
+            kCVPixelBufferLock_ReadOnly);
+    }
+
+    if (copySucceeded)
+    {
+        BOOL appended =
+            [GriddleVideoPixelBufferAdaptor
+                appendPixelBuffer:
+                    destinationBuffer
+                withPresentationTime:
+                    presentationTime];
+
+        if (appended)
+        {
+            GriddleAssetWriterLastVideoTime =
+                presentationTime;
+        }
+        else
+        {
+            NSLog(
+                @"Griddle copied video frame append failed -- status=%ld error=%@",
+                (long)GriddleAssetWriter.status,
+                GriddleAssetWriter.error);
+        }
+    }
+
+    CVPixelBufferRelease(
+        destinationBuffer);
+}
 
 - (void)stream:(SCStream *)stream
     didStopWithError:(NSError *)error
@@ -365,7 +794,9 @@ void griddle_recording_start(
     int32_t framesPerSecond,
     const char *outputFilePath,
     GriddleRecordingCallback callback,
-    void *context)
+    void *context,
+    GriddleMicrophoneDisconnectedCallback microphoneDisconnectedCallback,
+    void *microphoneDisconnectedContext)
 {
     if (callback == NULL)
     {
@@ -482,6 +913,18 @@ void griddle_recording_start(
                     return;
                 }
 
+                NSLog(
+                    @"Griddle target display -- id=%u bounds=(%.0f, %.0f, %.0f, %.0f)",
+                    targetDisplay.displayID,
+                    CGDisplayBounds(
+                        targetDisplay.displayID).origin.x,
+                    CGDisplayBounds(
+                        targetDisplay.displayID).origin.y,
+                    CGDisplayBounds(
+                        targetDisplay.displayID).size.width,
+                    CGDisplayBounds(
+                        targetDisplay.displayID).size.height);
+
                 NSArray<SCRunningApplication *> *
                     excludedApplications =
                         @[];
@@ -528,6 +971,26 @@ void griddle_recording_start(
                 CGRect displayBounds =
                     CGDisplayBounds(
                         targetDisplay.displayID);
+
+                NSLog(
+                    @"Griddle recording geometry -- "
+                     "request=(%.0f, %.0f, %.0f, %.0f) "
+                     "displayBounds=(%.0f, %.0f, %.0f, %.0f) "
+                     "filterContentRect=(%.0f, %.0f, %.0f, %.0f) "
+                     "pointPixelScale=%.3f",
+                    rect.origin.x,
+                    rect.origin.y,
+                    rect.size.width,
+                    rect.size.height,
+                    displayBounds.origin.x,
+                    displayBounds.origin.y,
+                    displayBounds.size.width,
+                    displayBounds.size.height,
+                    filter.contentRect.origin.x,
+                    filter.contentRect.origin.y,
+                    filter.contentRect.size.width,
+                    filter.contentRect.size.height,
+                    filter.pointPixelScale);
 
                 configuration.sourceRect =
                     CGRectMake(
@@ -657,9 +1120,147 @@ void griddle_recording_start(
                     }
                 }
 
+                if (captureMicrophone != 0 &&
+                    requestedMicrophoneDeviceId != nil)
+                {
+                    GriddleActiveMicrophoneDeviceId =
+                        [requestedMicrophoneDeviceId copy];
+
+                    GriddleMicrophoneDisconnectedHandler =
+                        microphoneDisconnectedCallback;
+
+                    GriddleMicrophoneDisconnectedContext =
+                        microphoneDisconnectedContext;
+
+                    GriddleMicrophoneDisconnectObserver =
+                        [[NSNotificationCenter defaultCenter]
+                            addObserverForName:
+                                AVCaptureDeviceWasDisconnectedNotification
+                            object:nil
+                            queue:
+                                [NSOperationQueue mainQueue]
+                            usingBlock:^(
+                                NSNotification *notification)
+                            {
+                                AVCaptureDevice *device =
+                                    (AVCaptureDevice *)
+                                        notification.object;
+
+                                if (device == nil)
+                                {
+                                    return;
+                                }
+
+                                if (![device.uniqueID
+                                        isEqualToString:
+                                            GriddleActiveMicrophoneDeviceId])
+                                {
+                                    return;
+                                }
+
+                                NSLog(
+                                    @"Griddle active microphone disconnected: %@ (%@)",
+                                    device.localizedName,
+                                    device.uniqueID);
+
+                                if (GriddleMicrophoneDisconnectedHandler != NULL)
+                                {
+                                    GriddleMicrophoneDisconnectedHandler(
+                                        device.uniqueID.UTF8String,
+                                        device.localizedName.UTF8String,
+                                        GriddleMicrophoneDisconnectedContext);
+                                }
+                            }];
+                }
+
                 NSURL *outputURL =
                     [NSURL fileURLWithPath:
                         requestedOutputPath];
+
+                NSError *assetWriterError =
+                    nil;
+
+                GriddleAssetWriter =
+                    [[AVAssetWriter alloc]
+                        initWithURL:outputURL
+                        fileType:AVFileTypeMPEG4
+                        error:&assetWriterError];
+
+                if (GriddleAssetWriter == nil ||
+                    assetWriterError != nil)
+                {
+                    callback(
+                        assetWriterError
+                            .localizedDescription
+                            .UTF8String,
+                        context);
+
+                    return;
+                }
+
+                NSDictionary *videoSettings =
+                    @{
+                        AVVideoCodecKey:
+                            AVVideoCodecTypeH264,
+
+                        AVVideoWidthKey:
+                            @(width),
+
+                        AVVideoHeightKey:
+                            @(height)
+                    };
+
+                GriddleVideoWriterInput =
+                    [[AVAssetWriterInput alloc]
+                        initWithMediaType:
+                            AVMediaTypeVideo
+                        outputSettings:
+                            videoSettings];
+
+                GriddleVideoWriterInput.expectsMediaDataInRealTime =
+                    YES;
+
+                NSDictionary *pixelBufferAttributes =
+                    @{
+                        (NSString *)
+                            kCVPixelBufferPixelFormatTypeKey:
+                                @(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange),
+
+                        (NSString *)
+                            kCVPixelBufferWidthKey:
+                                @(width),
+
+                        (NSString *)
+                            kCVPixelBufferHeightKey:
+                                @(height),
+
+                        (NSString *)
+                            kCVPixelBufferIOSurfacePropertiesKey:
+                                @{}
+                    };
+
+                GriddleVideoPixelBufferAdaptor =
+                    [[AVAssetWriterInputPixelBufferAdaptor alloc]
+                        initWithAssetWriterInput:
+                            GriddleVideoWriterInput
+                        sourcePixelBufferAttributes:
+                            pixelBufferAttributes];
+
+                if (![GriddleAssetWriter
+                        canAddInput:
+                            GriddleVideoWriterInput])
+                {
+                    callback(
+                        "Could not add video input to AVAssetWriter.",
+                        context);
+
+                    return;
+                }
+
+                [GriddleAssetWriter
+                    addInput:
+                        GriddleVideoWriterInput];
+
 
                 SCRecordingOutputConfiguration *
                     recordingConfiguration =
@@ -681,32 +1282,40 @@ void griddle_recording_start(
                             init];
 
                 SCRecordingOutput *recordingOutput =
-                    [[SCRecordingOutput alloc]
-                        initWithConfiguration:
-                            recordingConfiguration
-                        delegate:
-                            recordingHandler];
-
-                NSError *recordingOutputError =
                     nil;
 
-                BOOL recordingOutputAdded =
-                    [stream
-                        addRecordingOutput:
-                            recordingOutput
-                        error:
-                            &recordingOutputError];
-
-                if (!recordingOutputAdded)
+                if (!GriddleDiagnosticRawStreamOnly)
                 {
-                    callback(
-                        recordingOutputError
-                            .localizedDescription
-                            .UTF8String,
-                        context);
 
-                    return;
+                    recordingOutput =
+                        [[SCRecordingOutput alloc]
+                            initWithConfiguration:
+                                recordingConfiguration
+                            delegate:
+                                recordingHandler];
+
+                    NSError *recordingOutputError =
+                        nil;
+
+                    BOOL recordingOutputAdded =
+                        [stream
+                            addRecordingOutput:
+                                recordingOutput
+                            error:
+                                &recordingOutputError];
+
+                    if (!recordingOutputAdded)
+                    {
+                        callback(
+                            recordingOutputError
+                                .localizedDescription
+                                .UTF8String,
+                            context);
+
+                        return;
+                    }
                 }
+
 
                 GriddleRecordingStream =
                     stream;
@@ -717,11 +1326,14 @@ void griddle_recording_start(
                 GriddleRecordingQueue =
                     queue;
 
-                GriddleRecordingOutput =
-                    recordingOutput;
+                if (!GriddleDiagnosticRawStreamOnly)
+                {
+                    GriddleRecordingOutput =
+                        recordingOutput;
 
-                GriddleRecordingOutputDelegate =
-                    recordingHandler;
+                    GriddleRecordingOutputDelegate =
+                        recordingHandler;
+                }
 
                 [stream
                     startCaptureWithCompletionHandler:^(
@@ -820,6 +1432,88 @@ void griddle_recording_stop(
                         0.0,
                         error.localizedDescription.UTF8String,
                         pendingContext);
+                }
+
+                return;
+            }
+
+            if (GriddleDiagnosticRawStreamOnly)
+            {
+                GriddleRecordingStopCallback
+                    pendingCallback =
+                        GriddlePendingStopCallback;
+
+                void *pendingContext =
+                    GriddlePendingStopContext;
+
+                clear_pending_stop();
+
+                if (GriddleVideoWriterInput != nil)
+                {
+                    [GriddleVideoWriterInput
+                        markAsFinished];
+                }
+
+                if (GriddleAssetWriter != nil &&
+                    GriddleAssetWriterSessionStarted)
+                {
+                    [GriddleAssetWriter
+                        finishWritingWithCompletionHandler:^
+                        {
+                            NSError *writerError =
+                                GriddleAssetWriter.error;
+
+                            NSLog(
+                                @"Griddle AVAssetWriter finish -- status=%ld error=%@",
+                                (long)GriddleAssetWriter.status,
+                                writerError);
+
+                            double durationSeconds =
+                                0.0;
+
+                            if (CMTIME_IS_VALID(
+                                    GriddleAssetWriterStartTime))
+                            {
+                                if (CMTIME_IS_VALID(
+                                        GriddleAssetWriterLastVideoTime))
+                                {
+                                    CMTime duration =
+                                        CMTimeSubtract(
+                                            GriddleAssetWriterLastVideoTime,
+                                            GriddleAssetWriterStartTime);
+
+                                    durationSeconds =
+                                        CMTimeGetSeconds(
+                                            duration);
+                                }
+                            }
+
+                            clear_recording_state();
+
+                            if (pendingCallback != NULL)
+                            {
+                                pendingCallback(
+                                    durationSeconds,
+                                    writerError != nil
+                                        ? writerError
+                                            .localizedDescription
+                                            .UTF8String
+                                        : NULL,
+                                    pendingContext);
+                            }
+                        }];
+                }
+                else
+                {
+                    clear_recording_state();
+
+                    if (pendingCallback != NULL)
+                    {
+                        pendingCallback(
+                            0.0,
+                            NULL,
+                            pendingContext);
+                    }
                 }
 
                 return;

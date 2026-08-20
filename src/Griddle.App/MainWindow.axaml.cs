@@ -58,6 +58,9 @@ public partial class MainWindow : Window
         KeyDown += OnKeyDown;
         TextInput += OnTextInput;
 
+        _recordingService.MicrophoneDisconnected +=
+            OnMicrophoneDisconnected;
+
         _autoRecoveryTimer =
             new DispatcherTimer
             {
@@ -268,6 +271,18 @@ public partial class MainWindow : Window
                 RestoreAutoRecoveredSession();
             }
         }
+
+        _toolbarViewModel.ToggleRecordingRequested += () =>
+        {
+            if (_recordingService.IsRecording)
+            {
+                _ = StopRecordingAsync();
+            }
+            else
+            {
+                _ = StartRecordingAsync();
+            }
+        };
     }
 
     private void RestoreAutoRecoveredSession()
@@ -390,6 +405,11 @@ public partial class MainWindow : Window
 
     public async void NewSession()
     {
+        if (!await CanLeaveCurrentSessionAsync())
+    {
+        return;
+    }
+
         if (HasUnsavedChanges())
         {
             var dialog =
@@ -437,6 +457,11 @@ public partial class MainWindow : Window
 
     public async void OpenSession()
     {
+        if (!await CanLeaveCurrentSessionAsync())
+        {
+            return;
+        }
+
         if (HasUnsavedChanges())
         {
             var dialog =
@@ -735,6 +760,11 @@ public partial class MainWindow : Window
     private async Task OpenRecentSessionAsync(
         string filePath)
     {
+        if (!await CanLeaveCurrentSessionAsync())
+        {
+            return;
+        }
+
         if (HasUnsavedChanges())
         {
             var dialog =
@@ -1004,13 +1034,10 @@ public partial class MainWindow : Window
         }
     }
 
-    private async Task TestStartRecordingAsync()
+    private async Task StartRecordingAsync()
     {
         try
         {
-            Console.WriteLine(
-                "Starting recording test...");
-
             if (_overlayScreen is null)
             {
                 return;
@@ -1103,18 +1130,82 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            Console.WriteLine(
-                $"Recording start failed: {ex}");
+            _toolbarViewModel?.SetRecording(
+                false);
+
+            string title;
+            string message;
+
+            if (ex.Message.Contains(
+                    "Screen recording access",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                title =
+                    "Screen Recording Permission Required";
+
+                message =
+                    "Griddle does not have permission to record your screen. " +
+                    "Enable Screen Recording for Griddle in macOS System Settings, " +
+                    "then try again.";
+            }
+            else if (ex.Message.Contains(
+                         "Microphone",
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                title =
+                    "Microphone Permission Required";
+
+                message =
+                    "Griddle does not have permission to use the microphone. " +
+                    "Enable Microphone access for Griddle in macOS System Settings, " +
+                    "then try again.";
+            }
+            else
+            {
+                title =
+                    "Recording Could Not Start";
+
+                message =
+                    ex.Message;
+            }
+
+            var dialog =
+                new RecordingErrorDialog(
+                    title,
+                    message);
+
+            await dialog.ShowDialog(
+                this);
         }
     }
 
-    private async Task TestStopRecordingAsync()
+    private async void OnMicrophoneDisconnected(
+        string? deviceId,
+        string? deviceName)
+    {
+        await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(
+            async () =>
+            {
+                var dialog =
+                    new MicrophoneDisconnectedDialog();
+
+                var choice =
+                    await dialog.ShowDialog<
+                        MicrophoneDisconnectedChoice>(
+                            this);
+
+                if (choice ==
+                    MicrophoneDisconnectedChoice.StopRecording)
+                {
+                    await StopRecordingAsync();
+                }
+            });
+    }
+
+    private async Task StopRecordingAsync()
     {
         try
         {
-            Console.WriteLine(
-                "Stopping recording test...");
-
             var result =
                 await _recordingService.StopAsync();
 
@@ -1200,6 +1291,22 @@ public partial class MainWindow : Window
     protected override void OnClosing(
         WindowClosingEventArgs e)
     {
+        if (_recordingService.IsRecording)
+        {
+            e.Cancel = true;
+
+            if (_isClosePromptOpen)
+            {
+                return;
+            }
+
+            _isClosePromptOpen = true;
+
+            _ = ConfirmRecordingCloseBlockedAsync();
+
+            return;
+        }
+
         base.OnClosing(e);
 
         if (_allowClose ||
@@ -1218,6 +1325,22 @@ public partial class MainWindow : Window
         _isClosePromptOpen = true;
 
         _ = ConfirmCloseAsync();
+    }
+
+    private async Task ConfirmRecordingCloseBlockedAsync()
+    {
+        try
+        {
+            var dialog =
+                new RecordingActiveDialog();
+
+            await dialog.ShowDialog(
+                this);
+        }
+        finally
+        {
+            _isClosePromptOpen = false;
+        }
     }
 
     private async Task ConfirmCloseAsync()
@@ -1262,6 +1385,23 @@ public partial class MainWindow : Window
         {
             _isClosePromptOpen = false;
         }
+    }
+
+    private async Task<bool>
+        CanLeaveCurrentSessionAsync()
+    {
+        if (!_recordingService.IsRecording)
+        {
+            return true;
+        }
+
+        var dialog =
+            new RecordingActiveDialog();
+
+        await dialog.ShowDialog(
+            this);
+
+        return false;
     }
 
     private string GetCurrentSessionSnapshot()
@@ -1572,7 +1712,7 @@ public partial class MainWindow : Window
             e.KeyModifiers.HasFlag(
                 KeyModifiers.Alt))
         {
-            _ = TestStopRecordingAsync();
+            _ = StopRecordingAsync();
 
             e.Handled = true;
             return;
@@ -1584,7 +1724,7 @@ public partial class MainWindow : Window
             e.KeyModifiers.HasFlag(
                 KeyModifiers.Shift))
         {
-            _ = TestStartRecordingAsync();
+            _ = StartRecordingAsync();
 
             e.Handled = true;
             return;

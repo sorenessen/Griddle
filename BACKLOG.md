@@ -638,14 +638,27 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 
 ### Phase 4 — Recording UX & Hardening
 
-- [ ] Recording Start / Stop Toolbar Control
-- [ ] Persistent Recording Indicator
-- [ ] Prevent Accidental Session Close While Recording
-- [ ] Handle Recording Permission Failures
-- [ ] Handle Recording Failure Gracefully
+- [x] Recording Start / Stop Toolbar Control
+- [x] Persistent Recording Indicator
+- [x] Prevent Accidental Session Close While Recording
+- [x] Handle Recording Permission Failures
+- [x] Handle Recording Failure Gracefully
+  - [x] Detect microphone disconnect during active recording
+  - [x] Warn user when microphone audio is lost
+  - [x] Allow Stop Recording or Continue Without Mic
 - [ ] Verify Multi-Display Recording
+  - [ ] Replace SCRecordingOutput with AVAssetWriter due to external-display capture stall
 - [ ] Verify Recording With Griddle Excluded
 - [ ] Verify Recording With Griddle Included
+
+### Polishing Go-Backs
+
+- [ ] Prettify handler dialog boxes to match other dialog box themes
+- [ ] Make recording and recording settings buttons unique from each other
+
+### Bugz
+
+- [ ] Investigate: When previous session ended on ext device, when starting new session, toolbar doesn't appear anywhere. User is stuck on the free hand pen only. Have to move overlay back to main screen then restart griddle to get toolbar back. The top menu bar "Griddle" and "File" do appear though so can quit safely.
 
 ### Discovered Issues
 
@@ -674,3 +687,4 @@ Interesting ideas that should not distract current development.
 - [ ] Plugin System
 - [ ] Animation Support
 - [ ] Whiteboard Mode
+- [ ] Investigate recording recovery / MP4 integrity after unexpected application termination

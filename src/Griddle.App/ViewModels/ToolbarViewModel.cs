@@ -99,6 +99,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public event Action<int>? DisplayRequested;
 
+    public event Action? ToggleRecordingRequested;
+
     public SelectionTool Selection { get; }
 
     public ActiveToolService ActiveTool { get; }
@@ -198,6 +200,11 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(
             nameof(IsRecording));
+    }
+
+    public void ToggleRecording()
+    {
+        ToggleRecordingRequested?.Invoke();
     }
 
     public void SetSystemAudioEnabled(

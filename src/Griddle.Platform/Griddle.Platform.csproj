@@ -26,7 +26,7 @@
     Condition="$([System.OperatingSystem]::IsMacOS())">
 
     <Exec
-      Command="clang -fobjc-arc -fblocks -dynamiclib -framework AppKit -framework ScreenCaptureKit -framework CoreMedia -framework AVFoundation -o &quot;$(OutputPath)libGriddleRecordingBridge.dylib&quot; &quot;$(MSBuildProjectDirectory)/MacOS/Native/GriddleRecordingBridge.m&quot;" />
+      Command="clang -fobjc-arc -fblocks -dynamiclib -framework AppKit -framework ScreenCaptureKit -framework CoreMedia -framework CoreVideo -framework AVFoundation -o &quot;$(OutputPath)libGriddleRecordingBridge.dylib&quot; &quot;$(MSBuildProjectDirectory)/MacOS/Native/GriddleRecordingBridge.m&quot;" />
 
   </Target>
 

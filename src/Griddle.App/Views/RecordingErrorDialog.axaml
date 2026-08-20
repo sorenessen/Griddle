@@ -1,0 +1,36 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="clr-namespace:Griddle.App.Views"
+    x:Class="Griddle.App.Views.RecordingErrorDialog"
+    x:DataType="views:RecordingErrorDialog"
+    Title="Recording Error"
+    Width="500"
+    Height="220"
+    CanResize="False"
+    Topmost="True"
+    ShowActivated="True"
+    WindowStartupLocation="CenterOwner">
+
+    <StackPanel
+        Margin="24"
+        Spacing="18">
+
+        <TextBlock
+            Text="{Binding TitleText}"
+            FontSize="18"
+            FontWeight="Bold"/>
+
+        <TextBlock
+            Text="{Binding MessageText}"
+            TextWrapping="Wrap"/>
+
+        <Button
+            Content="OK"
+            HorizontalAlignment="Right"
+            Width="90"
+            Click="OkButton_Click"/>
+
+    </StackPanel>
+
+</Window>

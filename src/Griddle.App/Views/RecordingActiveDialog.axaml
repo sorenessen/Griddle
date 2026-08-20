@@ -1,0 +1,34 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Griddle.App.Views.RecordingActiveDialog"
+    Title="Recording in Progress"
+    Width="440"
+    Height="190"
+    CanResize="False"
+    Topmost="True"
+    ShowActivated="True"
+    WindowStartupLocation="CenterOwner">
+
+    <StackPanel
+        Margin="24"
+        Spacing="18">
+
+        <TextBlock
+            Text="A recording is currently in progress."
+            FontSize="18"
+            FontWeight="Bold"/>
+
+        <TextBlock
+            Text="Stop the recording before closing Griddle or changing sessions."
+            TextWrapping="Wrap"/>
+
+        <Button
+            Content="OK"
+            HorizontalAlignment="Right"
+            Width="90"
+            Click="OkButton_Click"/>
+
+    </StackPanel>
+
+</Window>

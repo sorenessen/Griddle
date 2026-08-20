@@ -34,6 +34,13 @@ public partial class ToolbarWindow : Window
         PositionChanged += ToolbarWindow_PositionChanged;
     }
 
+    private void RecordingButton_Click(
+        object? sender,
+        RoutedEventArgs e)
+    {
+        _viewModel.ToggleRecording();
+    }
+
     private void SelectionButton_Click(
         object? sender,
         RoutedEventArgs e)
