@@ -313,17 +313,17 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ### Screen Recording
 
-- [ ] Screen Recording Architecture
-- [ ] Record Active Griddle Display
-- [ ] Record Annotations During Presentation
-- [ ] Recording Start / Stop Controls
-- [ ] Recording Status Indicator
-- [ ] Save Recording to Session
-- [ ] Recording Metadata
-- [ ] System Audio Capture
-- [ ] Microphone Capture
-- [ ] Combined System + Microphone Audio
-- [ ] Audio Input Selection
+- [x] Screen Recording Architecture
+- [x] Record Active Griddle Display
+- [x] Record Annotations During Presentation
+- [x] Recording Start / Stop Controls
+- [x] Recording Status Indicator
+- [x] Save Recording to Session
+- [x] Recording Metadata
+- [x] System Audio Capture
+- [x] Microphone Capture
+- [x] Combined System + Microphone Audio
+- [x] Audio Input Selection
 
 ### Export
 
@@ -516,8 +516,8 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 - [x] Active Display Indicator
 - [x] Live Display Selection State Updates
 - [X] Toolbar Position Persistence
-	- [x] Validate saved toolbar position against currently connected displays
-	- [x] Fallback to active display if saved position is off-screen
+  - [x] Validate saved toolbar position against currently connected displays
+  - [x] Fallback to active display if saved position is off-screen
 - [x] Toolbar Control Organization
 - [x] Color Palette Popup
 - [x] General Multi-select
@@ -646,8 +646,9 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
   - [x] Detect microphone disconnect during active recording
   - [x] Warn user when microphone audio is lost
   - [x] Allow Stop Recording or Continue Without Mic
-- [ ] Verify Multi-Display Recording
-  - [ ] Replace SCRecordingOutput with AVAssetWriter due to external-display capture stall
+- [x] Verify Multi-Display Recording
+  - [x] Replace SCRecordingOutput with AVAssetWriter to resolve external-display capture stall
+  - [x] Normalize odd capture dimensions to H.264-safe even dimensions (built-in display observed at 1728x1117; encoded at 1728x1116)
 - [ ] Verify Recording With Griddle Excluded
 - [ ] Verify Recording With Griddle Included
 
