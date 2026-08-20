@@ -37,6 +37,9 @@ static AVAssetWriter *
 static AVAssetWriterInput *
     GriddleVideoWriterInput = nil;
 
+static AVAssetWriterInput *
+    GriddleMicrophoneWriterInput = nil;
+
 static AVAssetWriterInputPixelBufferAdaptor *
     GriddleVideoPixelBufferAdaptor = nil;
 
@@ -92,6 +95,9 @@ static void clear_recording_state(void)
     nil;
 
     GriddleVideoWriterInput =
+        nil;
+
+    GriddleMicrophoneWriterInput =
         nil;
 
     GriddleVideoPixelBufferAdaptor =
@@ -150,6 +156,31 @@ static void clear_pending_stop(void)
     ofType:(SCStreamOutputType)type
 {
     (void)stream;
+
+    if (type == SCStreamOutputTypeMicrophone)
+    {
+        if (!GriddleAssetWriterSessionStarted ||
+            GriddleMicrophoneWriterInput == nil)
+        {
+            return;
+        }
+
+        if (GriddleMicrophoneWriterInput
+                .readyForMoreMediaData)
+        {
+            if (![GriddleMicrophoneWriterInput
+                    appendSampleBuffer:
+                        sampleBuffer])
+            {
+                NSLog(
+                    @"Griddle microphone append failed -- status=%ld error=%@",
+                    (long)GriddleAssetWriter.status,
+                    GriddleAssetWriter.error);
+            }
+        }
+
+        return;
+    }
 
     if (type != SCStreamOutputTypeScreen)
     {
@@ -862,6 +893,23 @@ void griddle_recording_start(
                 width,
                 height);
 
+        /*
+         * H.264 requires even frame dimensions. The built-in Retina
+         * display can report an odd point height (for example 1117).
+         * Keep the full sourceRect, but have ScreenCaptureKit scale the
+         * stream output by at most one pixel so the encoder receives
+         * legal dimensions. External 1280x720 displays are unchanged.
+         */
+        int32_t encodedWidth =
+            width > 1
+                ? (width & ~1)
+                : width;
+
+        int32_t encodedHeight =
+            height > 1
+                ? (height & ~1)
+                : height;
+
         [SCShareableContent
             getShareableContentExcludingDesktopWindows:NO
             onScreenWindowsOnly:NO
@@ -1002,10 +1050,17 @@ void griddle_recording_start(
                         rect.size.height);
 
                 configuration.width =
-                    width;
+                    encodedWidth;
 
                 configuration.height =
-                    height;
+                    encodedHeight;
+
+                NSLog(
+                    @"Griddle encoder dimensions -- source=%dx%d encoded=%dx%d",
+                    width,
+                    height,
+                    encodedWidth,
+                    encodedHeight);
 
                 configuration.showsCursor =
                     YES;
@@ -1204,10 +1259,10 @@ void griddle_recording_start(
                             AVVideoCodecTypeH264,
 
                         AVVideoWidthKey:
-                            @(width),
+                            @(encodedWidth),
 
                         AVVideoHeightKey:
-                            @(height)
+                            @(encodedHeight)
                     };
 
                 GriddleVideoWriterInput =
@@ -1228,11 +1283,11 @@ void griddle_recording_start(
 
                         (NSString *)
                             kCVPixelBufferWidthKey:
-                                @(width),
+                                @(encodedWidth),
 
                         (NSString *)
                             kCVPixelBufferHeightKey:
-                                @(height),
+                                @(encodedHeight),
 
                         (NSString *)
                             kCVPixelBufferIOSurfacePropertiesKey:
@@ -1260,6 +1315,66 @@ void griddle_recording_start(
                 [GriddleAssetWriter
                     addInput:
                         GriddleVideoWriterInput];
+
+                if (captureMicrophone != 0)
+                {
+                    AudioChannelLayout channelLayout =
+                        {0};
+
+                    channelLayout.mChannelLayoutTag =
+                        kAudioChannelLayoutTag_Mono;
+
+                    NSData *channelLayoutData =
+                        [NSData
+                            dataWithBytes:
+                                &channelLayout
+                            length:
+                                sizeof(channelLayout)];
+
+                    NSDictionary *microphoneSettings =
+                        @{
+                            AVFormatIDKey:
+                                @(kAudioFormatMPEG4AAC),
+
+                            AVSampleRateKey:
+                                @48000,
+
+                            AVNumberOfChannelsKey:
+                                @1,
+
+                            AVEncoderBitRateKey:
+                                @128000,
+
+                            AVChannelLayoutKey:
+                                channelLayoutData
+                        };
+
+                    GriddleMicrophoneWriterInput =
+                        [[AVAssetWriterInput alloc]
+                            initWithMediaType:
+                                AVMediaTypeAudio
+                            outputSettings:
+                                microphoneSettings];
+
+                    GriddleMicrophoneWriterInput
+                        .expectsMediaDataInRealTime =
+                            YES;
+
+                    if (![GriddleAssetWriter
+                            canAddInput:
+                                GriddleMicrophoneWriterInput])
+                    {
+                        callback(
+                            "Could not add microphone input to AVAssetWriter.",
+                            context);
+
+                        return;
+                    }
+
+                    [GriddleAssetWriter
+                        addInput:
+                            GriddleMicrophoneWriterInput];
+                }
 
 
                 SCRecordingOutputConfiguration *
@@ -1451,6 +1566,12 @@ void griddle_recording_stop(
                 if (GriddleVideoWriterInput != nil)
                 {
                     [GriddleVideoWriterInput
+                        markAsFinished];
+                }
+
+                if (GriddleMicrophoneWriterInput != nil)
+                {
+                    [GriddleMicrophoneWriterInput
                         markAsFinished];
                 }
 
