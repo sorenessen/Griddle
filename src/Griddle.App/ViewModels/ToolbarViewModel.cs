@@ -66,6 +66,8 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public bool IsMicrophoneEnabled { get; set; } = true;
 
+    public bool IncludeGriddleInRecording { get; set; } = true;
+
     public ObservableCollection<MicrophoneDevice>
         MicrophoneDevices { get; } =
             new();

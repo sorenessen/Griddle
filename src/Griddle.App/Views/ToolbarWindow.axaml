@@ -285,6 +285,11 @@
 
                                 <CheckBox
                                     Classes="recording-option"
+                                    Content="Include Griddle"
+                                    IsChecked="{Binding IncludeGriddleInRecording, Mode=TwoWay}"/>
+
+                                <CheckBox
+                                    Classes="recording-option"
                                     Content="Microphone"
                                     IsChecked="{Binding IsMicrophoneEnabled, Mode=TwoWay}"/>
 

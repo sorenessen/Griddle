@@ -1097,6 +1097,11 @@ public partial class MainWindow : Window
                             bounds.Width,
                             bounds.Height),
 
+                    IncludeApplicationWindows =
+                        _toolbarViewModel?
+                            .IncludeGriddleInRecording
+                        ?? true,
+
                     CaptureSystemAudio =
                         _toolbarViewModel?
                             .IsSystemAudioEnabled

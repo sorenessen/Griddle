@@ -649,8 +649,13 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 - [x] Verify Multi-Display Recording
   - [x] Replace SCRecordingOutput with AVAssetWriter to resolve external-display capture stall
   - [x] Normalize odd capture dimensions to H.264-safe even dimensions (built-in display observed at 1728x1117; encoded at 1728x1116)
-- [ ] Verify Recording With Griddle Excluded
-- [ ] Verify Recording With Griddle Included
+- [x] Support Recording With Griddle Excluded
+  - [x] Add recording setting to exclude Griddle windows
+  - [x] Verify toolbar and Griddle UI are excluded
+  - [x] Verify underlying screen content records normally
+- [x] Verify Recording With Griddle Included
+  - [x] Verify toolbar and Griddle UI are captured
+  - [x] Verify annotations are captured
 
 ### Polishing Go-Backs
 
