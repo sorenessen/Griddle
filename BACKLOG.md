@@ -313,17 +313,17 @@ Griddle is a lightweight cross-platform screen annotation and presentation tool 
 
 ### Screen Recording
 
-- [ ] Screen Recording Architecture
-- [ ] Record Active Griddle Display
-- [ ] Record Annotations During Presentation
-- [ ] Recording Start / Stop Controls
-- [ ] Recording Status Indicator
-- [ ] Save Recording to Session
-- [ ] Recording Metadata
-- [ ] System Audio Capture
-- [ ] Microphone Capture
-- [ ] Combined System + Microphone Audio
-- [ ] Audio Input Selection
+- [x] Screen Recording Architecture
+- [x] Record Active Griddle Display
+- [x] Record Annotations During Presentation
+- [x] Recording Start / Stop Controls
+- [x] Recording Status Indicator
+- [x] Save Recording to Session
+- [x] Recording Metadata
+- [x] System Audio Capture
+- [x] Microphone Capture
+- [x] Combined System + Microphone Audio
+- [x] Audio Input Selection
 
 ### Export
 
@@ -516,8 +516,8 @@ Make Griddle practical during live demonstrations by allowing presenters to move
 - [x] Active Display Indicator
 - [x] Live Display Selection State Updates
 - [X] Toolbar Position Persistence
-	- [x] Validate saved toolbar position against currently connected displays
-	- [x] Fallback to active display if saved position is off-screen
+  - [x] Validate saved toolbar position against currently connected displays
+  - [x] Fallback to active display if saved position is off-screen
 - [x] Toolbar Control Organization
 - [x] Color Palette Popup
 - [x] General Multi-select
@@ -610,42 +610,68 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 ### Phase 1 — Recording Foundation
 
 - [x] Define Screen Recording Service Contract
-- [ ] Implement macOS Screen Recording Service
-- [ ] Record Active Griddle Display
-- [ ] Record Griddle Annotations
-- [ ] Start Recording
-- [ ] Stop Recording
-- [ ] Recording Status Indicator
+- [x] Implement macOS Screen Recording Service
+- [x] Record Active Griddle Display
+- [x] Record Griddle Annotations
+- [x] Start Recording
+- [x] Stop Recording
+- [x] Recording Status Indicator
 
 ### Phase 2 — Session Integration
 
-- [ ] Save Recording to Session Media
-- [ ] Define Recording Metadata
-- [ ] Associate Recording With Current Session
-- [ ] Restore Recording Metadata When Session Loads
-- [ ] Handle Missing Recording Media Gracefully
+- [x] Save Recording to Session Media
+- [x] Define Recording Metadata
+- [x] Associate Recording With Current Session
+- [x] Restore Recording Metadata When Session Loads
+- [x] Handle Missing Recording Media Gracefully
 
 ### Phase 3 — Audio
 
-- [ ] Capture System Audio
-- [ ] Capture Microphone Audio
-- [ ] Record System Audio With Video
-- [ ] Record Microphone With Video
-- [ ] Record Combined System + Microphone Audio
-- [ ] Enable / Disable System Audio
-- [ ] Enable / Disable Microphone
-- [ ] Select Microphone Input
+- [x] Capture System Audio
+- [x] Capture Microphone Audio
+- [x] Record System Audio With Video
+- [x] Record Microphone With Video
+- [x] Record Combined System + Microphone Audio
+- [x] Enable / Disable System Audio
+- [x] Enable / Disable Microphone
+- [x] Select Microphone Input
 
 ### Phase 4 — Recording UX & Hardening
 
-- [ ] Recording Start / Stop Toolbar Control
-- [ ] Persistent Recording Indicator
-- [ ] Prevent Accidental Session Close While Recording
-- [ ] Handle Recording Permission Failures
-- [ ] Handle Recording Failure Gracefully
-- [ ] Verify Multi-Display Recording
-- [ ] Verify Recording With Griddle Excluded
-- [ ] Verify Recording With Griddle Included
+- [x] Recording Start / Stop Toolbar Control
+- [x] Persistent Recording Indicator
+- [x] Prevent Accidental Session Close While Recording
+- [x] Handle Recording Permission Failures
+- [x] Handle Recording Failure Gracefully
+  - [x] Detect microphone disconnect during active recording
+  - [x] Warn user when microphone audio is lost
+  - [x] Allow Stop Recording or Continue Without Mic
+- [x] Verify Multi-Display Recording
+  - [x] Replace SCRecordingOutput with AVAssetWriter to resolve external-display capture stall
+  - [x] Normalize odd capture dimensions to H.264-safe even dimensions (built-in display observed at 1728x1117; encoded at 1728x1116)
+- [x] Support Recording With Griddle Excluded
+  - [x] Add recording setting to exclude Griddle windows
+  - [x] Verify toolbar and Griddle UI are excluded
+  - [x] Verify underlying screen content records normally
+- [x] Verify Recording With Griddle Included
+  - [x] Verify toolbar and Griddle UI are captured
+  - [x] Verify annotations are captured
+
+### Polishing Go-Backs
+
+- [x] Prettify handler dialog boxes to match other dialog box themes
+- [x] Make recording and recording settings buttons unique from each other
+
+### Bugz
+
+- [ ] Investigate: When previous session ended on ext device, when starting new session, toolbar doesn't appear anywhere. User is stuck on the free hand pen only. Have to move overlay back to main screen then restart griddle to get toolbar back. The top menu bar "Griddle" and "File" do appear though so can quit safely.
+
+### Discovered Issues
+
+- [ ] Global system hotkeys for capture / recording controls
+  - [ ] Screenshot with annotations
+  - [ ] Screenshot without annotations
+  - [ ] Start / stop recording
 
 ### Exit Criteria
 
@@ -667,3 +693,4 @@ Interesting ideas that should not distract current development.
 - [ ] Plugin System
 - [ ] Animation Support
 - [ ] Whiteboard Mode
+- [ ] Investigate recording recovery / MP4 integrity after unexpected application termination

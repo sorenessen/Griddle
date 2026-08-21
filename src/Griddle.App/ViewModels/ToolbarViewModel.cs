@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using Griddle.Core.Models;
 using Griddle.Core.Services;
 using Griddle.Core.Tools;
+using Griddle.Platform.Recording;
+using System.Collections.Generic;
 
 namespace Griddle.App.ViewModels;
 
@@ -58,6 +60,21 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public bool IsTintEnabled { get; private set; }
 
+    public bool IsRecording { get; private set; }
+
+    public bool IsSystemAudioEnabled { get; set; } = true;
+
+    public bool IsMicrophoneEnabled { get; set; } = true;
+
+    public bool IncludeGriddleInRecording { get; set; } = true;
+
+    public ObservableCollection<MicrophoneDevice>
+        MicrophoneDevices { get; } =
+            new();
+
+    public MicrophoneDevice?
+        SelectedMicrophoneDevice { get; set; }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public event Action? NewCalloutGroupRequested;
@@ -78,9 +95,13 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
 
     public event Action? ToggleTintRequested;
 
+    public event Action? ToggleSystemAudioRequested;
+
     public event Action? FlipCalloutLabelRequested;
 
     public event Action<int>? DisplayRequested;
+
+    public event Action? ToggleRecordingRequested;
 
     public SelectionTool Selection { get; }
 
@@ -168,6 +189,95 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
             nameof(SessionName));
     }
 
+    public void SetRecording(
+        bool isRecording)
+    {
+        if (IsRecording == isRecording)
+        {
+            return;
+        }
+
+        IsRecording =
+            isRecording;
+
+        OnPropertyChanged(
+            nameof(IsRecording));
+    }
+
+    public void ToggleRecording()
+    {
+        ToggleRecordingRequested?.Invoke();
+    }
+
+    public void SetSystemAudioEnabled(
+        bool isEnabled)
+    {
+        if (IsSystemAudioEnabled == isEnabled)
+        {
+            return;
+        }
+
+        IsSystemAudioEnabled =
+            isEnabled;
+
+        OnPropertyChanged(
+            nameof(IsSystemAudioEnabled));
+    }
+
+    public void SetMicrophoneEnabled(
+        bool isEnabled)
+    {
+        if (IsMicrophoneEnabled == isEnabled)
+        {
+            return;
+        }
+
+        IsMicrophoneEnabled =
+            isEnabled;
+
+        OnPropertyChanged(
+            nameof(IsMicrophoneEnabled));
+    }
+
+    public void SetMicrophoneDevices(
+        IEnumerable<MicrophoneDevice> devices)
+    {
+        MicrophoneDevices.Clear();
+
+        foreach (var device in devices)
+        {
+            MicrophoneDevices.Add(
+                device);
+        }
+
+        if (SelectedMicrophoneDevice is null &&
+            MicrophoneDevices.Count > 0)
+        {
+            SelectedMicrophoneDevice =
+                MicrophoneDevices[0];
+
+            OnPropertyChanged(
+                nameof(SelectedMicrophoneDevice));
+        }
+    }
+
+    public void SelectMicrophoneDevice(
+        MicrophoneDevice? device)
+    {
+        if (ReferenceEquals(
+                SelectedMicrophoneDevice,
+                device))
+        {
+            return;
+        }
+
+        SelectedMicrophoneDevice =
+            device;
+
+        OnPropertyChanged(
+            nameof(SelectedMicrophoneDevice));
+    }
+
     public void SetOverlayEngaged(
         bool isEngaged)
     {
@@ -197,6 +307,11 @@ public sealed class ToolbarViewModel : INotifyPropertyChanged
     public void ToggleTint()
     {
         ToggleTintRequested?.Invoke();
+    }
+
+    public void ToggleSystemAudio()
+    {
+        ToggleSystemAudioRequested?.Invoke();
     }
 
     public bool IsPenSelected =>

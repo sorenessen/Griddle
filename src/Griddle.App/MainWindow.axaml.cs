@@ -11,6 +11,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using Griddle.Platform.MacOS;
 using Griddle.Platform.Capture;
+using Griddle.Platform.Recording;
 using Griddle.Core.Models;
 using Griddle.Core.Tools;
 using Griddle.Core.Documents;
@@ -43,6 +44,11 @@ public partial class MainWindow : Window
     private bool _allowClose;
     private bool _isClosePromptOpen;
     private readonly DispatcherTimer _autoRecoveryTimer;
+    private readonly MacOSScreenRecordingService
+        _recordingService =
+            new();
+    private Guid? _activeRecordingId;
+    private string? _activeRecordingFileName;
 
     public MainWindow()
     {
@@ -51,6 +57,9 @@ public partial class MainWindow : Window
         Opened += OnOpened;
         KeyDown += OnKeyDown;
         TextInput += OnTextInput;
+
+        _recordingService.MicrophoneDisconnected +=
+            OnMicrophoneDisconnected;
 
         _autoRecoveryTimer =
             new DispatcherTimer
@@ -206,6 +215,14 @@ public partial class MainWindow : Window
                 _isTintEnabled);
         };
 
+        _toolbarViewModel.ToggleSystemAudioRequested += () =>
+        {
+            _toolbarViewModel.SetSystemAudioEnabled(
+                !_toolbarViewModel.IsSystemAudioEnabled);
+        };
+
+        _ = LoadMicrophoneDevicesAsync();
+
         _toolbar = new ToolbarWindow(_toolbarViewModel);
 
         NativeMenu.SetMenu(
@@ -254,6 +271,18 @@ public partial class MainWindow : Window
                 RestoreAutoRecoveredSession();
             }
         }
+
+        _toolbarViewModel.ToggleRecordingRequested += () =>
+        {
+            if (_recordingService.IsRecording)
+            {
+                _ = StopRecordingAsync();
+            }
+            else
+            {
+                _ = StartRecordingAsync();
+            }
+        };
     }
 
     private void RestoreAutoRecoveredSession()
@@ -376,6 +405,11 @@ public partial class MainWindow : Window
 
     public async void NewSession()
     {
+        if (!await CanLeaveCurrentSessionAsync())
+    {
+        return;
+    }
+
         if (HasUnsavedChanges())
         {
             var dialog =
@@ -423,6 +457,11 @@ public partial class MainWindow : Window
 
     public async void OpenSession()
     {
+        if (!await CanLeaveCurrentSessionAsync())
+        {
+            return;
+        }
+
         if (HasUnsavedChanges())
         {
             var dialog =
@@ -600,7 +639,6 @@ public partial class MainWindow : Window
 
         return true;
 
-        return true;
     }
 
     private NativeMenu CreateSessionNativeMenu()
@@ -722,6 +760,11 @@ public partial class MainWindow : Window
     private async Task OpenRecentSessionAsync(
         string filePath)
     {
+        if (!await CanLeaveCurrentSessionAsync())
+        {
+            return;
+        }
+
         if (HasUnsavedChanges())
         {
             var dialog =
@@ -972,9 +1015,303 @@ public partial class MainWindow : Window
             includeAnnotations: false);
     }
 
+    private async Task LoadMicrophoneDevicesAsync()
+    {
+        try
+        {
+            var devices =
+                await _recordingService
+                    .GetMicrophoneDevicesAsync();
+
+            _toolbarViewModel?
+                .SetMicrophoneDevices(
+                    devices);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Microphone enumeration failed: {ex}");
+        }
+    }
+
+    private async Task StartRecordingAsync()
+    {
+        try
+        {
+            if (_overlayScreen is null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(
+                    _currentSessionFilePath))
+            {
+                var saved =
+                    await SaveSessionAsAsync();
+
+                if (!saved ||
+                    string.IsNullOrWhiteSpace(
+                        _currentSessionFilePath))
+                {
+                    return;
+                }
+            }
+
+            var sessionDirectory =
+                Path.GetDirectoryName(
+                    _currentSessionFilePath)!;
+
+            var sessionName =
+                Path.GetFileNameWithoutExtension(
+                    _currentSessionFilePath);
+
+            var mediaDirectory =
+                Path.Combine(
+                    sessionDirectory,
+                    $"{sessionName}.media");
+
+            Directory.CreateDirectory(
+                mediaDirectory);
+
+            var recordingId =
+                Guid.NewGuid();
+
+            var fileName =
+                $"recording-{recordingId:N}.mp4";
+
+            var filePath =
+                Path.Combine(
+                    mediaDirectory,
+                    fileName);
+
+            var bounds =
+                _overlayScreen.Bounds;
+
+            await _recordingService.StartAsync(
+                new ScreenRecordingOptions
+                {
+                    Region =
+                        new CaptureRegion(
+                            bounds.X,
+                            bounds.Y,
+                            bounds.Width,
+                            bounds.Height),
+
+                    IncludeApplicationWindows =
+                        _toolbarViewModel?
+                            .IncludeGriddleInRecording
+                        ?? true,
+
+                    CaptureSystemAudio =
+                        _toolbarViewModel?
+                            .IsSystemAudioEnabled
+                        ?? true,
+
+                    CaptureMicrophone =
+                        _toolbarViewModel?
+                            .IsMicrophoneEnabled
+                        ?? true,
+
+                    MicrophoneDeviceId =
+                        _toolbarViewModel?
+                            .SelectedMicrophoneDevice?
+                            .Id,
+
+                    OutputFilePath =
+                        filePath
+                });
+
+            _toolbarViewModel?.SetRecording(
+                true);
+
+            _activeRecordingId =
+                recordingId;
+
+            _activeRecordingFileName =
+                fileName;
+
+            Console.WriteLine(
+                $"Recording active: {_recordingService.IsRecording}");
+        }
+        catch (Exception ex)
+        {
+            _toolbarViewModel?.SetRecording(
+                false);
+
+            string title;
+            string message;
+
+            if (ex.Message.Contains(
+                    "Screen recording access",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                title =
+                    "Screen Recording Permission Required";
+
+                message =
+                    "Griddle does not have permission to record your screen. " +
+                    "Enable Screen Recording for Griddle in macOS System Settings, " +
+                    "then try again.";
+            }
+            else if (ex.Message.Contains(
+                         "Microphone",
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                title =
+                    "Microphone Permission Required";
+
+                message =
+                    "Griddle does not have permission to use the microphone. " +
+                    "Enable Microphone access for Griddle in macOS System Settings, " +
+                    "then try again.";
+            }
+            else
+            {
+                title =
+                    "Recording Could Not Start";
+
+                message =
+                    ex.Message;
+            }
+
+            var dialog =
+                new RecordingErrorDialog(
+                    title,
+                    message);
+
+            await dialog.ShowDialog(
+                this);
+        }
+    }
+
+    private async void OnMicrophoneDisconnected(
+        string? deviceId,
+        string? deviceName)
+    {
+        await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(
+            async () =>
+            {
+                var dialog =
+                    new MicrophoneDisconnectedDialog();
+
+                var choice =
+                    await dialog.ShowDialog<
+                        MicrophoneDisconnectedChoice>(
+                            this);
+
+                if (choice ==
+                    MicrophoneDisconnectedChoice.StopRecording)
+                {
+                    await StopRecordingAsync();
+                }
+            });
+    }
+
+    private async Task StopRecordingAsync()
+    {
+        try
+        {
+            var result =
+                await _recordingService.StopAsync();
+
+            _toolbarViewModel?.SetRecording(
+                false);
+
+            if (_activeRecordingId is null ||
+                string.IsNullOrWhiteSpace(
+                    _activeRecordingFileName))
+            {
+                throw new InvalidOperationException(
+                    "Recording session metadata is missing.");
+            }
+
+            var capture =
+                new GriddleCapture
+                {
+                    Id =
+                        _activeRecordingId.Value,
+
+                    Kind =
+                        CaptureKind.Recording,
+
+                    CreatedAt =
+                        DateTime.UtcNow,
+
+                    FileName =
+                        _activeRecordingFileName,
+
+                    Width =
+                        result.Width,
+
+                    Height =
+                        result.Height,
+
+                    DisplayName =
+                        _overlayScreen?.DisplayName,
+
+                    IncludesAnnotations =
+                        result.IncludesApplicationWindows,
+
+                    Duration =
+                        result.Duration
+                };
+
+            _currentSession.Captures.Add(
+                capture);
+
+            _activeRecordingId =
+                null;
+
+            _activeRecordingFileName =
+                null;
+
+            Console.WriteLine(
+                $"Recording active: {_recordingService.IsRecording}");
+
+            Console.WriteLine(
+                $"File: {result.FilePath}");
+
+            Console.WriteLine(
+                $"Size: {result.Width}x{result.Height}");
+
+            Console.WriteLine(
+                $"Duration: {result.Duration.TotalSeconds:F2} seconds");
+
+            Console.WriteLine(
+                $"Includes Griddle: {result.IncludesApplicationWindows}");
+
+            Console.WriteLine(
+                $"System audio: {result.IncludesSystemAudio}");
+
+            Console.WriteLine(
+                $"Microphone: {result.IncludesMicrophone}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(
+                $"Recording stop failed: {ex}");
+        }
+    }
+
     protected override void OnClosing(
         WindowClosingEventArgs e)
     {
+        if (_recordingService.IsRecording)
+        {
+            e.Cancel = true;
+
+            if (_isClosePromptOpen)
+            {
+                return;
+            }
+
+            _isClosePromptOpen = true;
+
+            _ = ConfirmRecordingCloseBlockedAsync();
+
+            return;
+        }
+
         base.OnClosing(e);
 
         if (_allowClose ||
@@ -993,6 +1330,22 @@ public partial class MainWindow : Window
         _isClosePromptOpen = true;
 
         _ = ConfirmCloseAsync();
+    }
+
+    private async Task ConfirmRecordingCloseBlockedAsync()
+    {
+        try
+        {
+            var dialog =
+                new RecordingActiveDialog();
+
+            await dialog.ShowDialog(
+                this);
+        }
+        finally
+        {
+            _isClosePromptOpen = false;
+        }
     }
 
     private async Task ConfirmCloseAsync()
@@ -1037,6 +1390,23 @@ public partial class MainWindow : Window
         {
             _isClosePromptOpen = false;
         }
+    }
+
+    private async Task<bool>
+        CanLeaveCurrentSessionAsync()
+    {
+        if (!_recordingService.IsRecording)
+        {
+            return true;
+        }
+
+        var dialog =
+            new RecordingActiveDialog();
+
+        await dialog.ShowDialog(
+            this);
+
+        return false;
     }
 
     private string GetCurrentSessionSnapshot()
@@ -1334,6 +1704,32 @@ public partial class MainWindow : Window
             e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
             MoveOverlayToNextScreen();
+
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.R &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Meta) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Shift) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Alt))
+        {
+            _ = StopRecordingAsync();
+
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.R &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Meta) &&
+            e.KeyModifiers.HasFlag(
+                KeyModifiers.Shift))
+        {
+            _ = StartRecordingAsync();
 
             e.Handled = true;
             return;

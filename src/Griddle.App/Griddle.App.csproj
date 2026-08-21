@@ -38,4 +38,16 @@
 
   </Target>
 
+  <Target
+    Name="CopyMacOSRecordingBridge"
+    AfterTargets="Build"
+    Condition="$([System.OperatingSystem]::IsMacOS())">
+
+    <Copy
+      SourceFiles="..\Griddle.Platform\$(OutputPath)libGriddleRecordingBridge.dylib"
+      DestinationFolder="$(OutputPath)"
+      SkipUnchangedFiles="true" />
+
+  </Target>
+
 </Project>

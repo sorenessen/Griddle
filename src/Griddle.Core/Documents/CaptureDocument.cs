@@ -20,4 +20,6 @@ public sealed class CaptureDocument
     public string? DisplayName { get; set; }
 
     public bool IncludesAnnotations { get; set; }
+
+    public TimeSpan? Duration { get; set; }
 }

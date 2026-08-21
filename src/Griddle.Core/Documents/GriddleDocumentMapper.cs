@@ -124,7 +124,9 @@ public static class GriddleDocumentMapper
             Height = capture.Height,
             DisplayName = capture.DisplayName,
             IncludesAnnotations =
-                capture.IncludesAnnotations
+                capture.IncludesAnnotations,
+            Duration =
+                capture.Duration
         };
     }
 
@@ -141,7 +143,9 @@ public static class GriddleDocumentMapper
             Height = document.Height,
             DisplayName = document.DisplayName,
             IncludesAnnotations =
-                document.IncludesAnnotations
+                document.IncludesAnnotations,
+            Duration =
+                document.Duration
         };
     }
 }
