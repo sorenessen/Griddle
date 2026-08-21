@@ -216,21 +216,14 @@
                 <Grid Width="22" Height="22">
 
                     <Ellipse
-                        Width="15"
-                        Height="15"
-                        Stroke="White"
-                        StrokeThickness="2"
-                        IsVisible="{Binding !IsRecording}"/>
-
-                    <Ellipse
-                        Width="7"
-                        Height="7"
+                        Width="14"
+                        Height="14"
                         Fill="#E53935"
                         IsVisible="{Binding !IsRecording}"/>
 
                     <Rectangle
-                        Width="10"
-                        Height="10"
+                        Width="14"
+                        Height="14"
                         Fill="#E53935"
                         RadiusX="2"
                         RadiusY="2"
@@ -246,16 +239,49 @@
 
                 <Grid Width="22" Height="22">
 
-                    <Ellipse
-                        Width="15"
-                        Height="15"
+                    <!-- Recording settings gear -->
+                    <Path
                         Stroke="White"
-                        StrokeThickness="2"/>
+                        StrokeThickness="2"
+                        Fill="Transparent"
+                        Data="M11,2
+                              L13,2.7
+                              L14.4,4.2
+                              L16.5,4
+                              L18,5.5
+                              L17.8,7.6
+                              L19.3,9
+                              L20,11
+                              L19.3,13
+                              L17.8,14.4
+                              L18,16.5
+                              L16.5,18
+                              L14.4,17.8
+                              L13,19.3
+                              L11,20
+                              L9,19.3
+                              L7.6,17.8
+                              L5.5,18
+                              L4,16.5
+                              L4.2,14.4
+                              L2.7,13
+                              L2,11
+                              L2.7,9
+                              L4.2,7.6
+                              L4,5.5
+                              L5.5,4
+                              L7.6,4.2
+                              L9,2.7
+                              Z"/>
 
+                    <!-- Recording red center -->
                     <Ellipse
                         Width="7"
                         Height="7"
-                        Fill="#E53935"/>
+                        Stroke="#E53935"
+                        StrokeThickness="2"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
 
                 </Grid>
 

@@ -659,7 +659,7 @@ Extend Griddle's capture system from static screenshots to recorded demonstratio
 
 ### Polishing Go-Backs
 
-- [ ] Prettify handler dialog boxes to match other dialog box themes
+- [x] Prettify handler dialog boxes to match other dialog box themes
 - [ ] Make recording and recording settings buttons unique from each other
 
 ### Bugz
