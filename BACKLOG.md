@@ -693,4 +693,10 @@ Interesting ideas that should not distract current development.
 - [ ] Plugin System
 - [ ] Animation Support
 - [ ] Whiteboard Mode
-- [ ] Investigate recording recovery / MP4 integrity after unexpected application termination
+- [ ] Investigate recording recovery / MP4 integrity after unexpected 
+application termination
+- [ ] Explore optional animated startup sequence
+  - Fireball reveal
+  - Smoke transition
+  - Consider first-launch-only behavior
+  - Keep startup skippable

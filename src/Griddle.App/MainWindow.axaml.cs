@@ -249,6 +249,11 @@ public partial class MainWindow : Window
 
         Screens.Changed += Screens_Changed;
 
+        var splash =
+            new StartupSplashWindow();
+
+        await splash.ShowDialog(this);
+
         _toolbar.Show(this);
 
         if (AutoRecoveryStore.Exists())

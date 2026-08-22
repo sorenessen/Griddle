@@ -1,0 +1,59 @@
+<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Griddle.App.Views.StartupSplashWindow"
+    Width="440"
+    Height="280"
+    CanResize="False"
+    WindowDecorations="None"
+    TransparencyLevelHint="Transparent"
+    Background="Transparent"
+    ShowInTaskbar="False"
+    Topmost="True"
+    SystemDecorations="None">
+
+    <Border
+        x:Name="SplashCard"
+        CornerRadius="18"
+        Background="#F217191B"
+        BorderBrush="#73787D"
+        BorderThickness="1"
+        Padding="30"
+        Opacity="0">
+
+        <StackPanel
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Spacing="8">
+
+            <Image
+                Source="/Assets/griddle-toolbar-on-orange.png"
+                Width="150"
+                Height="130"
+                Stretch="Uniform"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,4"/>
+
+            <TextBlock
+                Text="WELCOME TO GRIDDLE"
+                Foreground="White"
+                FontSize="28"
+                FontWeight="Bold"
+                HorizontalAlignment="Center"/>
+
+            <TextBlock
+                Text="by Calypso Labs"
+                Foreground="White"
+                FontSize="14"
+                HorizontalAlignment="Center"/>
+
+            <TextBlock
+                Text="v0.10.0-alpha"
+                Foreground="#8E9499"
+                FontSize="12"
+                HorizontalAlignment="Center"/>
+
+        </StackPanel>
+    </Border>
+
+</Window>
