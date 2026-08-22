@@ -28,11 +28,11 @@
 
   <Target
     Name="CopyMacOSCaptureBridge"
-    AfterTargets="Build"
+    AfterTargets="Build;Publish"
     Condition="$([System.OperatingSystem]::IsMacOS())">
 
     <Copy
-      SourceFiles="..\Griddle.Platform\$(OutputPath)libGriddleCaptureBridge.dylib"
+      SourceFiles="..\Griddle.Platform\bin\$(Configuration)\net10.0\libGriddleCaptureBridge.dylib"
       DestinationFolder="$(OutputPath)"
       SkipUnchangedFiles="true" />
 
@@ -40,11 +40,11 @@
 
   <Target
     Name="CopyMacOSRecordingBridge"
-    AfterTargets="Build"
+    AfterTargets="Build;Publish"
     Condition="$([System.OperatingSystem]::IsMacOS())">
 
     <Copy
-      SourceFiles="..\Griddle.Platform\$(OutputPath)libGriddleRecordingBridge.dylib"
+      SourceFiles="..\Griddle.Platform\bin\$(Configuration)\net10.0\libGriddleRecordingBridge.dylib"
       DestinationFolder="$(OutputPath)"
       SkipUnchangedFiles="true" />
 
