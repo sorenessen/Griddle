@@ -685,6 +685,19 @@ v0.10.0-alpha is complete when a user can:
 6. Reopen the session with the recording metadata intact.
 7. Clearly see when Griddle is actively recording.
 
+## NEXT UP!
+
+### macOS Packaging / Development Identity
+
+- [ ] Separate development and distribution bundle identities
+  - Use `com.calypso.griddle.dev` for development builds
+  - Reserve `com.calypso.griddle` for packaged distribution builds
+  - Display development builds as `Griddle Dev` where appropriate
+  - Keep Developer ID signing consistent for distribution builds
+  - Verify Screen Recording and Microphone permissions persist across release upgrades
+  - Confirm normal release testing no longer requires `tccutil reset`
+  - Retain `tccutil reset` only as a troubleshooting/recovery procedure
+
 # Icebox
 
 Interesting ideas that should not distract current development.

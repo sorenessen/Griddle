@@ -15,12 +15,14 @@ APP_MACOS="$APP_CONTENTS/MacOS"
 SIGNING_IDENTITY="Developer ID Application: Soren Essen (282VJ37HVD)"
 
 echo "Publishing Griddle..."
+
 dotnet publish "$APP_PROJECT" \
   -c Release \
   -r osx-arm64 \
   --self-contained true
 
 echo "Creating app bundle..."
+
 rm -rf "$APP_BUNDLE"
 
 mkdir -p "$APP_MACOS"
@@ -85,15 +87,26 @@ codesign \
 
 echo "Signing Griddle app bundle..."
 
+rm -rf "$APP_CONTENTS/_CodeSignature"
+
 codesign \
   --force \
+  --deep \
   --options runtime \
   --timestamp \
   --entitlements "$MACOS_DIR/Griddle.entitlements" \
   --sign "$SIGNING_IDENTITY" \
   "$APP_BUNDLE"
 
-echo "Verifying signature..."
+echo "Verifying Griddle executable signature..."
+
+codesign \
+  --verify \
+  --strict \
+  --verbose=2 \
+  "$APP_MACOS/Griddle.App"
+
+echo "Verifying Griddle app bundle..."
 
 codesign \
   --verify \
